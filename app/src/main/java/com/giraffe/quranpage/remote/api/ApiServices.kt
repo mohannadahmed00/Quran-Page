@@ -2,18 +2,19 @@ package com.giraffe.quranpage.remote.api
 
 import com.giraffe.quranpage.remote.response.SurahResponse
 import com.giraffe.quranpage.remote.response.QuranDataResponse
-import com.giraffe.quranpage.utils.Constants
+import com.giraffe.quranpage.utils.Constants.EndPoints
+import com.giraffe.quranpage.utils.Constants.QueryParameters
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface ApiServices {
-    @GET(Constants.EndPoints.AYAT_TIMING)
+    @GET(EndPoints.AYAT_TIMING)
     suspend fun getAyahsOfSurah(
-        @Query(Constants.QueryParameters.SURAH) surahIndex: Int,
-        @Query(Constants.QueryParameters.READ) read: Int = 5
+        @Query(QueryParameters.SURAH) surahIndex: Int,
+        @Query(QueryParameters.READ) read: Int = 5
     ): Response<SurahResponse>
 
-    @GET(Constants.EndPoints.SUWAR)
+    @GET(EndPoints.SUWAR)
     suspend fun getQuranData(): Response<QuranDataResponse>
 }

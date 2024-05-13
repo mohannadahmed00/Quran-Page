@@ -3,10 +3,8 @@ package com.giraffe.quranpage.utils
 object Constants {
     const val BASE_URL = "https://mp3quran.net/api/v3/"
     const val PAGES_URL = "https://www.mp3quran.net/api/quran_pages_svg/000.svg"
+    //const val PAGES_URL = "https://www.maknoon.com/quran/hafs/000.svgz"
 
-    //const val PAGES_URL = "https://raw.githubusercontent.com/batoulapps/quran-svg/main/svg/000.svg"
-    //const val PAGES_URL = "https://raw.githubusercontent.com/salahamassi/Quran-svg-mobile/main/output/000.svg"//issue in page 007
-    //const val PAGES_URL = "https://www.maknoon.com/quran/hafs/$pageIndex.svgz"
     object ResponseAttributes {
         const val AYAH = "ayah"
         const val END_TIME = "end_time"
@@ -39,5 +37,16 @@ object Constants {
     object DatabaseTables {
         const val PAGES = "pages"
         const val SURAHES_DATA = "surahes_data"
+    }
+
+    object PageDimensions {
+        const val SMALL_WIDTH = 235
+        const val SMALL_HEIGHT = 235
+        const val NORMAL_WIDTH = 345
+        const val NORMAL_HEIGHT = 550
+        /*const val SMALL_WIDTH = 241
+        const val SMALL_HEIGHT = 324
+        const val NORMAL_WIDTH = 293
+        const val NORMAL_HEIGHT = 485*/
     }
 }

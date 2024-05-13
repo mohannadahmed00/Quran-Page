@@ -2,8 +2,8 @@ package com.giraffe.quranpage.di
 
 import com.giraffe.quranpage.remote.RemoteDataSource
 import com.giraffe.quranpage.remote.api.ApiServices
-import com.giraffe.quranpage.utils.Constants
 import com.giraffe.quranpage.remote.downloader.PageDownloader
+import com.giraffe.quranpage.utils.Constants.BASE_URL
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -41,7 +41,7 @@ object NetworkModule {
     fun provideRetrofit(okHttpClient: OkHttpClient.Builder, gson: Gson): Retrofit =
         Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create(gson))
-            .baseUrl(Constants.BASE_URL)
+            .baseUrl(BASE_URL)
             .client(okHttpClient.build())
             .build()
 

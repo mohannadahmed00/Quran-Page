@@ -2,23 +2,23 @@ package com.giraffe.quranpage.remote.response
 
 import androidx.compose.ui.geometry.Offset
 import com.giraffe.quranpage.local.model.AyahModel
-import com.giraffe.quranpage.utils.Constants
 import com.google.gson.annotations.SerializedName
+import com.giraffe.quranpage.utils.Constants.ResponseAttributes
 
 data class AyahResponse(
-    @SerializedName(Constants.ResponseAttributes.AYAH)
+    @SerializedName(ResponseAttributes.AYAH)
     val ayahIndex: Int,
-    @SerializedName(Constants.ResponseAttributes.END_TIME)
+    @SerializedName(ResponseAttributes.END_TIME)
     val endTime: Int,
-    @SerializedName(Constants.ResponseAttributes.PAGE)
+    @SerializedName(ResponseAttributes.PAGE)
     val pageUrl: String?,
-    @SerializedName(Constants.ResponseAttributes.POLYGON)
+    @SerializedName(ResponseAttributes.POLYGON)
     val polygon: String?,
-    @SerializedName(Constants.ResponseAttributes.START_TIME)
+    @SerializedName(ResponseAttributes.START_TIME)
     val startTime: Int,
-    @SerializedName(Constants.ResponseAttributes.X)
+    @SerializedName(ResponseAttributes.X)
     val x: String?,
-    @SerializedName(Constants.ResponseAttributes.Y)
+    @SerializedName(ResponseAttributes.Y)
     val y: String?,
 
     ) {

@@ -1,6 +1,6 @@
 package com.giraffe.quranpage.remote.downloader
 
-import com.giraffe.quranpage.utils.Constants
+import com.giraffe.quranpage.utils.Constants.PAGES_URL
 import com.giraffe.quranpage.utils.OnResponse
 import okhttp3.Call
 import okhttp3.Callback
@@ -12,7 +12,7 @@ import java.io.IOException
 class PageDownloader(private val httpClient: OkHttpClient.Builder) {
     fun download(pageIndex: Int, onResponse: OnResponse) {
         val request = Request.Builder()
-            .url(Constants.PAGES_URL.replace("000", toThreeDigits(pageIndex)))
+            .url(getPageUrl(pageIndex))
             .build()
         httpClient.build().newCall(request).enqueue(object : Callback {
             override fun onResponse(call: Call, response: Response) {
@@ -34,4 +34,9 @@ class PageDownloader(private val httpClient: OkHttpClient.Builder) {
         }
         return intStr
     }
+
+    private fun getPageUrl(pageIndex: Int) = PAGES_URL.replace(
+        "000",
+        if (PAGES_URL.contains("mp3quran")) toThreeDigits(pageIndex) else pageIndex.toString()
+    )
 }

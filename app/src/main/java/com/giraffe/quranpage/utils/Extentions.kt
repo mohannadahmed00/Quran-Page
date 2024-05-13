@@ -10,12 +10,20 @@ import androidx.core.content.ContextCompat
 import com.caverock.androidsvg.SVG
 import com.giraffe.quranpage.R
 import com.giraffe.quranpage.local.model.AyahModel
+import com.giraffe.quranpage.utils.Constants.PageDimensions
+
 
 fun Offset.normalizePoint(newWidth: Int, newHeight: Int, isSmall: Boolean) =
-    Offset(x * (newWidth / if (isSmall) 235 else 345), y * (newHeight / if (isSmall) 235 else 550))
+    Offset(
+        x * (newWidth / if (isSmall) PageDimensions.SMALL_WIDTH else PageDimensions.NORMAL_WIDTH),
+        y * (newHeight / if (isSmall) PageDimensions.SMALL_HEIGHT else PageDimensions.NORMAL_HEIGHT)
+    )
 
 fun Offset.normalizePoint(newWidth: Float, newHeight: Float, isSmall: Boolean) =
-    Offset(x * (newWidth / if (isSmall) 235 else 345), y * (newHeight / if (isSmall) 235 else 550))
+    Offset(
+        x * (newWidth / if (isSmall) PageDimensions.SMALL_WIDTH else PageDimensions.NORMAL_WIDTH),
+        y * (newHeight / if (isSmall) PageDimensions.SMALL_HEIGHT else PageDimensions.NORMAL_HEIGHT)
+    )
 
 fun Bitmap.drawCircles(context: Context, ayahs: List<AyahModel>, pageIndex: Int) {
     ayahs.forEach {
@@ -40,8 +48,8 @@ fun Bitmap.drawCircles(context: Context, ayahs: List<AyahModel>, pageIndex: Int)
 
 fun SVG.renderSvgToBitmap(isSmall: Boolean = false): Bitmap {
     val bitmap = Bitmap.createBitmap(
-        if (isSmall) 235 * 3 else 345 * 3,
-        if (isSmall) 235 * 3 else 550 * 3,
+        if (isSmall) PageDimensions.SMALL_WIDTH * 3 else PageDimensions.NORMAL_WIDTH * 3,
+        if (isSmall) PageDimensions.SMALL_HEIGHT * 3 else PageDimensions.NORMAL_HEIGHT * 3,
         Bitmap.Config.ARGB_8888
     )
     val canvas = Canvas(bitmap)

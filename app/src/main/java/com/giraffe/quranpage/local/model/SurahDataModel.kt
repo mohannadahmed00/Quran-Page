@@ -2,9 +2,9 @@ package com.giraffe.quranpage.local.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.giraffe.quranpage.utils.Constants
+import com.giraffe.quranpage.utils.Constants.DatabaseTables
 
-@Entity(tableName = Constants.DatabaseTables.SURAHES_DATA)
+@Entity(tableName = DatabaseTables.SURAHES_DATA)
 data class SurahDataModel(
     @PrimaryKey
     val id: Int,
