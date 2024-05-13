@@ -49,6 +49,10 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    ksp {
+        arg("room.generateKotlin", "true")
+    }
 }
 
 dependencies {
@@ -85,7 +89,4 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.caverock.androidsvg)
     implementation(libs.drawablepainter)
-    implementation ("androidx.vectordrawable:vectordrawable:1.2.0")
-
-
 }

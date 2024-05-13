@@ -317,6 +317,22 @@ fun updatePath(ayahModel: AyahModel)
 @Query("UPDATE ayahs SET path = :newPath WHERE id = :ayahId")
 fun updateAyahPathById(ayahId: Int, newPath: Path)
 //==================================================================================================
+private fun initStates() {
+    viewModelScope.launch(Dispatchers.IO) {
+        repository.getAyahsOfSurah(2) {
+            repository.getPages { pages ->
+                _state.update {
+                    it.copy(
+                        pages = pages,
+                        ayahs = repository.getAyahs(it.pageIndex)
+                    )
+                }
+            }
+        }
+
+    }
+}
+//==================================================================================================
 
 */
 

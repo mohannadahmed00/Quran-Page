@@ -5,17 +5,11 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Rect
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.core.content.ContextCompat
 import com.caverock.androidsvg.SVG
 import com.giraffe.quranpage.R
-
-fun Int.toThreeDigits(): String {
-    var intStr = this.toString()
-    while (intStr.length < 3) {
-        intStr = "0".plus(intStr)
-    }
-    return intStr
-}
+import com.giraffe.quranpage.local.model.AyahModel
 
 fun Offset.normalizePoint(newWidth: Int, newHeight: Int, isSmall: Boolean) =
     Offset(x * (newWidth / if (isSmall) 235 else 345), y * (newHeight / if (isSmall) 235 else 550))
@@ -23,29 +17,26 @@ fun Offset.normalizePoint(newWidth: Int, newHeight: Int, isSmall: Boolean) =
 fun Offset.normalizePoint(newWidth: Float, newHeight: Float, isSmall: Boolean) =
     Offset(x * (newWidth / if (isSmall) 235 else 345), y * (newHeight / if (isSmall) 235 else 550))
 
-fun Bitmap.drawCircle(context: Context, pageIndex: Int, x: Float, y: Float) {
-    val canvas = Canvas(this)
-    val point = Offset(x, y).normalizePoint(
-        this.width,
-        this.height,
-        pageIndex == 1 || pageIndex == 2
-    )
-    val drawableId = R.drawable.ayah_end
-    val drawable = ContextCompat.getDrawable(context, drawableId)
-    drawable?.setTint(ContextCompat.getColor(context, R.color.teal_700))
-    val width = if (pageIndex == 1 || pageIndex == 2) 35 else 55
-    val height = if (pageIndex == 1 || pageIndex == 2) 40 else 63
-    val left = point.x - (width / 2)
-    val top = point.y - (height / 2)
-    val right = left + width
-    val bottom = top + height
-    val destinationRect = Rect(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
-    drawable?.bounds = destinationRect
-    drawable?.draw(canvas)
-    canvas.save()
+fun Bitmap.drawCircles(context: Context, ayahs: List<AyahModel>, pageIndex: Int) {
+    ayahs.forEach {
+        if (it.ayahIndexPosition.x != 0f || it.ayahIndexPosition.y != 0f) {
+            val canvas = Canvas(this)
+            val drawableId = R.drawable.ayah_end
+            val drawable = ContextCompat.getDrawable(context, drawableId)
+            drawable?.setTint(ContextCompat.getColor(context, R.color.teal_700))
+            val width = if (isSmallPage(pageIndex)) 35 else 55
+            val height = if (isSmallPage(pageIndex)) 40 else 63
+            val left = it.ayahIndexPosition.x - (width / 2)
+            val top = it.ayahIndexPosition.y - (height / 2)
+            val right = left + width
+            val bottom = top + height
+            val destinationRect = Rect(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
+            drawable?.bounds = destinationRect
+            drawable?.draw(canvas)
+            canvas.save()
+        }
+    }
 }
-
-fun String.loadSvgBitmap(isSmall: Boolean) = SVG.getFromString(this).renderSvgToBitmap(isSmall)
 
 fun SVG.renderSvgToBitmap(isSmall: Boolean = false): Bitmap {
     val bitmap = Bitmap.createBitmap(
@@ -57,3 +48,44 @@ fun SVG.renderSvgToBitmap(isSmall: Boolean = false): Bitmap {
     this.renderToCanvas(canvas)
     return bitmap
 }
+
+
+//==============================================utils===============================================
+fun isPointInsidePolygon(point: Offset, polygon: List<Offset>): Boolean {
+    val (x, y) = point
+    val n = polygon.size
+    var inside = false
+    for (i in 0 until n) {
+        val (x1, y1) = polygon[i]
+        val (x2, y2) = polygon[(i + 1) % n]
+        if ((y1 < y && y <= y2 || y2 < y && y <= y1) && x < (x2 - x1) * (y - y1) / (y2 - y1) + x1) {
+            inside = !inside
+        }
+    }
+    return inside
+}
+
+fun normalizeAyahPolygon(ayah: AyahModel, imageSize: Size) = ayah.polygon.map {
+    it.normalizePoint(
+        imageSize.width,
+        imageSize.height,
+        ayah.pageIndex == 1 || ayah.pageIndex == 2
+    )
+}
+
+fun getSelectedPath(
+    offset: Offset,
+    ayahs: List<AyahModel>,
+    imageSize: Size
+): Pair<Int, List<Offset>>? {
+    for ((index, ayah) in ayahs.withIndex()) {
+        val polygon = normalizeAyahPolygon(ayah, imageSize)
+        val isBelong = isPointInsidePolygon(offset, polygon)
+        if (isBelong) {
+            return Pair(index, polygon)
+        }
+    }
+    return null
+}
+
+fun isSmallPage(pageIndex: Int) = pageIndex == 1 || pageIndex == 2

@@ -1,7 +1,5 @@
 package com.giraffe.quranpage.ui.composables
 
-import android.util.Log
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,50 +7,42 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.toSize
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.giraffe.quranpage.local.model.PageModel
-import kotlinx.coroutines.flow.collectLatest
+import com.giraffe.quranpage.utils.getSelectedPath
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Pager(pages:List<PageModel>,changePageIndex:(pageIndex:Int)->Unit){
+fun Pager(
+    pages: List<PageModel>,
+    selectedPageIndex: Int,
+    selectedPolygon: List<Offset>,
+    selectAyah: (ayahIndex: Int, polygon: List<Offset>, pageIndex: Int) -> Unit
+) {
     val lazyListState = rememberLazyListState()
-    LaunchedEffect(lazyListState) {
-        snapshotFlow {
-            lazyListState.firstVisibleItemIndex
-        }
-            .collectLatest {
-                Log.d("messi", "onScroll: $it")
-                changePageIndex(it+2)
-            }
-    }
     LazyRow(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         state = lazyListState,
         flingBehavior = rememberSnapFlingBehavior(lazyListState = lazyListState),
     ) {
         items(pages) { page ->
-            ConstraintLayout(modifier = Modifier.fillParentMaxWidth()) {
+            ConstraintLayout(modifier = Modifier.fillParentMaxSize()) {
                 val (image, canvas) = createRefs()
                 var imageSize by remember { mutableStateOf(Size.Zero) }
                 SvgImage(
-                    page.image,
+                    bitmap = page.image,
                     modifier = Modifier
                         .constrainAs(image) {
                             linkTo(
@@ -64,10 +54,13 @@ fun Pager(pages:List<PageModel>,changePageIndex:(pageIndex:Int)->Unit){
                         }
                         .fillParentMaxWidth()
                         .onSizeChanged { imageSize = it.toSize() },
-                ) { clickedPoint ->
-                    Log.d("messi", "clickedPoint: $clickedPoint")
+                ) {
+                    getSelectedPath(it, page.ayahs, imageSize)?.let { selectedPath ->
+                        selectAyah(selectedPath.first, selectedPath.second, page.pageIndex)
+                    }
                 }
-                Canvas(
+                if (page.pageIndex == selectedPageIndex) Polygon(
+                    polygon = selectedPolygon,
                     modifier = Modifier.constrainAs(canvas) {
                         linkTo(
                             top = image.top,
@@ -78,27 +71,8 @@ fun Pager(pages:List<PageModel>,changePageIndex:(pageIndex:Int)->Unit){
                         width = Dimension.fillToConstraints
                         height = Dimension.fillToConstraints
                     }
-                ) {
-                    val path = Path()
-                    var flag = true
-                    /*state.ayahs[1].polygon.split(" ").forEach {
-                        val x = it.split(",")[0].toFloat()
-                        val y = it.split(",")[1].toFloat()
-                        val point = Offset(x, y).normalizePoint(
-                            imageSize.width,
-                            imageSize.height,
-                            page.pageIndex == 1 || page.pageIndex == 2
-                        )
-                        if (flag) {
-                            path.moveTo(point.x, point.y)
-                            flag = false
-                        }
-                        path.lineTo(point.x, point.y)
-                    }*/
-                    drawPath(path, Color.Yellow.copy(alpha = .3f))
-                }
+                )
             }
-
         }
     }
 }

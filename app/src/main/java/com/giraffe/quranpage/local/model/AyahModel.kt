@@ -1,20 +1,24 @@
 package com.giraffe.quranpage.local.model
 
-import androidx.compose.ui.graphics.Path
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import com.giraffe.quranpage.utils.Constants
+import android.graphics.Bitmap
+import androidx.compose.ui.geometry.Offset
+import com.giraffe.quranpage.utils.isSmallPage
+import com.giraffe.quranpage.utils.normalizePoint
 
-@Entity(tableName = Constants.DatabaseTables.AYAHS)
 data class AyahModel(
-    @PrimaryKey(true)
-    val id: Int = 0,
-    val surahIndex:Int = 0,
-    val ayah: Int,
+    val surahIndex: Int = 0,
+    val ayahIndex: Int,
     val endTime: Int,
     val pageIndex: Int,
-    val polygon: String,
+    val polygon: List<Offset>,
     val startTime: Int,
-    val x: Float,
-    val y: Float,
-)
+    val ayahIndexPosition: Offset,
+) {
+    fun normalizeAyahIndexPosition(bitmap: Bitmap) = this.copy(
+        ayahIndexPosition = this.ayahIndexPosition.normalizePoint(
+            bitmap.width,
+            bitmap.height,
+            isSmallPage(pageIndex)
+        ),
+    )
+}

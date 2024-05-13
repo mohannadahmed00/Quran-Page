@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -16,16 +17,24 @@ fun HomeScreen(
     mViewModel: HomeViewModel = hiltViewModel()
 ) {
     val state by mViewModel.state.collectAsState()
-    HomeScreenContent(state, mViewModel::changePageIndex)
+    HomeScreenContent(state, mViewModel::selectAyah)
 }
 
 @Composable
-fun HomeScreenContent(state: HomeState = HomeState(), changePageIndex: (Int) -> Unit) {
+fun HomeScreenContent(
+    state: HomeState = HomeState(),
+    selectAyah: (ayahIndex: Int, polygon: List<Offset>, pageIndex: Int) -> Unit
+) {
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         if (state.pages.size == 0)
             LoadingText()
         else
-            Pager(state.pages, changePageIndex)
+            Pager(
+                pages = state.pages,
+                selectedPageIndex = state.selectedPageIndex,
+                selectedPolygon = state.selectedAyahPolygon,
+                selectAyah = selectAyah
+            )
     }
 }
 

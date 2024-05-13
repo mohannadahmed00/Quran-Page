@@ -1,5 +1,7 @@
-package com.giraffe.quranpage.utils
+package com.giraffe.quranpage.remote.downloader
 
+import com.giraffe.quranpage.utils.Constants
+import com.giraffe.quranpage.utils.OnResponse
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -10,7 +12,7 @@ import java.io.IOException
 class PageDownloader(private val httpClient: OkHttpClient.Builder) {
     fun download(pageIndex: Int, onResponse: OnResponse) {
         val request = Request.Builder()
-            .url(Constants.PAGES_URL.replace("000", pageIndex.toThreeDigits()))
+            .url(Constants.PAGES_URL.replace("000", toThreeDigits(pageIndex)))
             .build()
         httpClient.build().newCall(request).enqueue(object : Callback {
             override fun onResponse(call: Call, response: Response) {
@@ -23,5 +25,13 @@ class PageDownloader(private val httpClient: OkHttpClient.Builder) {
                 onResponse.onFail(e.message ?: "IOException: download file error !!")
             }
         })
+    }
+
+    private fun toThreeDigits(number: Int): String {
+        var intStr = number.toString()
+        while (intStr.length < 3) {
+            intStr = "0".plus(intStr)
+        }
+        return intStr
     }
 }

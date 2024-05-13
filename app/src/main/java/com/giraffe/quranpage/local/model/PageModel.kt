@@ -10,5 +10,5 @@ data class PageModel(
     @PrimaryKey
     val pageIndex: Int,
     val image: Bitmap,
-    //val ayahs:List<AyahModel>
+    val ayahs: List<AyahModel>
 )

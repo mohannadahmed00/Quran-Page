@@ -3,7 +3,7 @@ package com.giraffe.quranpage.di
 import com.giraffe.quranpage.remote.RemoteDataSource
 import com.giraffe.quranpage.remote.api.ApiServices
 import com.giraffe.quranpage.utils.Constants
-import com.giraffe.quranpage.utils.PageDownloader
+import com.giraffe.quranpage.remote.downloader.PageDownloader
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module

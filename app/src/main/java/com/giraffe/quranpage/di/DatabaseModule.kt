@@ -40,7 +40,11 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideLocalDataSource(@ApplicationContext context: Context,appDao: AppDao,dataStorePreferences: DataStorePreferences): LocalDataSource {
-        return LocalDataSource(context,appDao,dataStorePreferences)
+    fun provideLocalDataSource(
+        @ApplicationContext context: Context,
+        appDao: AppDao,
+        dataStorePreferences: DataStorePreferences
+    ): LocalDataSource {
+        return LocalDataSource(context, appDao, dataStorePreferences)
     }
 }
