@@ -1,4 +1,4 @@
-package com.giraffe.quranpage.ui
+package com.giraffe.quranpage.ui.screens.home
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -22,7 +22,7 @@ fun HomeScreen(
 
 @Composable
 fun HomeScreenContent(
-    state: HomeState = HomeState(),
+    state: HomeScreenState = HomeScreenState(),
     selectAyah: (ayahIndex: Int, polygon: List<Offset>, pageIndex: Int) -> Unit
 ) {
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {

@@ -1,4 +1,4 @@
-package com.giraffe.quranpage.ui
+package com.giraffe.quranpage.ui.screens.home
 
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(private val repository: Repository) : ViewModel() {
-    private val _state = MutableStateFlow(HomeState())
+    private val _state = MutableStateFlow(HomeScreenState())
     val state = _state.asStateFlow()
 
     init {

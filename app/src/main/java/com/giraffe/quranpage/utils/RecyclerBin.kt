@@ -333,6 +333,28 @@ private fun initStates() {
     }
 }
 //==================================================================================================
+var bitmapState by remember{ mutableStateOf<Bitmap?>(null) }
+    var string by remember{ mutableStateOf("") }
+    val context = LocalContext.current
+    LaunchedEffect(true) {
+        kotlin.runCatching {
+            val inputStream = context.assets.open("surahes_data.json")
+
+            //bitmapState = BitmapFactory.decodeStream(inputStream)
+
+            /*val size: Int = inputStream.available()
+            val buffer = ByteArray(size)
+            inputStream.read(buffer)
+            String(buffer)*/
+        }.onSuccess {
+            Log.e("messi", "QuranContent(onSuccess): $it")
+        }.onFailure {
+            Log.e("messi", "QuranContent(onFailure): $it")
+        }
+
+    }
+//==================================================================================================
 
 */
+
 

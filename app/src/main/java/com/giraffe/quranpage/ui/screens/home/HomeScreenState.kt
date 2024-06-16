@@ -1,11 +1,9 @@
-package com.giraffe.quranpage.ui
+package com.giraffe.quranpage.ui.screens.home
 
 import androidx.compose.ui.geometry.Offset
-import androidx.room.Index
-import com.giraffe.quranpage.local.model.AyahModel
 import com.giraffe.quranpage.local.model.PageModel
 
-data class HomeState(
+data class HomeScreenState(
     val pages: MutableList<PageModel> = mutableListOf(),
     val pageIndex: Int = 2,
     val selectedAyahIndex: Int = 0,

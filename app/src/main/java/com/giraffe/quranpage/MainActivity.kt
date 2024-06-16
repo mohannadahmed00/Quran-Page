@@ -9,7 +9,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
-import com.giraffe.quranpage.ui.HomeScreen
+import com.giraffe.quranpage.ui.screens.home.HomeScreen
+import com.giraffe.quranpage.ui.screens.quran.QuranScreen
 import com.giraffe.quranpage.ui.theme.QuranPageTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -25,7 +26,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     containerColor = Color.White
                 ) {
-                    HomeScreen()
+                    QuranScreen()
+                    //HomeScreen()
                 }
             }
         }
