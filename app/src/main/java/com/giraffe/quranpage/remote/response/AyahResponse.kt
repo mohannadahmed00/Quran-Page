@@ -36,7 +36,8 @@ data class AyahResponse(
             .first().toInt()
 
     private fun convertPolygonToOffsets() =
-        if (polygon.isNullOrBlank()) emptyList() else polygon.trim().split(" ").map {
-            Offset(it.split(",")[0].toFloat(), it.split(",")[1].toFloat())
-        }
+        if (polygon.isNullOrBlank()) emptyList() else polygon.trim().split(" ")
+            .filter { it.isNotBlank() }.map {
+                Offset(it.trim().split(",")[0].toFloat(), it.trim().split(",")[1].toFloat())
+            }
 }

@@ -354,6 +354,45 @@ var bitmapState by remember{ mutableStateOf<Bitmap?>(null) }
 
     }
 //==================================================================================================
+fun getLocalAyahsOfSurah(context: Context){
+        viewModelScope.launch {
+            kotlin.runCatching {
+                val inputStream = context.assets.open("quran_text.json")
+                val size: Int = inputStream.available()
+                val buffer = ByteArray(size)
+                inputStream.read(buffer)
+                String(buffer)
+            }.onSuccess {
+                val newList = mutableListOf<VerseModel>()
+                for (surahIndex in 1..114){
+                    val localVerses = Gson().fromJson(it, Array<VerseModel>::class.java).toList().filter {v-> v.surahNumber == surahIndex }
+                    val remoteAyahs = repository.getAyahsOfSurah(surahIndex)
+                    remoteAyahs?.forEach {ayahModel->
+                        if (ayahModel.ayahIndex!=0) newList.add(localVerses[ayahModel.ayahIndex-1].copy(pageIndex = ayahModel.pageIndex))
+                    }
+                }
+                Log.d(TAG, "getLocalAyahsOfSurah(onSuccess): ${newList.size}")
+                val filePath = context.filesDir
+                val fileName = "my_file_new_ayahs.txt"
+                val file = File(filePath, fileName)
+                try {
+                    val writer = BufferedWriter(FileWriter(file))
+                    writer.write(Gson().toJson(newList))
+                    writer.close()
+                    Log.d(TAG, "getLocalAyahsOfSurah(fileCreated): ${newList.size}")
+                    // File is now created with the specified content
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    Log.e(TAG, "getLocalAyahsOfSurah(fileNotCreated): ${e.message}")
+
+                    // Handle any exceptions (e.g., permission issues, etc.)
+                }
+            }.onFailure {
+                Log.e(TAG, "getLocalAyahsOfSurah(onFailure): $it")
+            }
+        }
+    }
+//==================================================================================================
 
 */
 
