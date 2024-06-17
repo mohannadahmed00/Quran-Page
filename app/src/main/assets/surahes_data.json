@@ -1,1028 +1,1256 @@
 [
   {
-    "id": 1,
-    "name": "Al Fatiha",
-    "aya": 7,
-    "english": "The Opening",
-    "turkish": "Fâtiha",
-    "place": "Makkah",
-    "arabic": "الفاتحة"
-  },
-  {
-    "id": 2,
-    "name": "Al Baqarah",
-    "aya": 286,
-    "english": "The Cow",
-    "turkish": "Bakara",
-    "place": "Madinah",
-    "arabic": "البقرة"
-  },
-  {
-    "id": 3,
-    "name": "Al Imran",
-    "aya": 200,
-    "english": "The Family of Imran",
-    "turkish": "Âl-i İmrân",
-    "place": "Madinah",
-    "arabic": "آل عمران"
-  },
-  {
-    "id": 4,
-    "name": "An Nisa",
-    "aya": 176,
-    "english": "The Women",
-    "turkish": "Nisâ",
-    "place": "Madinah",
-    "arabic": "النساء"
-  },
-  {
-    "id": 5,
-    "name": "Al Ma'idah",
-    "aya": 120,
-    "english": "The Table",
-    "turkish": "Mâide",
-    "place": "Madinah",
-    "arabic": "المائدة"
-  },
-  {
-    "id": 6,
-    "name": "Al An'am",
-    "aya": 165,
-    "english": "The Cattle",
-    "turkish": "En'âm",
-    "place": "Makkah",
-    "arabic": "الأنعام"
-  },
-  {
-    "id": 7,
-    "name": "Al A'raf",
-    "aya": 206,
-    "english": "The Heights",
-    "turkish": "A'râf",
-    "place": "Makkah",
-    "arabic": "الأعراف"
-  },
-  {
-    "id": 8,
-    "name": "Al Anfal",
-    "aya": 75,
-    "english": "The Spoils of War",
-    "turkish": "Enfâl",
-    "place": "Madinah",
-    "arabic": "الأنفال"
-  },
-  {
-    "id": 9,
-    "name": "At Tawbah",
-    "aya": 129,
-    "english": "The Repentance",
-    "turkish": "Tevbe",
-    "place": "Madinah",
-    "arabic": "التوبة"
-  },
-  {
-    "id": 10,
-    "name": "Al Yunus",
-    "aya": 109,
-    "english": "Jonah",
-    "turkish": "Yûnus",
-    "place": "Makkah",
-    "arabic": "يونس"
-  },
-  {
-    "id": 11,
-    "name": "Hud",
-    "aya": 123,
-    "english": "Hud",
-    "turkish": "Hûd",
-    "place": "Makkah",
-    "arabic": "هود"
-  },
-  {
-    "id": 12,
-    "name": "Yusuf",
-    "aya": 111,
-    "english": "Joseph",
-    "turkish": "Yûsuf",
-    "place": "Makkah",
-    "arabic": "يوسف"
-  },
-  {
-    "id": 13,
-    "name": "Ar Ra'd",
-    "aya": 43,
-    "english": "The Thunder",
-    "turkish": "Ra'd",
-    "place": "Madinah",
-    "arabic": "الرعد"
-  },
-  {
-    "id": 14,
-    "name": "Ibrahim",
-    "aya": 52,
-    "english": "Abraham",
-    "turkish": "İbrâhîm",
-    "place": "Makkah",
-    "arabic": "ابراهيم"
-  },
-  {
-    "id": 15,
-    "name": "Al Hijr",
-    "aya": 99,
-    "english": "The Stoneland",
-    "turkish": "Hicr",
-    "place": "Makkah",
-    "arabic": "الحجر"
-  },
-  {
-    "id": 16,
-    "name": "An Nahl",
-    "aya": 128,
-    "english": "The Honey Bee",
-    "turkish": "Nahl",
-    "place": "Makkah",
-    "arabic": "النحل"
-  },
-  {
-    "id": 17,
-    "name": "Al Isra'",
-    "aya": 111,
-    "english": "The Night Journey",
-    "turkish": "İsrâ",
-    "place": "Makkah",
-    "arabic": "الإسراء"
-  },
-  {
-    "id": 18,
-    "name": "Al Kahf",
-    "aya": 110,
-    "english": "The Cave",
-    "turkish": "Kehf",
-    "place": "Makkah",
-    "arabic": "الكهف"
-  },
-  {
-    "id": 19,
-    "name": "Maryam",
-    "aya": 98,
-    "english": "Mary",
-    "turkish": "Meryem",
-    "place": "Makkah",
-    "arabic": "مريم"
-  },
-  {
-    "id": 20,
-    "name": "Ta Ha",
-    "aya": 135,
-    "english": "Ta Ha",
-    "turkish": "Tâhâ",
-    "place": "Makkah",
-    "arabic": "طه"
-  },
-  {
-    "id": 21,
-    "name": "Al Anbiya",
-    "aya": 112,
-    "english": "The Prophets",
-    "turkish": "Enbiyâ",
-    "place": "Makkah",
-    "arabic": "الأنبياء"
-  },
-  {
-    "id": 22,
-    "name": "Al Hajj",
-    "aya": 78,
-    "english": "The Pilgrimage",
-    "turkish": "Hac",
-    "place": "Madinah",
-    "arabic": "الحج"
-  },
-  {
-    "id": 23,
-    "name": "Al Mu minun",
-    "aya": 118,
-    "english": "The Believers",
-    "turkish": "Mü'minûn",
-    "place": "Makkah",
-    "arabic": "المؤمنون"
-  },
-  {
-    "id": 24,
-    "name": "An Nur",
-    "aya": 64,
-    "english": "The Light",
-    "turkish": "Nûr",
-    "place": "Madinah",
-    "arabic": "النور"
-  },
-  {
-    "id": 25,
-    "name": "Al Furqan",
-    "aya": 77,
-    "english": "The Criterion",
-    "turkish": "Furkân",
-    "place": "Makkah",
-    "arabic": "الفرقان"
-  },
-  {
-    "id": 26,
-    "name": "As Su'ara",
-    "aya": 227,
-    "english": "The Poets",
-    "turkish": "Şuarâ",
-    "place": "Makkah",
-    "arabic": "الشعراء"
-  },
-  {
-    "id": 27,
-    "name": "An Naml",
-    "aya": 93,
-    "english": "The Ant",
-    "turkish": "Neml",
-    "place": "Makkah",
-    "arabic": "النمل"
-  },
-  {
-    "id": 28,
-    "name": "Al Qasas",
-    "aya": 88,
-    "english": "The Narrations",
-    "turkish": "Kasas",
-    "place": "Makkah",
-    "arabic": "القصص"
-  },
-  {
-    "id": 29,
-    "name": "Al Ankabut",
-    "aya": 69,
-    "english": "The Spider",
-    "turkish": "Ankebût",
-    "place": "Makkah",
-    "arabic": "العنكبوت"
-  },
-  {
-    "id": 30,
-    "name": "Ar Rum",
-    "aya": 60,
-    "english": "Rome",
-    "turkish": "Rûm",
-    "place": "Makkah",
-    "arabic": "الروم"
-  },
-  {
-    "id": 31,
-    "name": "Luqman",
-    "aya": 34,
-    "english": "Luqman",
-    "turkish": "Lokmân",
-    "place": "Makkah",
-    "arabic": "لقمان"
-  },
-  {
-    "id": 32,
-    "name": "As Sajdah",
-    "aya": 30,
-    "english": "The Prostration",
-    "turkish": "Secde",
-    "place": "Makkah",
-    "arabic": "السجدة"
-  },
-  {
-    "id": 33,
-    "name": "Al Ahzab",
-    "aya": 73,
-    "english": "The Clans",
-    "turkish": "Ahzâb",
-    "place": "Madinah",
-    "arabic": "الأحزاب"
-  },
-  {
-    "id": 34,
-    "name": "Saba'",
-    "aya": 54,
-    "english": "Sheba",
-    "turkish": "Sebe'",
-    "place": "Makkah",
-    "arabic": "سبإ"
-  },
-  {
-    "id": 35,
-    "name": "Fatir",
-    "aya": 45,
-    "english": "The Originator",
-    "turkish": "Fâtır",
-    "place": "Makkah",
-    "arabic": "فاطر"
-  },
-  {
-    "id": 36,
-    "name": "Ya'sin",
-    "aya": 83,
-    "english": "Ya Sin",
-    "turkish": "Yâsîn",
-    "place": "Makkah",
-    "arabic": "يس"
-  },
-  {
-    "id": 37,
-    "name": "As Saffat",
-    "aya": 182,
-    "english": "Those Who Set The Ranks",
-    "turkish": "Sâffât",
-    "place": "Makkah",
-    "arabic": "الصافات"
-  },
-  {
-    "id": 38,
-    "name": "Saad",
-    "aya": 88,
-    "english": "Ṣād",
-    "turkish": "Sâd",
-    "place": "Makkah",
-    "arabic": "ص"
-  },
-  {
-    "id": 39,
-    "name": "Az Zumar",
-    "aya": 75,
-    "english": "The Crowds",
-    "turkish": "Zümer",
-    "place": "Makkah",
-    "arabic": "الزمر"
-  },
-  {
-    "id": 40,
-    "name": "Ghafir",
-    "aya": 85,
-    "english": "The Forgiver",
-    "turkish": "Mü'min",
-    "place": "Makkah",
-    "arabic": "غافر"
-  },
-  {
-    "id": 41,
-    "name": "Fussilat",
-    "aya": 54,
-    "english": "Expounded",
-    "turkish": "Fussilet",
-    "place": "Makkah",
-    "arabic": "فصلت"
-  },
-  {
-    "id": 42,
-    "name": "As Sura",
-    "aya": 53,
-    "english": "The Consultation",
-    "turkish": "Şûrâ",
-    "place": "Makkah",
-    "arabic": "الشورى"
-  },
-  {
-    "id": 43,
-    "name": "Az Zukhruf",
-    "aya": 89,
-    "english": "The Gold Adornments",
-    "turkish": "Zuhruf",
-    "place": "Makkah",
-    "arabic": "الزخرف"
-  },
-  {
-    "id": 44,
-    "name": "Ad Dukhan",
-    "aya": 59,
-    "english": "The Smoke",
-    "turkish": "Duhân",
-    "place": "Makkah",
-    "arabic": "الدخان"
-  },
-  {
-    "id": 45,
-    "name": "Al Jaathiyah",
-    "aya": 37,
-    "english": "The Kneeling Down",
-    "turkish": "Câsiye",
-    "place": "Makkah",
-    "arabic": "الجاثية"
-  },
-  {
-    "id": 46,
-    "name": "Al Ahqaf",
-    "aya": 35,
-    "english": "Winding Sand tracts",
-    "turkish": "Ahkâf",
-    "place": "Makkah",
-    "arabic": "الأحقاف"
-  },
-  {
-    "id": 47,
-    "name": "Muhammad",
-    "aya": 38,
-    "english": "Muhammad",
-    "turkish": "Muhammed",
-    "place": "Madinah",
-    "arabic": "محمد"
-  },
-  {
-    "id": 48,
-    "name": "Al Fath",
-    "aya": 29,
-    "english": "The Victory",
-    "turkish": "Fetih",
-    "place": "Madinah",
-    "arabic": "الفتح"
-  },
-  {
-    "id": 49,
-    "name": "Al Hujurut",
-    "aya": 18,
-    "english": "The Private Apartments",
-    "turkish": "Hucurât",
-    "place": "Madinah",
-    "arabic": "الحجرات"
-  },
-  {
-    "id": 50,
-    "name": "Qaaf",
-    "aya": 45,
-    "english": "Q̈āf",
-    "turkish": "Kâf",
-    "place": "Makkah",
-    "arabic": "ق"
-  },
-  {
-    "id": 51,
-    "name": "Ad Dariyat",
-    "aya": 60,
-    "english": "The Wind That Scatter",
-    "turkish": "Zâriyât",
-    "place": "Makkah",
-    "arabic": "الذاريات"
-  },
-  {
-    "id": 52,
-    "name": "At Toor",
-    "aya": 49,
-    "english": "The Mount",
-    "turkish": "Tûr",
-    "place": "Makkah",
-    "arabic": "الطور"
-  },
-  {
-    "id": 53,
-    "name": "An Najm",
-    "aya": 62,
-    "english": "The Star",
-    "turkish": "Necm",
-    "place": "Makkah",
-    "arabic": "النجم"
-  },
-  {
-    "id": 54,
-    "name": "Al Qamar",
-    "aya": 55,
-    "english": "The Moon",
-    "turkish": "Kamer",
-    "place": "Makkah",
-    "arabic": "القمر"
-  },
-  {
-    "id": 55,
-    "name": "Ar Rahman",
-    "aya": 78,
-    "english": "The Most Merciful",
-    "turkish": "Rahmân",
-    "place": "Madinah",
-    "arabic": "الرحمن"
-  },
-  {
-    "id": 56,
-    "name": "Al Waqiah",
-    "aya": 96,
-    "english": "The Inevitable",
-    "turkish": "Vâkıa",
-    "place": "Makkah",
-    "arabic": "الواقعة"
-  },
-  {
-    "id": 57,
-    "name": "Al Hadeed",
-    "aya": 29,
-    "english": "The Iron",
-    "turkish": "Hadîd",
-    "place": "Madinah",
-    "arabic": "الحديد"
-  },
-  {
-    "id": 58,
-    "name": "Al Mujadila",
-    "aya": 22,
-    "english": "The Pleading",
-    "turkish": "Mücâdele",
-    "place": "Madinah",
-    "arabic": "المجادلة"
-  },
-  {
-    "id": 59,
-    "name": "Al Hashr",
-    "aya": 24,
-    "english": "The Mustering",
-    "turkish": "Haşr",
-    "place": "Manidah",
-    "arabic": "الحشر"
-  },
-  {
-    "id": 60,
-    "name": "Al Mumtahanah",
-    "aya": 13,
-    "english": "The Examined One",
-    "turkish": "Mümtehine",
-    "place": "Madinah",
-    "arabic": "الممتحنة"
-  },
-  {
-    "id": 61,
-    "name": "As Saff",
-    "aya": 14,
-    "english": "The Ranks",
-    "turkish": "Saff",
-    "place": "Madinah",
-    "arabic": "الصف"
-  },
-  {
-    "id": 62,
-    "name": "Al Jumu'ah",
-    "aya": 11,
-    "english": "Congregation (Friday)",
-    "turkish": "Cuma",
-    "place": "Madinah",
-    "arabic": "الجمعة"
-  },
-  {
-    "id": 63,
-    "name": "Al Munafiqoon",
-    "aya": 11,
-    "english": "The Hypocrites",
-    "turkish": "Münâfikûn",
-    "place": "Madinah",
-    "arabic": "المنافقون"
-  },
-  {
-    "id": 64,
-    "name": "At Taghabun",
-    "aya": 18,
-    "english": "The Cheating",
-    "turkish": "Tegâbün",
-    "place": "Madinah",
-    "arabic": "التغابن"
-  },
-  {
-    "id": 65,
-    "name": "At Talaq",
-    "aya": 12,
-    "english": "Divorce",
-    "turkish": "Talâk",
-    "place": "Madinah",
-    "arabic": "الطلاق"
-  },
-  {
-    "id": 66,
-    "name": "At Tahreem",
-    "aya": 12,
-    "english": "The Prohibition",
-    "turkish": "Tahrîm",
-    "place": "Madinah",
-    "arabic": "التحريم"
-  },
-  {
-    "id": 67,
-    "name": "Al Mulk",
-    "aya": 30,
-    "english": "The Dominion",
-    "turkish": "Mülk",
-    "place": "Makkah",
-    "arabic": "الملك"
-  },
-  {
-    "id": 68,
-    "name": "Al Qalam",
-    "aya": 52,
-    "english": "The Pen",
-    "turkish": "Kalem",
-    "place": "Makkah",
-    "arabic": "القلم"
-  },
-  {
-    "id": 69,
-    "name": "Al Haaqqah",
-    "aya": 52,
-    "english": "The Sure Reality",
-    "turkish": "Hâkka",
-    "place": "Makkah",
-    "arabic": "الحاقة"
-  },
-  {
-    "id": 70,
-    "name": "Al Ma'arij",
-    "aya": 44,
-    "english": "The Ways of Ascent",
-    "turkish": "Meâric",
-    "place": "Makkah",
-    "arabic": "المعارج"
-  },
-  {
-    "id": 71,
-    "name": "Nooh",
-    "aya": 28,
-    "english": "Noah",
-    "turkish": "Nûh",
-    "place": "Makkah",
-    "arabic": "نوح"
-  },
-  {
-    "id": 72,
-    "name": "Al Jinn",
-    "aya": 28,
-    "english": "The Jinn",
-    "turkish": "Cin",
-    "place": "makkah",
-    "arabic": "الجن"
-  },
-  {
-    "id": 73,
-    "name": "Al Muzammil",
-    "aya": 20,
-    "english": "The Enfolded One",
-    "turkish": "Müzzemmil",
-    "place": "Makkah",
-    "arabic": "المزمل"
-  },
-  {
-    "id": 74,
-    "name": "Al Muddathir",
-    "aya": 56,
-    "english": "The One Wrapped Up",
-    "turkish": "Müddessir",
-    "place": "Makkah",
-    "arabic": "المدثر"
-  },
-  {
-    "id": 75,
-    "name": "Al Qiyamah",
-    "aya": 40,
-    "english": "Resurrection",
-    "turkish": "Kıyâmet",
-    "place": "Makkah",
-    "arabic": "القيامة"
-  },
-  {
-    "id": 76,
-    "name": "Al Insaan",
-    "aya": 31,
-    "english": "The Human",
-    "turkish": "İnsân",
-    "place": "Madinah",
-    "arabic": "الانسان"
-  },
-  {
-    "id": 77,
-    "name": "Al Mursalat",
-    "aya": 50,
-    "english": "Those Sent Forth",
-    "turkish": "Mürselât",
-    "place": "Makkah",
-    "arabic": "المرسلات"
-  },
-  {
-    "id": 78,
-    "name": "An Naba",
-    "aya": 40,
-    "english": "The Great News",
-    "turkish": "Nebe",
-    "place": "Makkah",
-    "arabic": "النبأ"
-  },
-  {
-    "id": 79,
-    "name": "An Naaziat",
-    "aya": 46,
-    "english": "Those Who Tear Out",
-    "turkish": "Naziât",
-    "place": "Makkah",
-    "arabic": "النازعات"
-  },
-  {
-    "id": 80,
-    "name": "Abasa",
-    "aya": 42,
-    "english": "He Frowned",
-    "turkish": "Abese",
-    "place": "Makkah",
-    "arabic": "عبس"
-  },
-  {
-    "id": 81,
-    "name": "At Takweer",
-    "aya": 29,
-    "english": "The Folding Up",
-    "turkish": "Tekvîr",
-    "place": "Makkah",
-    "arabic": "التكوير"
-  },
-  {
-    "id": 82,
-    "name": "Al Infitar",
-    "aya": 19,
-    "english": "The Overthrowing",
-    "turkish": "İnfitâr",
-    "place": "Makkah",
-    "arabic": "الإنفطار"
-  },
-  {
-    "id": 83,
-    "name": "Al Mutaffifin",
-    "aya": 36,
-    "english": "The Cleaving Asunder",
-    "turkish": "Mutaffifîn",
-    "place": "Makkah",
-    "arabic": "المطففين"
-  },
-  {
-    "id": 84,
-    "name": "Al Inshiqaaq",
-    "aya": 25,
-    "english": "The Dealers in Fraud",
-    "turkish": "İnşikâk",
-    "place": "Makkah",
-    "arabic": "الإنشقاق"
-  },
-  {
-    "id": 85,
-    "name": "Al Burooj",
-    "aya": 22,
-    "english": "The Constellations",
-    "turkish": "Burûc",
-    "place": "Makkah",
-    "arabic": "البروج"
-  },
-  {
-    "id": 86,
-    "name": "At Taariq",
-    "aya": 17,
-    "english": "The Morning Star",
-    "turkish": "Târık",
-    "place": "Makkah",
-    "arabic": "الطارق"
-  },
-  {
-    "id": 87,
-    "name": "Al A'laa",
-    "aya": 19,
-    "english": "The Most High",
-    "turkish": "A'lâ",
-    "place": "Makkah",
-    "arabic": "الأعلى"
-  },
-  {
-    "id": 88,
-    "name": "Al Ghaashiyah",
-    "aya": 26,
-    "english": "The Overwhelming Event",
-    "turkish": "Gâşiye",
-    "place": "Makkah",
-    "arabic": "الغاشية"
-  },
-  {
-    "id": 89,
-    "name": "Al Fajr",
-    "aya": 30,
-    "english": "The Daybreak",
-    "turkish": "Fecr",
-    "place": "Makkah",
-    "arabic": "الفجر"
-  },
-  {
-    "id": 90,
-    "name": "Al Balad",
-    "aya": 20,
-    "english": "The City",
-    "turkish": "Beled",
-    "place": "Makkah",
-    "arabic": "البلد"
-  },
-  {
-    "id": 91,
-    "name": "Ash Shams",
-    "aya": 15,
-    "english": "The Sun",
-    "turkish": "Şems",
-    "place": "Makkah",
-    "arabic": "الشمس"
-  },
-  {
-    "id": 92,
-    "name": "Al Layl",
-    "aya": 21,
-    "english": "The Night",
-    "turkish": "Leyl",
-    "place": "Makkah",
-    "arabic": "الليل"
-  },
-  {
-    "id": 93,
-    "name": "Ad Dhuha",
-    "aya": 11,
-    "english": "The Glorious Morning Light",
-    "turkish": "Duhâ",
-    "place": "Makkah",
-    "arabic": "الضحى"
-  },
-  {
-    "id": 94,
-    "name": "Ash Sharh",
-    "aya": 8,
-    "english": "The Opening Up of the Heart",
-    "turkish": "İnşirâh",
-    "place": "Makkah",
-    "arabic": "الشرح"
-  },
-  {
-    "id": 95,
-    "name": "At Teen",
-    "aya": 8,
-    "english": "The Fig Tree",
-    "turkish": "Tîn",
-    "place": "Makkah",
-    "arabic": "التين"
-  },
-  {
-    "id": 96,
-    "name": "Al Alaq",
-    "aya": 19,
-    "english": "The Clinging Clot",
-    "turkish": "Alak",
-    "place": "Makkah",
-    "arabic": "العلق"
-  },
-  {
-    "id": 97,
-    "name": "Al Qadr",
-    "aya": 5,
-    "english": "The Night of Honor",
-    "turkish": "Kadir",
-    "place": "Makkah",
-    "arabic": "القدر"
-  },
-  {
-    "id": 98,
-    "name": "Al Bayyinah",
-    "aya": 8,
-    "english": "The Clear Evidence",
-    "turkish": "Beyyine",
-    "place": "Madinah",
-    "arabic": "البينة"
-  },
-  {
-    "id": 99,
-    "name": "Az Zalzalah",
-    "aya": 8,
-    "english": "The Earthquake",
-    "turkish": "Zilzâl",
-    "place": "Madinah",
-    "arabic": "الزلزلة"
-  },
-  {
-    "id": 100,
-    "name": "Al Aadiyaat",
-    "aya": 11,
-    "english": "The Courser",
-    "turkish": "Âdiyât",
-    "place": "Makkah",
-    "arabic": "العاديات"
-  },
-  {
-    "id": 101,
-    "name": "Al Qaari'ah",
-    "aya": 11,
-    "english": "The Striking Hour",
-    "turkish": "Kâria",
-    "place": "Makkah",
-    "arabic": "القارعة"
-  },
-  {
-    "id": 102,
-    "name": "At Takaathur",
-    "aya": 8,
-    "english": "The Piling Up",
-    "turkish": "Tekâsür",
-    "place": "Makkah",
-    "arabic": "التكاثر"
-  },
-  {
-    "id": 103,
-    "name": "Al Asr",
-    "aya": 3,
-    "english": "The Time",
-    "turkish": "Asr",
-    "place": "Makkah",
-    "arabic": "العصر"
-  },
-  {
-    "id": 104,
-    "name": "Al Humazah",
-    "aya": 9,
-    "english": "The Scandalmonger",
-    "turkish": "Hümeze",
-    "place": "Makkah",
-    "arabic": "الهمزة"
-  },
-  {
-    "id": 105,
-    "name": "Al Feel",
-    "aya": 5,
-    "english": "The Elephant",
-    "turkish": "Fîl",
-    "place": "Makkah",
-    "arabic": "الفيل"
-  },
-  {
-    "id": 106,
-    "name": "Quraysh",
-    "aya": 4,
-    "english": "The Quraysh",
-    "turkish": "Kureyş",
-    "place": "Makkah",
-    "arabic": "قريش"
-  },
-  {
-    "id": 107,
-    "name": "Al Maa'oon",
-    "aya": 7,
-    "english": "The Neighbourly Assistance",
-    "turkish": "Maûn",
-    "place": "Makkah",
-    "arabic": "الماعون"
-  },
-  {
-    "id": 108,
-    "name": "Al Kawthar",
-    "aya": 3,
-    "english": "Abundance",
-    "turkish": "Kevser",
-    "place": "Makkah",
-    "arabic": "الكوثر"
-  },
-  {
-    "id": 109,
-    "name": "Al Kaafiroon",
-    "aya": 6,
-    "english": "The Disbelievers",
-    "turkish": "Kâfirûn",
-    "place": "Makkah",
-    "arabic": "الكافرون"
-  },
-  {
-    "id": 110,
-    "name": "An Nasr",
-    "aya": 3,
-    "english": "The Help",
-    "turkish": "Nasr",
-    "place": "Madinah",
-    "arabic": "النصر"
-  },
-  {
-    "id": 111,
-    "name": "Al Masad",
-    "aya": 5,
-    "english": "The Plaited Rope",
-    "turkish": "Tebbet",
-    "place": "Makkah",
-    "arabic": "المسد"
-  },
-  {
-    "id": 112,
-    "name": "Al Ikhlaas",
-    "aya": 4,
-    "english": "Purity of Faith",
-    "turkish": "İhlâs",
-    "place": "Makkah",
-    "arabic": "الإخلاص"
-  },
-  {
-    "id": 113,
-    "name": "Al Falaq",
-    "aya": 5,
-    "english": "The Rising Dawn",
-    "turkish": "Felak",
-    "place": "Makkah",
-    "arabic": "الفلق"
-  },
-  {
-    "id": 114,
-    "name": "An Naas",
-    "aya": 6,
-    "english": "Mankind",
-    "turkish": "Nâs",
-    "place": "Makkah",
-    "arabic": "الناس"
+    "arabic":"الفاتحة",
+    "aya":7,
+    "endPage":1,
+    "english":"The Opening",
+    "id":1,
+    "name":"Al Fatiha",
+    "place":"Makkah",
+    "startPage":1,
+    "turkish":"Fâtiha"
+  },
+  {
+    "arabic":"البقرة",
+    "aya":286,
+    "endPage":49,
+    "english":"The Cow",
+    "id":2,
+    "name":"Al Baqarah",
+    "place":"Madinah",
+    "startPage":2,
+    "turkish":"Bakara"
+  },
+  {
+    "arabic":"آل عمران",
+    "aya":200,
+    "endPage":76,
+    "english":"The Family of Imran",
+    "id":3,
+    "name":"Al Imran",
+    "place":"Madinah",
+    "startPage":50,
+    "turkish":"Âl-i İmrân"
+  },
+  {
+    "arabic":"النساء",
+    "aya":176,
+    "endPage":106,
+    "english":"The Women",
+    "id":4,
+    "name":"An Nisa",
+    "place":"Madinah",
+    "startPage":77,
+    "turkish":"Nisâ"
+  },
+  {
+    "arabic":"المائدة",
+    "aya":120,
+    "endPage":127,
+    "english":"The Table",
+    "id":5,
+    "name":"Al Ma\u0027idah",
+    "place":"Madinah",
+    "startPage":106,
+    "turkish":"Mâide"
+  },
+  {
+    "arabic":"الأنعام",
+    "aya":165,
+    "endPage":150,
+    "english":"The Cattle",
+    "id":6,
+    "name":"Al An\u0027am",
+    "place":"Makkah",
+    "startPage":128,
+    "turkish":"En\u0027âm"
+  },
+  {
+    "arabic":"الأعراف",
+    "aya":206,
+    "endPage":176,
+    "english":"The Heights",
+    "id":7,
+    "name":"Al A\u0027raf",
+    "place":"Makkah",
+    "startPage":151,
+    "turkish":"A\u0027râf"
+  },
+  {
+    "arabic":"الأنفال",
+    "aya":75,
+    "endPage":186,
+    "english":"The Spoils of War",
+    "id":8,
+    "name":"Al Anfal",
+    "place":"Madinah",
+    "startPage":177,
+    "turkish":"Enfâl"
+  },
+  {
+    "arabic":"التوبة",
+    "aya":129,
+    "endPage":207,
+    "english":"The Repentance",
+    "id":9,
+    "name":"At Tawbah",
+    "place":"Madinah",
+    "startPage":187,
+    "turkish":"Tevbe"
+  },
+  {
+    "arabic":"يونس",
+    "aya":109,
+    "endPage":221,
+    "english":"Jonah",
+    "id":10,
+    "name":"Al Yunus",
+    "place":"Makkah",
+    "startPage":208,
+    "turkish":"Yûnus"
+  },
+  {
+    "arabic":"هود",
+    "aya":123,
+    "endPage":235,
+    "english":"Hud",
+    "id":11,
+    "name":"Hud",
+    "place":"Makkah",
+    "startPage":221,
+    "turkish":"Hûd"
+  },
+  {
+    "arabic":"يوسف",
+    "aya":111,
+    "endPage":248,
+    "english":"Joseph",
+    "id":12,
+    "name":"Yusuf",
+    "place":"Makkah",
+    "startPage":235,
+    "turkish":"Yûsuf"
+  },
+  {
+    "arabic":"الرعد",
+    "aya":43,
+    "endPage":255,
+    "english":"The Thunder",
+    "id":13,
+    "name":"Ar Ra\u0027d",
+    "place":"Madinah",
+    "startPage":249,
+    "turkish":"Ra\u0027d"
+  },
+  {
+    "arabic":"ابراهيم",
+    "aya":52,
+    "endPage":261,
+    "english":"Abraham",
+    "id":14,
+    "name":"Ibrahim",
+    "place":"Makkah",
+    "startPage":255,
+    "turkish":"İbrâhîm"
+  },
+  {
+    "arabic":"الحجر",
+    "aya":99,
+    "endPage":267,
+    "english":"The Stoneland",
+    "id":15,
+    "name":"Al Hijr",
+    "place":"Makkah",
+    "startPage":262,
+    "turkish":"Hicr"
+  },
+  {
+    "arabic":"النحل",
+    "aya":128,
+    "endPage":281,
+    "english":"The Honey Bee",
+    "id":16,
+    "name":"An Nahl",
+    "place":"Makkah",
+    "startPage":267,
+    "turkish":"Nahl"
+  },
+  {
+    "arabic":"الإسراء",
+    "aya":111,
+    "endPage":293,
+    "english":"The Night Journey",
+    "id":17,
+    "name":"Al Isra\u0027",
+    "place":"Makkah",
+    "startPage":282,
+    "turkish":"İsrâ"
+  },
+  {
+    "arabic":"الكهف",
+    "aya":110,
+    "endPage":304,
+    "english":"The Cave",
+    "id":18,
+    "name":"Al Kahf",
+    "place":"Makkah",
+    "startPage":293,
+    "turkish":"Kehf"
+  },
+  {
+    "arabic":"مريم",
+    "aya":98,
+    "endPage":312,
+    "english":"Mary",
+    "id":19,
+    "name":"Maryam",
+    "place":"Makkah",
+    "startPage":305,
+    "turkish":"Meryem"
+  },
+  {
+    "arabic":"طه",
+    "aya":135,
+    "endPage":321,
+    "english":"Ta Ha",
+    "id":20,
+    "name":"Ta Ha",
+    "place":"Makkah",
+    "startPage":312,
+    "turkish":"Tâhâ"
+  },
+  {
+    "arabic":"الأنبياء",
+    "aya":112,
+    "endPage":331,
+    "english":"The Prophets",
+    "id":21,
+    "name":"Al Anbiya",
+    "place":"Makkah",
+    "startPage":322,
+    "turkish":"Enbiyâ"
+  },
+  {
+    "arabic":"الحج",
+    "aya":78,
+    "endPage":341,
+    "english":"The Pilgrimage",
+    "id":22,
+    "name":"Al Hajj",
+    "place":"Madinah",
+    "startPage":332,
+    "turkish":"Hac"
+  },
+  {
+    "arabic":"المؤمنون",
+    "aya":118,
+    "endPage":349,
+    "english":"The Believers",
+    "id":23,
+    "name":"Al Mu minun",
+    "place":"Makkah",
+    "startPage":342,
+    "turkish":"Mü\u0027minûn"
+  },
+  {
+    "arabic":"النور",
+    "aya":64,
+    "endPage":359,
+    "english":"The Light",
+    "id":24,
+    "name":"An Nur",
+    "place":"Madinah",
+    "startPage":350,
+    "turkish":"Nûr"
+  },
+  {
+    "arabic":"الفرقان",
+    "aya":77,
+    "endPage":366,
+    "english":"The Criterion",
+    "id":25,
+    "name":"Al Furqan",
+    "place":"Makkah",
+    "startPage":359,
+    "turkish":"Furkân"
+  },
+  {
+    "arabic":"الشعراء",
+    "aya":227,
+    "endPage":376,
+    "english":"The Poets",
+    "id":26,
+    "name":"As Su\u0027ara",
+    "place":"Makkah",
+    "startPage":367,
+    "turkish":"Şuarâ"
+  },
+  {
+    "arabic":"النمل",
+    "aya":93,
+    "endPage":385,
+    "english":"The Ant",
+    "id":27,
+    "name":"An Naml",
+    "place":"Makkah",
+    "startPage":377,
+    "turkish":"Neml"
+  },
+  {
+    "arabic":"القصص",
+    "aya":88,
+    "endPage":396,
+    "english":"The Narrations",
+    "id":28,
+    "name":"Al Qasas",
+    "place":"Makkah",
+    "startPage":385,
+    "turkish":"Kasas"
+  },
+  {
+    "arabic":"العنكبوت",
+    "aya":69,
+    "endPage":404,
+    "english":"The Spider",
+    "id":29,
+    "name":"Al Ankabut",
+    "place":"Makkah",
+    "startPage":396,
+    "turkish":"Ankebût"
+  },
+  {
+    "arabic":"الروم",
+    "aya":60,
+    "endPage":410,
+    "english":"Rome",
+    "id":30,
+    "name":"Ar Rum",
+    "place":"Makkah",
+    "startPage":404,
+    "turkish":"Rûm"
+  },
+  {
+    "arabic":"لقمان",
+    "aya":34,
+    "endPage":414,
+    "english":"Luqman",
+    "id":31,
+    "name":"Luqman",
+    "place":"Makkah",
+    "startPage":411,
+    "turkish":"Lokmân"
+  },
+  {
+    "arabic":"السجدة",
+    "aya":30,
+    "endPage":417,
+    "english":"The Prostration",
+    "id":32,
+    "name":"As Sajdah",
+    "place":"Makkah",
+    "startPage":415,
+    "turkish":"Secde"
+  },
+  {
+    "arabic":"الأحزاب",
+    "aya":73,
+    "endPage":427,
+    "english":"The Clans",
+    "id":33,
+    "name":"Al Ahzab",
+    "place":"Madinah",
+    "startPage":418,
+    "turkish":"Ahzâb"
+  },
+  {
+    "arabic":"سبإ",
+    "aya":54,
+    "endPage":434,
+    "english":"Sheba",
+    "id":34,
+    "name":"Saba\u0027",
+    "place":"Makkah",
+    "startPage":428,
+    "turkish":"Sebe\u0027"
+  },
+  {
+    "arabic":"فاطر",
+    "aya":45,
+    "endPage":440,
+    "english":"The Originator",
+    "id":35,
+    "name":"Fatir",
+    "place":"Makkah",
+    "startPage":434,
+    "turkish":"Fâtır"
+  },
+  {
+    "arabic":"يس",
+    "aya":83,
+    "endPage":445,
+    "english":"Ya Sin",
+    "id":36,
+    "name":"Ya\u0027sin",
+    "place":"Makkah",
+    "startPage":440,
+    "turkish":"Yâsîn"
+  },
+  {
+    "arabic":"الصافات",
+    "aya":182,
+    "endPage":452,
+    "english":"Those Who Set The Ranks",
+    "id":37,
+    "name":"As Saffat",
+    "place":"Makkah",
+    "startPage":446,
+    "turkish":"Sâffât"
+  },
+  {
+    "arabic":"ص",
+    "aya":88,
+    "endPage":458,
+    "english":"Ṣād",
+    "id":38,
+    "name":"Saad",
+    "place":"Makkah",
+    "startPage":453,
+    "turkish":"Sâd"
+  },
+  {
+    "arabic":"الزمر",
+    "aya":75,
+    "endPage":467,
+    "english":"The Crowds",
+    "id":39,
+    "name":"Az Zumar",
+    "place":"Makkah",
+    "startPage":458,
+    "turkish":"Zümer"
+  },
+  {
+    "arabic":"غافر",
+    "aya":85,
+    "endPage":476,
+    "english":"The Forgiver",
+    "id":40,
+    "name":"Ghafir",
+    "place":"Makkah",
+    "startPage":467,
+    "turkish":"Mü\u0027min"
+  },
+  {
+    "arabic":"فصلت",
+    "aya":54,
+    "endPage":482,
+    "english":"Expounded",
+    "id":41,
+    "name":"Fussilat",
+    "place":"Makkah",
+    "startPage":477,
+    "turkish":"Fussilet"
+  },
+  {
+    "arabic":"الشورى",
+    "aya":53,
+    "endPage":489,
+    "english":"The Consultation",
+    "id":42,
+    "name":"As Sura",
+    "place":"Makkah",
+    "startPage":483,
+    "turkish":"Şûrâ"
+  },
+  {
+    "arabic":"الزخرف",
+    "aya":89,
+    "endPage":495,
+    "english":"The Gold Adornments",
+    "id":43,
+    "name":"Az Zukhruf",
+    "place":"Makkah",
+    "startPage":489,
+    "turkish":"Zuhruf"
+  },
+  {
+    "arabic":"الدخان",
+    "aya":59,
+    "endPage":498,
+    "english":"The Smoke",
+    "id":44,
+    "name":"Ad Dukhan",
+    "place":"Makkah",
+    "startPage":496,
+    "turkish":"Duhân"
+  },
+  {
+    "arabic":"الجاثية",
+    "aya":37,
+    "endPage":502,
+    "english":"The Kneeling Down",
+    "id":45,
+    "name":"Al Jaathiyah",
+    "place":"Makkah",
+    "startPage":499,
+    "turkish":"Câsiye"
+  },
+  {
+    "arabic":"الأحقاف",
+    "aya":35,
+    "endPage":506,
+    "english":"Winding Sand tracts",
+    "id":46,
+    "name":"Al Ahqaf",
+    "place":"Makkah",
+    "startPage":502,
+    "turkish":"Ahkâf"
+  },
+  {
+    "arabic":"محمد",
+    "aya":38,
+    "endPage":510,
+    "english":"Muhammad",
+    "id":47,
+    "name":"Muhammad",
+    "place":"Madinah",
+    "startPage":507,
+    "turkish":"Muhammed"
+  },
+  {
+    "arabic":"الفتح",
+    "aya":29,
+    "endPage":515,
+    "english":"The Victory",
+    "id":48,
+    "name":"Al Fath",
+    "place":"Madinah",
+    "startPage":511,
+    "turkish":"Fetih"
+  },
+  {
+    "arabic":"الحجرات",
+    "aya":18,
+    "endPage":517,
+    "english":"The Private Apartments",
+    "id":49,
+    "name":"Al Hujurut",
+    "place":"Madinah",
+    "startPage":515,
+    "turkish":"Hucurât"
+  },
+  {
+    "arabic":"ق",
+    "aya":45,
+    "endPage":520,
+    "english":"Q̈āf",
+    "id":50,
+    "name":"Qaaf",
+    "place":"Makkah",
+    "startPage":518,
+    "turkish":"Kâf"
+  },
+  {
+    "arabic":"الذاريات",
+    "aya":60,
+    "endPage":523,
+    "english":"The Wind That Scatter",
+    "id":51,
+    "name":"Ad Dariyat",
+    "place":"Makkah",
+    "startPage":520,
+    "turkish":"Zâriyât"
+  },
+  {
+    "arabic":"الطور",
+    "aya":49,
+    "endPage":525,
+    "english":"The Mount",
+    "id":52,
+    "name":"At Toor",
+    "place":"Makkah",
+    "startPage":523,
+    "turkish":"Tûr"
+  },
+  {
+    "arabic":"النجم",
+    "aya":62,
+    "endPage":528,
+    "english":"The Star",
+    "id":53,
+    "name":"An Najm",
+    "place":"Makkah",
+    "startPage":526,
+    "turkish":"Necm"
+  },
+  {
+    "arabic":"القمر",
+    "aya":55,
+    "endPage":531,
+    "english":"The Moon",
+    "id":54,
+    "name":"Al Qamar",
+    "place":"Makkah",
+    "startPage":528,
+    "turkish":"Kamer"
+  },
+  {
+    "arabic":"الرحمن",
+    "aya":78,
+    "endPage":534,
+    "english":"The Most Merciful",
+    "id":55,
+    "name":"Ar Rahman",
+    "place":"Madinah",
+    "startPage":531,
+    "turkish":"Rahmân"
+  },
+  {
+    "arabic":"الواقعة",
+    "aya":96,
+    "endPage":537,
+    "english":"The Inevitable",
+    "id":56,
+    "name":"Al Waqiah",
+    "place":"Makkah",
+    "startPage":534,
+    "turkish":"Vâkıa"
+  },
+  {
+    "arabic":"الحديد",
+    "aya":29,
+    "endPage":541,
+    "english":"The Iron",
+    "id":57,
+    "name":"Al Hadeed",
+    "place":"Madinah",
+    "startPage":537,
+    "turkish":"Hadîd"
+  },
+  {
+    "arabic":"المجادلة",
+    "aya":22,
+    "endPage":545,
+    "english":"The Pleading",
+    "id":58,
+    "name":"Al Mujadila",
+    "place":"Madinah",
+    "startPage":542,
+    "turkish":"Mücâdele"
+  },
+  {
+    "arabic":"الحشر",
+    "aya":24,
+    "endPage":548,
+    "english":"The Mustering",
+    "id":59,
+    "name":"Al Hashr",
+    "place":"Manidah",
+    "startPage":545,
+    "turkish":"Haşr"
+  },
+  {
+    "arabic":"الممتحنة",
+    "aya":13,
+    "endPage":551,
+    "english":"The Examined One",
+    "id":60,
+    "name":"Al Mumtahanah",
+    "place":"Madinah",
+    "startPage":549,
+    "turkish":"Mümtehine"
+  },
+  {
+    "arabic":"الصف",
+    "aya":14,
+    "endPage":552,
+    "english":"The Ranks",
+    "id":61,
+    "name":"As Saff",
+    "place":"Madinah",
+    "startPage":551,
+    "turkish":"Saff"
+  },
+  {
+    "arabic":"الجمعة",
+    "aya":11,
+    "endPage":554,
+    "english":"Congregation (Friday)",
+    "id":62,
+    "name":"Al Jumu\u0027ah",
+    "place":"Madinah",
+    "startPage":553,
+    "turkish":"Cuma"
+  },
+  {
+    "arabic":"المنافقون",
+    "aya":11,
+    "endPage":555,
+    "english":"The Hypocrites",
+    "id":63,
+    "name":"Al Munafiqoon",
+    "place":"Madinah",
+    "startPage":554,
+    "turkish":"Münâfikûn"
+  },
+  {
+    "arabic":"التغابن",
+    "aya":18,
+    "endPage":557,
+    "english":"The Cheating",
+    "id":64,
+    "name":"At Taghabun",
+    "place":"Madinah",
+    "startPage":556,
+    "turkish":"Tegâbün"
+  },
+  {
+    "arabic":"الطلاق",
+    "aya":12,
+    "endPage":559,
+    "english":"Divorce",
+    "id":65,
+    "name":"At Talaq",
+    "place":"Madinah",
+    "startPage":558,
+    "turkish":"Talâk"
+  },
+  {
+    "arabic":"التحريم",
+    "aya":12,
+    "endPage":561,
+    "english":"The Prohibition",
+    "id":66,
+    "name":"At Tahreem",
+    "place":"Madinah",
+    "startPage":560,
+    "turkish":"Tahrîm"
+  },
+  {
+    "arabic":"الملك",
+    "aya":30,
+    "endPage":564,
+    "english":"The Dominion",
+    "id":67,
+    "name":"Al Mulk",
+    "place":"Makkah",
+    "startPage":562,
+    "turkish":"Mülk"
+  },
+  {
+    "arabic":"القلم",
+    "aya":52,
+    "endPage":566,
+    "english":"The Pen",
+    "id":68,
+    "name":"Al Qalam",
+    "place":"Makkah",
+    "startPage":564,
+    "turkish":"Kalem"
+  },
+  {
+    "arabic":"الحاقة",
+    "aya":52,
+    "endPage":568,
+    "english":"The Sure Reality",
+    "id":69,
+    "name":"Al Haaqqah",
+    "place":"Makkah",
+    "startPage":566,
+    "turkish":"Hâkka"
+  },
+  {
+    "arabic":"المعارج",
+    "aya":44,
+    "endPage":570,
+    "english":"The Ways of Ascent",
+    "id":70,
+    "name":"Al Ma\u0027arij",
+    "place":"Makkah",
+    "startPage":568,
+    "turkish":"Meâric"
+  },
+  {
+    "arabic":"نوح",
+    "aya":28,
+    "endPage":571,
+    "english":"Noah",
+    "id":71,
+    "name":"Nooh",
+    "place":"Makkah",
+    "startPage":570,
+    "turkish":"Nûh"
+  },
+  {
+    "arabic":"الجن",
+    "aya":28,
+    "endPage":573,
+    "english":"The Jinn",
+    "id":72,
+    "name":"Al Jinn",
+    "place":"makkah",
+    "startPage":572,
+    "turkish":"Cin"
+  },
+  {
+    "arabic":"المزمل",
+    "aya":20,
+    "endPage":575,
+    "english":"The Enfolded One",
+    "id":73,
+    "name":"Al Muzammil",
+    "place":"Makkah",
+    "startPage":574,
+    "turkish":"Müzzemmil"
+  },
+  {
+    "arabic":"المدثر",
+    "aya":56,
+    "endPage":577,
+    "english":"The One Wrapped Up",
+    "id":74,
+    "name":"Al Muddathir",
+    "place":"Makkah",
+    "startPage":575,
+    "turkish":"Müddessir"
+  },
+  {
+    "arabic":"القيامة",
+    "aya":40,
+    "endPage":578,
+    "english":"Resurrection",
+    "id":75,
+    "name":"Al Qiyamah",
+    "place":"Makkah",
+    "startPage":577,
+    "turkish":"Kıyâmet"
+  },
+  {
+    "arabic":"الانسان",
+    "aya":31,
+    "endPage":580,
+    "english":"The Human",
+    "id":76,
+    "name":"Al Insaan",
+    "place":"Madinah",
+    "startPage":578,
+    "turkish":"İnsân"
+  },
+  {
+    "arabic":"المرسلات",
+    "aya":50,
+    "endPage":581,
+    "english":"Those Sent Forth",
+    "id":77,
+    "name":"Al Mursalat",
+    "place":"Makkah",
+    "startPage":580,
+    "turkish":"Mürselât"
+  },
+  {
+    "arabic":"النبأ",
+    "aya":40,
+    "endPage":583,
+    "english":"The Great News",
+    "id":78,
+    "name":"An Naba",
+    "place":"Makkah",
+    "startPage":582,
+    "turkish":"Nebe"
+  },
+  {
+    "arabic":"النازعات",
+    "aya":46,
+    "endPage":584,
+    "english":"Those Who Tear Out",
+    "id":79,
+    "name":"An Naaziat",
+    "place":"Makkah",
+    "startPage":583,
+    "turkish":"Naziât"
+  },
+  {
+    "arabic":"عبس",
+    "aya":42,
+    "endPage":586,
+    "english":"He Frowned",
+    "id":80,
+    "name":"Abasa",
+    "place":"Makkah",
+    "startPage":585,
+    "turkish":"Abese"
+  },
+  {
+    "arabic":"التكوير",
+    "aya":29,
+    "endPage":586,
+    "english":"The Folding Up",
+    "id":81,
+    "name":"At Takweer",
+    "place":"Makkah",
+    "startPage":586,
+    "turkish":"Tekvîr"
+  },
+  {
+    "arabic":"الإنفطار",
+    "aya":19,
+    "endPage":587,
+    "english":"The Overthrowing",
+    "id":82,
+    "name":"Al Infitar",
+    "place":"Makkah",
+    "startPage":587,
+    "turkish":"İnfitâr"
+  },
+  {
+    "arabic":"المطففين",
+    "aya":36,
+    "endPage":589,
+    "english":"The Cleaving Asunder",
+    "id":83,
+    "name":"Al Mutaffifin",
+    "place":"Makkah",
+    "startPage":587,
+    "turkish":"Mutaffifîn"
+  },
+  {
+    "arabic":"الإنشقاق",
+    "aya":25,
+    "endPage":590,
+    "english":"The Dealers in Fraud",
+    "id":84,
+    "name":"Al Inshiqaaq",
+    "place":"Makkah",
+    "startPage":589,
+    "turkish":"İnşikâk"
+  },
+  {
+    "arabic":"البروج",
+    "aya":22,
+    "endPage":590,
+    "english":"The Constellations",
+    "id":85,
+    "name":"Al Burooj",
+    "place":"Makkah",
+    "startPage":590,
+    "turkish":"Burûc"
+  },
+  {
+    "arabic":"الطارق",
+    "aya":17,
+    "endPage":591,
+    "english":"The Morning Star",
+    "id":86,
+    "name":"At Taariq",
+    "place":"Makkah",
+    "startPage":591,
+    "turkish":"Târık"
+  },
+  {
+    "arabic":"الأعلى",
+    "aya":19,
+    "endPage":592,
+    "english":"The Most High",
+    "id":87,
+    "name":"Al A\u0027laa",
+    "place":"Makkah",
+    "startPage":591,
+    "turkish":"A\u0027lâ"
+  },
+  {
+    "arabic":"الغاشية",
+    "aya":26,
+    "endPage":593,
+    "english":"The Overwhelming Event",
+    "id":88,
+    "name":"Al Ghaashiyah",
+    "place":"Makkah",
+    "startPage":592,
+    "turkish":"Gâşiye"
+  },
+  {
+    "arabic":"الفجر",
+    "aya":30,
+    "endPage":594,
+    "english":"The Daybreak",
+    "id":89,
+    "name":"Al Fajr",
+    "place":"Makkah",
+    "startPage":593,
+    "turkish":"Fecr"
+  },
+  {
+    "arabic":"البلد",
+    "aya":20,
+    "endPage":595,
+    "english":"The City",
+    "id":90,
+    "name":"Al Balad",
+    "place":"Makkah",
+    "startPage":594,
+    "turkish":"Beled"
+  },
+  {
+    "arabic":"الشمس",
+    "aya":15,
+    "endPage":595,
+    "english":"The Sun",
+    "id":91,
+    "name":"Ash Shams",
+    "place":"Makkah",
+    "startPage":595,
+    "turkish":"Şems"
+  },
+  {
+    "arabic":"الليل",
+    "aya":21,
+    "endPage":596,
+    "english":"The Night",
+    "id":92,
+    "name":"Al Layl",
+    "place":"Makkah",
+    "startPage":595,
+    "turkish":"Leyl"
+  },
+  {
+    "arabic":"الضحى",
+    "aya":11,
+    "endPage":596,
+    "english":"The Glorious Morning Light",
+    "id":93,
+    "name":"Ad Dhuha",
+    "place":"Makkah",
+    "startPage":596,
+    "turkish":"Duhâ"
+  },
+  {
+    "arabic":"الشرح",
+    "aya":8,
+    "endPage":597,
+    "english":"The Opening Up of the Heart",
+    "id":94,
+    "name":"Ash Sharh",
+    "place":"Makkah",
+    "startPage":596,
+    "turkish":"İnşirâh"
+  },
+  {
+    "arabic":"التين",
+    "aya":8,
+    "endPage":597,
+    "english":"The Fig Tree",
+    "id":95,
+    "name":"At Teen",
+    "place":"Makkah",
+    "startPage":597,
+    "turkish":"Tîn"
+  },
+  {
+    "arabic":"العلق",
+    "aya":19,
+    "endPage":598,
+    "english":"The Clinging Clot",
+    "id":96,
+    "name":"Al Alaq",
+    "place":"Makkah",
+    "startPage":597,
+    "turkish":"Alak"
+  },
+  {
+    "arabic":"القدر",
+    "aya":5,
+    "endPage":598,
+    "english":"The Night of Honor",
+    "id":97,
+    "name":"Al Qadr",
+    "place":"Makkah",
+    "startPage":598,
+    "turkish":"Kadir"
+  },
+  {
+    "arabic":"البينة",
+    "aya":8,
+    "endPage":599,
+    "english":"The Clear Evidence",
+    "id":98,
+    "name":"Al Bayyinah",
+    "place":"Madinah",
+    "startPage":598,
+    "turkish":"Beyyine"
+  },
+  {
+    "arabic":"الزلزلة",
+    "aya":8,
+    "endPage":599,
+    "english":"The Earthquake",
+    "id":99,
+    "name":"Az Zalzalah",
+    "place":"Madinah",
+    "startPage":599,
+    "turkish":"Zilzâl"
+  },
+  {
+    "arabic":"العاديات",
+    "aya":11,
+    "endPage":600,
+    "english":"The Courser",
+    "id":100,
+    "name":"Al Aadiyaat",
+    "place":"Makkah",
+    "startPage":599,
+    "turkish":"Âdiyât"
+  },
+  {
+    "arabic":"القارعة",
+    "aya":11,
+    "endPage":600,
+    "english":"The Striking Hour",
+    "id":101,
+    "name":"Al Qaari\u0027ah",
+    "place":"Makkah",
+    "startPage":600,
+    "turkish":"Kâria"
+  },
+  {
+    "arabic":"التكاثر",
+    "aya":8,
+    "endPage":600,
+    "english":"The Piling Up",
+    "id":102,
+    "name":"At Takaathur",
+    "place":"Makkah",
+    "startPage":600,
+    "turkish":"Tekâsür"
+  },
+  {
+    "arabic":"العصر",
+    "aya":3,
+    "endPage":601,
+    "english":"The Time",
+    "id":103,
+    "name":"Al Asr",
+    "place":"Makkah",
+    "startPage":601,
+    "turkish":"Asr"
+  },
+  {
+    "arabic":"الهمزة",
+    "aya":9,
+    "endPage":601,
+    "english":"The Scandalmonger",
+    "id":104,
+    "name":"Al Humazah",
+    "place":"Makkah",
+    "startPage":601,
+    "turkish":"Hümeze"
+  },
+  {
+    "arabic":"الفيل",
+    "aya":5,
+    "endPage":601,
+    "english":"The Elephant",
+    "id":105,
+    "name":"Al Feel",
+    "place":"Makkah",
+    "startPage":601,
+    "turkish":"Fîl"
+  },
+  {
+    "arabic":"قريش",
+    "aya":4,
+    "endPage":602,
+    "english":"The Quraysh",
+    "id":106,
+    "name":"Quraysh",
+    "place":"Makkah",
+    "startPage":602,
+    "turkish":"Kureyş"
+  },
+  {
+    "arabic":"الماعون",
+    "aya":7,
+    "endPage":602,
+    "english":"The Neighbourly Assistance",
+    "id":107,
+    "name":"Al Maa\u0027oon",
+    "place":"Makkah",
+    "startPage":602,
+    "turkish":"Maûn"
+  },
+  {
+    "arabic":"الكوثر",
+    "aya":3,
+    "endPage":602,
+    "english":"Abundance",
+    "id":108,
+    "name":"Al Kawthar",
+    "place":"Makkah",
+    "startPage":602,
+    "turkish":"Kevser"
+  },
+  {
+    "arabic":"الكافرون",
+    "aya":6,
+    "endPage":603,
+    "english":"The Disbelievers",
+    "id":109,
+    "name":"Al Kaafiroon",
+    "place":"Makkah",
+    "startPage":603,
+    "turkish":"Kâfirûn"
+  },
+  {
+    "arabic":"النصر",
+    "aya":3,
+    "endPage":603,
+    "english":"The Help",
+    "id":110,
+    "name":"An Nasr",
+    "place":"Madinah",
+    "startPage":603,
+    "turkish":"Nasr"
+  },
+  {
+    "arabic":"المسد",
+    "aya":5,
+    "endPage":603,
+    "english":"The Plaited Rope",
+    "id":111,
+    "name":"Al Masad",
+    "place":"Makkah",
+    "startPage":603,
+    "turkish":"Tebbet"
+  },
+  {
+    "arabic":"الإخلاص",
+    "aya":4,
+    "endPage":604,
+    "english":"Purity of Faith",
+    "id":112,
+    "name":"Al Ikhlaas",
+    "place":"Makkah",
+    "startPage":604,
+    "turkish":"İhlâs"
+  },
+  {
+    "arabic":"الفلق",
+    "aya":5,
+    "endPage":604,
+    "english":"The Rising Dawn",
+    "id":113,
+    "name":"Al Falaq",
+    "place":"Makkah",
+    "startPage":604,
+    "turkish":"Felak"
+  },
+  {
+    "arabic":"الناس",
+    "aya":6,
+    "endPage":604,
+    "english":"Mankind",
+    "id":114,
+    "name":"An Naas",
+    "place":"Makkah",
+    "startPage":604,
+    "turkish":"Nâs"
   }
 ]
