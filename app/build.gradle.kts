@@ -76,7 +76,6 @@ dependencies {
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.viewModel)
     implementation(libs.androidx.viewModelEx)
-    implementation(libs.androidx.viewModelLifecycle)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.coil.compose)
@@ -89,4 +88,5 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.caverock.androidsvg)
     implementation(libs.drawablepainter)
+    implementation(libs.sdp.compose)
 }
