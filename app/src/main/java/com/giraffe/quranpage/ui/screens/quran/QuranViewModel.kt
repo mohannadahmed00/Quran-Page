@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.repo.Repository
-import com.giraffe.quranpage.ui.theme.kingFahd003
 import com.giraffe.quranpage.ui.theme.kingFahd007
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +27,7 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
 
     private fun getPageContent(pageIndex: Int, fontFamily: FontFamily) {
         viewModelScope.launch(Dispatchers.IO) {
+            onPageIndexChanged(pageIndex)
             repository.getContentOfPage(pageIndex).let {
                 _state.update { state ->
                     state.copy(
@@ -44,16 +44,31 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
         val strBuilder = StringBuilder()
         val list = mutableListOf<String>()
         verses.forEachIndexed { index, verse ->
-            val str = if (index == 0) {
-                handleFirstVerse(verse.qcfData)
-            } else {
-                handleRestOfVerse(verse.qcfData)
-            }
-            list.add(str)
+            val str = handleVerse(index == 0, verse.qcfData)
             strBuilder.append(str)
         }
         _state.update { it.copy(versesStr = list) }
         return strBuilder.toString()
+    }
+
+    override fun handleVerse(isFirst: Boolean, verse: String): String {
+        return if (isFirst) {
+            handleFirstVerse(verse)
+        } else {
+            handleRestOfVerse(verse)
+        }
+    }
+
+    override fun onVerseSelected(verse: VerseModel) {
+        viewModelScope.launch {
+            _state.update { it.copy(selectedVerse = verse) }
+        }
+    }
+
+    override fun onPageIndexChanged(pageIndex: Int) {
+        viewModelScope.launch {
+            _state.update { it.copy(pageIndex = pageIndex) }
+        }
     }
 
     companion object {

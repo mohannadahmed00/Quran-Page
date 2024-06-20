@@ -89,4 +89,5 @@ dependencies {
     implementation(libs.caverock.androidsvg)
     implementation(libs.drawablepainter)
     implementation(libs.sdp.compose)
+    implementation(libs.richtext.ui.material)
 }

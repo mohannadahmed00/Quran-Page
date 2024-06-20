@@ -34,9 +34,15 @@ val Typography = Typography(
     )
     */
 )
+val kingFahd001 = FontFamily(Font(R.font.qcf2001))
+val kingFahd002 = FontFamily(Font(R.font.qcf2002))
 val kingFahd003 = FontFamily(Font(R.font.qcf2003))
+val kingFahd004 = FontFamily(Font(R.font.qcf2004))
 val kingFahd005 = FontFamily(Font(R.font.qcf2005))
+val kingFahd006 = FontFamily(Font(R.font.qcf2006))
 val kingFahd007 = FontFamily(Font(R.font.qcf2007))
-val kingFahd008 = FontFamily(Font(R.font.qfc2008))
+val kingFahd008 = FontFamily(Font(R.font.qcf2008))
+val kingFahd009 = FontFamily(Font(R.font.qcf2009))
+val kingFahd010 = FontFamily(Font(R.font.qcf2010))
 val kingFahd603 = FontFamily(Font(R.font.qcf2603))
 

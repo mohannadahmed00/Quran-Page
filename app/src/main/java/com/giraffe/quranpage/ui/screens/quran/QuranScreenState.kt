@@ -9,5 +9,7 @@ data class QuranScreenState(
     val content: String = "",
     val verses: List<VerseModel> = mutableListOf(),
     val versesStr: List<String> = mutableListOf(),
-    val fontFamily: FontFamily = kingFahd003
+    val fontFamily: FontFamily = kingFahd003,
+    val selectedVerse:VerseModel?=null,
+    val pageIndex:Int=0,
 )

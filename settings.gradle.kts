@@ -1,5 +1,4 @@
 import java.net.URI
-import java.net.URL
 
 pluginManagement {
     repositories {
@@ -20,6 +19,8 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url = URI("https://jitpack.io") }
+        maven { url = URI("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
+
     }
 }
 
