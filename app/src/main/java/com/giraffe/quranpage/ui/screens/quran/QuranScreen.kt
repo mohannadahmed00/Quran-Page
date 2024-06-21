@@ -3,6 +3,7 @@ package com.giraffe.quranpage.ui.screens.quran
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.ClickableText
@@ -45,17 +49,18 @@ fun QuranContent(
     state: QuranScreenState = QuranScreenState(),
     events: QuranEvents
 ) {
-    val pagerState = rememberPagerState(pageCount = { state.pages.size })
+    /*val pagerState = rememberPagerState(pageCount = { state.pages.size })
     HorizontalPager(
         state = pagerState,
         reverseLayout = true,
+        key = {state.pages[it].pageIndex}
     ) { page ->
         Page(
             modifier = Modifier.fillMaxSize(),
             pageUI = state.pages[page],onVerseSelected = events::onVerseSelected)
-    }
+    }*/
 
-    /*val lazyListState = rememberLazyListState()
+    val lazyListState = rememberLazyListState()
     LazyRow(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxSize(),
@@ -63,12 +68,12 @@ fun QuranContent(
         reverseLayout = true,
         flingBehavior = rememberSnapFlingBehavior(lazyListState = lazyListState),
     ) {
-        items(state.pages) { page ->
+        items(state.pages, key = {it.pageIndex}) { page ->
             Page(
                 modifier = Modifier.fillParentMaxSize(),
                 pageUI = page,onVerseSelected =events::onVerseSelected)
         }
-    }*/
+    }
 }
 
 @Composable
