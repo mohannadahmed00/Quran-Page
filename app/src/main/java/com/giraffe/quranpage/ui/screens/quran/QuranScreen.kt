@@ -6,9 +6,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.utils.toArabic
+import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 
 @Composable
@@ -49,21 +50,38 @@ fun QuranContent(
         state = pagerState,
         reverseLayout = true,
     ) { page ->
-        Page(pageUI = state.pages[page], events::onVerseSelected)
+        Page(
+            modifier = Modifier.fillMaxSize(),
+            pageUI = state.pages[page],onVerseSelected = events::onVerseSelected)
     }
+
+    /*val lazyListState = rememberLazyListState()
+    LazyRow(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxSize(),
+        state = lazyListState,
+        reverseLayout = true,
+        flingBehavior = rememberSnapFlingBehavior(lazyListState = lazyListState),
+    ) {
+        items(state.pages) { page ->
+            Page(
+                modifier = Modifier.fillParentMaxSize(),
+                pageUI = page,onVerseSelected =events::onVerseSelected)
+        }
+    }*/
 }
 
 @Composable
-fun Page(pageUI: PageUI, onVerseSelected: (VerseModel) -> Unit) {
+fun Page(
+    modifier: Modifier = Modifier,
+    pageUI: PageUI, onVerseSelected: (VerseModel) -> Unit) {
     val context = LocalContext.current
     Column(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = modifier
             .statusBarsPadding(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.weight(1f))
         ClickableText(
             text = pageUI.text,
             style = TextStyle(
@@ -96,9 +114,8 @@ fun Page(pageUI: PageUI, onVerseSelected: (VerseModel) -> Unit) {
 
             }
         )
-        Spacer(modifier = Modifier.weight(1f))
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.sdp),
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             Text(text = (pageUI.pageIndex).toArabic())
