@@ -1,5 +1,7 @@
 package com.giraffe.quranpage.ui.screens.quran
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,22 +15,18 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.text.withStyle
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.utils.toArabic
 import ir.kaaveh.sdpcompose.ssp
 
@@ -46,68 +44,65 @@ fun QuranContent(
     state: QuranScreenState = QuranScreenState(),
     events: QuranEvents
 ) {
-
-    val pagerState = rememberPagerState(pageCount = { 10 })
-    LaunchedEffect(pagerState) {
-        snapshotFlow { pagerState.currentPage }.collect { page ->
-            events.getPageContent(page + 1)
-        }
+    val pagerState = rememberPagerState(pageCount = { state.pages.size })
+    HorizontalPager(
+        state = pagerState,
+        reverseLayout = true,
+    ) { page ->
+        Page(pageUI = state.pages[page], events::onVerseSelected)
     }
-    HorizontalPager(state = pagerState, reverseLayout = true) { page ->
-        val text = buildAnnotatedString {
-            state.pageVerses.forEach { verse ->
-                pushStringAnnotation(tag = verse.qcfData, annotation = verse.qcfData)
-                withStyle(
-                    SpanStyle(
-                        background = if (state.selectedVerse?.pageIndex == verse.pageIndex && state.selectedVerse.verseNumber == verse.verseNumber) Color.Green.copy(
-                            alpha = 0.1f
-                        ) else Color.Transparent
+}
+
+@Composable
+fun Page(pageUI: PageUI, onVerseSelected: (VerseModel) -> Unit) {
+    val context = LocalContext.current
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.weight(1f))
+        ClickableText(
+            text = pageUI.text,
+            style = TextStyle(
+                fontSize = 20.ssp,
+                textDirection = TextDirection.Rtl,
+                lineHeight = 40.ssp,
+                localeList = LocaleList(Locale("ar")),
+                textAlign = TextAlign.Center,
+            ),
+            onClick = { offset ->
+                pageUI.verses.forEach { verse ->
+                    pageUI.text.getStringAnnotations(
+                        tag = verse.qcfData,
+                        start = offset,
+                        end = offset
                     )
-                ) {
-                    append(verse.qcfData)
+                        .firstOrNull()?.let {
+                            onVerseSelected(verse)
+                            Log.d(
+                                "TAG",
+                                "(${verse.verseNumber}) => ${verse.normalContent}"
+                            )
+                            Toast.makeText(
+                                context,
+                                "${verse.normalContent} (${verse.verseNumber.toArabic()})",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                 }
-                pop()
-            }
-        }
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .statusBarsPadding(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.weight(1f))
-            ClickableText(
-                text = text,
-                style = TextStyle(
-                    fontSize = 20.ssp,
-                    textDirection = TextDirection.Rtl,
-                    lineHeight = 40.ssp,
-                    localeList = LocaleList(Locale("ar")),
-                    textAlign = TextAlign.Center,
-                    fontFamily = state.pageFont
-                ),
-                onClick = { offset ->
-                    state.pageVerses.forEach { verse ->
-                        text.getStringAnnotations(
-                            tag = verse.qcfData,
-                            start = offset,
-                            end = offset
-                        )
-                            .firstOrNull()?.let {
-                                events.onVerseSelected(verse)
-                            }
-                    }
 
-                }
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                Text(text = (page + 1).toArabic())
             }
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            Text(text = (pageUI.pageIndex).toArabic())
         }
     }
+
 }

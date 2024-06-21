@@ -409,7 +409,30 @@ override fun handleSpacesOfVerse(isFirst: Boolean, verse: String): String {
         return if (isFirst) str.substring(0, 1).plus("\u200f").plus(str.substring(1)) else str
     }
 //==================================================================================================
+LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }.collect { page ->
+            events.getPageContent(page + 1)
+        }
+    }
+//==================================================================================================
+events.onPageChanged(page+1)
+        val pageVerses = state.pages[page+1]
+        val text = buildAnnotatedString {
+            pageVerses?.forEach { verse ->
+                pushStringAnnotation(tag = verse.qcfData, annotation = verse.qcfData)
+                withStyle(
+                    SpanStyle(
+                        background = if (state.selectedVerse?.pageIndex == verse.pageIndex && state.selectedVerse.verseNumber == verse.verseNumber) Color.Green.copy(
+                            alpha = 0.1f
+                        ) else Color.Transparent
+                    )
+                ) {
+                    append(verse.qcfData)
+                }
+                pop()
+            }
+        }
+//==================================================================================================
 
 */
-
 
