@@ -393,6 +393,22 @@ fun getLocalAyahsOfSurah(context: Context){
         }
     }
 //==================================================================================================
+override fun handleVerses(verses: List<VerseModel>): String {
+        val strBuilder = StringBuilder()
+        val list = mutableListOf<String>()
+        verses.forEachIndexed { index, verse ->
+            val str = handleVerse(index == 0, verse.qcfData)
+            strBuilder.append(str)
+        }
+        _state.update { it.copy(versesStr = list) }
+        return strBuilder.toString()
+    }
+//==================================================================================================
+override fun handleSpacesOfVerse(isFirst: Boolean, verse: String): String {
+        val str = verse.replace(" ","")
+        return if (isFirst) str.substring(0, 1).plus("\u200f").plus(str.substring(1)) else str
+    }
+//==================================================================================================
 
 */
 

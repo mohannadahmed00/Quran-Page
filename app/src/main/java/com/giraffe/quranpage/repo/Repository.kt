@@ -83,7 +83,7 @@ class Repository @Inject constructor(
                 it.toAyahModel().copy(surahIndex = surahIndex)
             }
 
-    fun getContentOfPage(pageIndex:Int) = localDataSource.getContentOfPage(pageIndex)
+    fun getContentOfPage() = localDataSource.getContentOfPage()
 
     companion object {
         private const val TAG = "Repository"

@@ -46,3 +46,15 @@ val kingFahd009 = FontFamily(Font(R.font.qcf2009))
 val kingFahd010 = FontFamily(Font(R.font.qcf2010))
 val kingFahd603 = FontFamily(Font(R.font.qcf2603))
 
+val fontFamilies = listOf(
+    FontFamily(Font(R.font.qcf2001)),
+    FontFamily(Font(R.font.qcf2002)),
+    FontFamily(Font(R.font.qcf2003)),
+    FontFamily(Font(R.font.qcf2004)),
+    FontFamily(Font(R.font.qcf2005)),
+    FontFamily(Font(R.font.qcf2006)),
+    FontFamily(Font(R.font.qcf2007)),
+    FontFamily(Font(R.font.qcf2008)),
+    FontFamily(Font(R.font.qcf2009)),
+    FontFamily(Font(R.font.qcf2010)),
+)

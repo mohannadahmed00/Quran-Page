@@ -1,11 +1,10 @@
 package com.giraffe.quranpage.ui.screens.quran
 
-import androidx.compose.ui.text.font.FontFamily
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.repo.Repository
-import com.giraffe.quranpage.ui.theme.kingFahd007
+import com.giraffe.quranpage.ui.theme.fontFamilies
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,63 +20,36 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
     val state = _state.asStateFlow()
 
     init {
-        getPageContent(7, kingFahd007)
+        getAllVerses()
     }
 
-
-    private fun getPageContent(pageIndex: Int, fontFamily: FontFamily) {
+    private fun getAllVerses() {
         viewModelScope.launch(Dispatchers.IO) {
-            onPageIndexChanged(pageIndex)
-            repository.getContentOfPage(pageIndex).let {
+            repository.getContentOfPage().let {
                 _state.update { state ->
                     state.copy(
-                        fontFamily = fontFamily,
-                        verses = it,
-                        content = handleVerses(it)
+                        allVerses = it,
                     )
                 }
             }
         }
     }
 
-    override fun handleVerses(verses: List<VerseModel>): String {
-        val strBuilder = StringBuilder()
-        val list = mutableListOf<String>()
-        verses.forEachIndexed { index, verse ->
-            val str = handleVerse(index == 0, verse.qcfData)
-            strBuilder.append(str)
-        }
-        _state.update { it.copy(versesStr = list) }
-        return strBuilder.toString()
-    }
-
-    override fun handleVerse(isFirst: Boolean, verse: String): String {
-        return if (isFirst) {
-            handleFirstVerse(verse)
-        } else {
-            handleRestOfVerse(verse)
+    override fun getPageContent(pageIndex: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update { state ->
+                state.copy(
+                    pageVerses = state.allVerses.filter { it.pageIndex == pageIndex },
+                    pageIndex = pageIndex,
+                    pageFont = fontFamilies[pageIndex - 1]
+                )
+            }
         }
     }
 
     override fun onVerseSelected(verse: VerseModel) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _state.update { it.copy(selectedVerse = verse) }
         }
     }
-
-    override fun onPageIndexChanged(pageIndex: Int) {
-        viewModelScope.launch {
-            _state.update { it.copy(pageIndex = pageIndex) }
-        }
-    }
-
-    companion object {
-        private const val TAG = "QuranViewModel"
-    }
-
-    private fun handleFirstVerse(input: String) =
-        input.replace(" ", "").substring(0, 1).plus("\u200f")
-            .plus(input.replace(" ", "").substring(1))
-
-    private fun handleRestOfVerse(input: String) = input.replace(" ", "")
 }
