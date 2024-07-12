@@ -1,7 +1,8 @@
 package com.giraffe.quranpage.utils
 
 object Constants {
-    const val BASE_URL = "https://mp3quran.net/api/v3/"
+    const val BASE_URL = "https://api.alquran.cloud/"
+    //const val BASE_URL = "https://mp3quran.net/api/v3/"
     const val PAGES_URL = "https://www.mp3quran.net/api/quran_pages_svg/000.svg"
     //const val PAGES_URL = "https://www.maknoon.com/quran/hafs/000.svgz"
 

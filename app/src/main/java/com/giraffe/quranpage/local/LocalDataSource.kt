@@ -8,6 +8,7 @@ import com.giraffe.quranpage.local.database.AppDao
 import com.giraffe.quranpage.local.model.AyahModel
 import com.giraffe.quranpage.local.model.PageModel
 import com.giraffe.quranpage.local.model.SurahDataModel
+import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.local.preferences.DataStorePreferences
 import com.giraffe.quranpage.utils.drawCircles
@@ -35,8 +36,8 @@ class LocalDataSource(
     fun getCountOfSurahesData() = appDao.getCountOfSurahesData()
 
     //==============================================================================================
-    fun getContentOfPage(): List<VerseModel> = try {
-        context.assets.open("quran_text_v1.json").use { inputStream ->
+    fun getAllVerses(): List<VerseModel> = try {
+        context.assets.open("quran_text.json").use { inputStream ->
             val size = inputStream.available()
             val buffer = ByteArray(size)
             inputStream.read(buffer)
@@ -44,6 +45,20 @@ class LocalDataSource(
             val verseListType = object : TypeToken<List<VerseModel>>() {}.type
             Gson().fromJson<List<VerseModel>>(json, verseListType)
             //.filter { it.pageIndex == pageIndex }
+        }
+    } catch (e: Exception) {
+        Log.e(TAG, "Error loading page content: ${e.message}")
+        emptyList()
+    }
+
+    fun getSurahesData(): List<SurahModel> = try {
+        context.assets.open("surahes_data.json").use { inputStream ->
+            val size = inputStream.available()
+            val buffer = ByteArray(size)
+            inputStream.read(buffer)
+            val json = String(buffer)
+            val verseListType = object : TypeToken<List<SurahModel>>() {}.type
+            Gson().fromJson(json, verseListType)
         }
     } catch (e: Exception) {
         Log.e(TAG, "Error loading page content: ${e.message}")

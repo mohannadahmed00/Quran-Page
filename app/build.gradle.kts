@@ -73,6 +73,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
+
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.viewModel)
     implementation(libs.androidx.viewModelEx)

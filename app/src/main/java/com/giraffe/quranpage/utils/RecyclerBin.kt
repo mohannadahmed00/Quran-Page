@@ -433,6 +433,28 @@ events.onPageChanged(page+1)
             }
         }
 //==================================================================================================
+    val lazyListState = rememberLazyListState()
+    LazyRow(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxSize(),
+        state = lazyListState,
+        reverseLayout = true,
+        flingBehavior = rememberSnapFlingBehavior(lazyListState = lazyListState),
+    ) {
+        items(state.pages, key = {it.pageIndex}) { page ->
+            Page(
+                modifier = Modifier.fillParentMaxSize(),
+                pageUI = page,onVerseSelected =events::onVerseSelected)
+        }
+    }
+//==================================================================================================
+CompositionLocalProvider(LocalLayoutDirection provides if (pageUI.pageIndex%2==0) LayoutDirection.Ltr else LayoutDirection.Rtl ) {
+            Row(modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 8.dp),Arrangement.SpaceBetween){
+                Text(text = pageUI.surahName)
+                Text(text = "juz' ${pageUI.juz}")
+            }
+        }
+//==================================================================================================
 
 */
 

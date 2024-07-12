@@ -8,4 +8,6 @@ data class VerseModel(
     val surahNumber: Int,
     val verseNumber: Int,
     val pageIndex: Int,
+    val sajda: Boolean = false,
+    val quarterHezbIndex: Int,
 )

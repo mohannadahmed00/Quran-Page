@@ -1,19 +1,15 @@
 package com.giraffe.quranpage.ui.screens.quran
 
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.ClickableText
@@ -23,16 +19,20 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.giraffe.quranpage.local.model.VerseModel
-import com.giraffe.quranpage.utils.toArabic
-import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 
 @Composable
@@ -49,46 +49,44 @@ fun QuranContent(
     state: QuranScreenState = QuranScreenState(),
     events: QuranEvents
 ) {
-    /*val pagerState = rememberPagerState(pageCount = { state.pages.size })
+    val pagerState = rememberPagerState(pageCount = { state.pages.size })
     HorizontalPager(
         state = pagerState,
         reverseLayout = true,
-        key = {state.pages[it].pageIndex}
+        //key = { state.pages[it].pageIndex }
     ) { page ->
         Page(
             modifier = Modifier.fillMaxSize(),
-            pageUI = state.pages[page],onVerseSelected = events::onVerseSelected)
-    }*/
-
-    val lazyListState = rememberLazyListState()
-    LazyRow(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxSize(),
-        state = lazyListState,
-        reverseLayout = true,
-        flingBehavior = rememberSnapFlingBehavior(lazyListState = lazyListState),
-    ) {
-        items(state.pages, key = {it.pageIndex}) { page ->
-            Page(
-                modifier = Modifier.fillParentMaxSize(),
-                pageUI = page,onVerseSelected =events::onVerseSelected)
-        }
+            text = convertVerseToText(state.pages[page].verses,state.pages[page].fontFamily,state.selectedVerse),
+            pageUI = state.pages[page],
+            onVerseSelected = events::onVerseSelected
+        )
     }
 }
 
 @Composable
 fun Page(
     modifier: Modifier = Modifier,
-    pageUI: PageUI, onVerseSelected: (VerseModel) -> Unit) {
-    val context = LocalContext.current
+    text: AnnotatedString,
+    pageUI: PageUI,
+    onVerseSelected: (VerseModel) -> Unit,
+) {
     Column(
         modifier = modifier
             .statusBarsPadding(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp),Arrangement.SpaceBetween){
+            Text(text = pageUI.surahName)
+            Text(text = "juz' ${pageUI.juz}")
+        }
+        Spacer(modifier = Modifier.weight(1f))
         ClickableText(
-            text = pageUI.text,
+            text = text,
             style = TextStyle(
                 fontSize = 20.ssp,
                 textDirection = TextDirection.Rtl,
@@ -98,33 +96,47 @@ fun Page(
             ),
             onClick = { offset ->
                 pageUI.verses.forEach { verse ->
-                    pageUI.text.getStringAnnotations(
+                    text.getStringAnnotations(
                         tag = verse.qcfData,
                         start = offset,
                         end = offset
                     )
                         .firstOrNull()?.let {
                             onVerseSelected(verse)
-                            Log.d(
-                                "TAG",
-                                "(${verse.verseNumber}) => ${verse.normalContent}"
-                            )
-                            Toast.makeText(
-                                context,
-                                "${verse.normalContent} (${verse.verseNumber.toArabic()})",
-                                Toast.LENGTH_SHORT
-                            ).show()
                         }
                 }
 
             }
         )
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.sdp),
-            horizontalArrangement = Arrangement.SpaceAround
-        ) {
-            Text(text = (pageUI.pageIndex).toArabic())
+        Spacer(modifier = Modifier.weight(1f))
+        Row (verticalAlignment = Alignment.CenterVertically){
+            Box(modifier = Modifier.weight(1f))
+            Text(text = (pageUI.pageIndex).toString())
+            Box(modifier = Modifier.weight(1f), Alignment.CenterEnd) {
+                pageUI.hezb?.let {
+                    Text(text = it, style = TextStyle(fontSize = 10.ssp))
+                }
+            }
         }
+
+
     }
 
 }
+
+fun convertVerseToText(
+    verses: List<VerseModel>,
+    fontFamily: FontFamily,
+    selectedVerse:VerseModel? = null
+): AnnotatedString {
+    return buildAnnotatedString {
+        verses.forEach { verse ->
+            pushStringAnnotation(tag = verse.qcfData, annotation = verse.qcfData)
+            withStyle(style = SpanStyle(fontFamily = fontFamily, background = if (verse.verseNumber==selectedVerse?.verseNumber && verse.pageIndex==selectedVerse.pageIndex) Color.Green.copy(alpha = 0.1f) else Color.Transparent)) {
+                append(verse.qcfData)
+            }
+            pop()
+        }
+    }
+}
+
