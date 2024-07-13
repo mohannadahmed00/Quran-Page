@@ -46,7 +46,7 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                             PageUI(
                                 pageIndex = it.first,
                                 verses = it.second,
-                                fontFamily = fontFamilies[if (it.first <= 10) it.first - 1 else 0],
+                                fontFamily = fontFamilies[it.first - 11],
                                 surahName = getSurahesOfPage(it.second,_state.value.surahesData),
                                 juz = ceil(it.first/20.0).toInt(),
                                 hezb = if (currentHezbNumber==pageHezb) {
