@@ -46,16 +46,17 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                             PageUI(
                                 pageIndex = it.first,
                                 verses = it.second,
-                                fontFamily = fontFamilies[it.first - 11],
-                                surahName = getSurahesOfPage(it.second,_state.value.surahesData),
-                                juz = ceil(it.first/20.0).toInt(),
-                                hezb = if (currentHezbNumber==pageHezb) {
+                                fontFamily = fontFamilies[it.first - 1],
+                                surahName = getSurahesOfPage(it.second, _state.value.surahesData),
+                                juz = ceil(it.first / 20.0).toInt(),
+                                hezb = if (currentHezbNumber == pageHezb) {
                                     null
                                 } else {
                                     val prev = currentHezbNumber
                                     currentHezbNumber = pageHezb
                                     getHezbStr(prev)
-                                }
+                                },
+                                hasSajdah = hasSajdah(it.second)
                             )
                         },
                     )
@@ -64,7 +65,18 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
         }
     }
 
-    private fun getHezbNumbre(verses:List<VerseModel>):Int{
+    private fun hasSajdah(verses: List<VerseModel>): Boolean {
+        var hasSajdah = false
+        for (verse in verses) {
+            if (verse.sajda) {
+                hasSajdah = true
+                break
+            }
+        }
+        return hasSajdah
+    }
+
+    private fun getHezbNumbre(verses: List<VerseModel>): Int {
         var hezbNumber = 0
         verses.forEach {
             hezbNumber = it.quarterHezbIndex
@@ -72,16 +84,17 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
         return hezbNumber
     }
 
-    private fun getHezbStr(quarterIndex:Int):String{
-        val integerPart = (quarterIndex/4.0).toInt()//0
-        val fractionalPart = (quarterIndex/4.0)-integerPart//0.25
+    private fun getHezbStr(quarterIndex: Int): String {
+        val integerPart = (quarterIndex / 4.0).toInt()//0
+        val fractionalPart = (quarterIndex / 4.0) - integerPart//0.25
         val str = StringBuilder()
-        if (fractionalPart!=0.0) str.append(decimalToFraction(fractionalPart))
-        str.append(" Hezb ${integerPart+1}")
+        if (fractionalPart != 0.0) str.append(decimalToFraction(fractionalPart))
+        str.append(" hezb ${integerPart + 1}")
         return str.toString()
     }
 
-    private fun decimalToFraction(decimal: Double) = "${(decimal/.25).toInt()}/4"
+    private fun decimalToFraction(decimal: Double) =
+        if ((decimal / .25).toInt() == 2) "1/2" else "${(decimal / .25).toInt()}/4"
 
     private fun getSurahesOfPage(verses: List<VerseModel>, surahesData: List<SurahModel>): String {
         val str = StringBuilder()
@@ -90,7 +103,7 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
             if (it.surahNumber != surahNumber) {
                 surahNumber = it.surahNumber
                 str.append(surahesData.firstOrNull { surah -> surah.id == surahNumber }?.name ?: "")
-                str.append(" ")
+                str.append("    ")
             }
         }
         return str.toString().trim()
@@ -100,6 +113,12 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
     override fun onVerseSelected(verse: VerseModel) {
         viewModelScope.launch(Dispatchers.IO) {
             _state.update { it.copy(selectedVerse = verse) }
+        }
+    }
+
+    override fun onPageSelected(pageIndex: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update { it.copy(selectedPageIndex = pageIndex) }
         }
     }
 }
