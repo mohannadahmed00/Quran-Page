@@ -3,6 +3,6 @@ package com.giraffe.quranpage.ui.screens.quran
 import com.giraffe.quranpage.local.model.VerseModel
 
 interface QuranEvents {
-    fun onVerseSelected(verse: VerseModel)
+    fun onVerseSelected(pageUI: PageUI,content: Content,verse: VerseModel)
     fun onPageSelected(pageIndex: Int)
 }

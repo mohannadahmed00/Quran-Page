@@ -1,11 +1,18 @@
 package com.giraffe.quranpage.ui.screens.quran
 
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.withStyle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.repo.Repository
+import com.giraffe.quranpage.ui.theme.brown
 import com.giraffe.quranpage.ui.theme.fontFamilies
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -35,30 +42,137 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
         }
     }
 
-    fun getAllVerses() {
+    private fun convertVerseToText(
+        verses: List<VerseModel>,
+        fontFamily: FontFamily,
+        selectedVerse: VerseModel? = null
+    ): AnnotatedString {
+        return buildAnnotatedString {
+            verses.forEach { verse ->
+                pushStringAnnotation(tag = verse.qcfData, annotation = verse.qcfData)
+                val handledVerse = handleVerse(verse)
+
+
+                withStyle(
+                    style = SpanStyle(
+                        fontFamily = fontFamily,
+                        background = if (
+                            verse == selectedVerse
+                        ) brown.copy(
+                            alpha = 0.2f
+                        ) else Color.Transparent
+                    )
+                ) {
+                    append(handledVerse.substring(0,handledVerse.length-1))
+                    withStyle(style = SpanStyle(color = brown)){
+                        append(handledVerse.substring(handledVerse.length-1))
+                    }
+
+                }
+                pop()
+
+            }
+        }
+    }
+    private fun handleVerse(verse: VerseModel):String{
+        return when (verse.pageIndex) {
+            1 -> {
+                handelALFatiha(verse.qcfData,verse.verseNumber)
+            }
+            2 -> {
+                handelFirstPageOfAlBaqarah(verse.qcfData,verse.verseNumber)
+            }
+            else -> {
+                verse.qcfData
+            }
+        }
+    }
+    private fun handelALFatiha(txt: String, verseNumber: Int): String {
+        val str = StringBuilder()
+        when (verseNumber) {
+            1, 2, 4 -> {
+                str.append(txt)
+                str.append("\n")
+            }
+            7 -> {
+                txt.forEachIndexed { index, c ->
+                    str.append(c)
+                    if (index == txt.length - 4) str.append("\n")
+                }
+            }
+            else -> {
+                str.append(txt)
+            }
+        }
+        return str.toString()
+
+    }
+
+    private fun handelFirstPageOfAlBaqarah(txt: String, verseNumber: Int): String {
+        val str = StringBuilder()
+        val l = txt.length
+        when (verseNumber) {
+            2 -> {
+                txt.forEachIndexed { index, c ->
+                    str.append(c)
+                    if (index == l - 3) str.append("\n")
+                }
+            }
+            5 -> {
+                txt.forEachIndexed { index, c ->
+                    str.append(c)
+                    if (index == l - 4) str.append("\n")
+                }
+            }
+            else -> {
+                str.append(txt)
+            }
+        }
+        return str.toString()
+
+    }
+
+    private fun getAllVerses() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getAllVerses().let { ayahs ->
                 var currentHezbNumber = 1
                 _state.update { state ->
+                    val pages = ayahs.groupBy { it.pageIndex }.toList().map {
+                        val pageHezb = getHezbNumbre(it.second)//2
+                        val contents = it.second.groupBy { verses -> verses.surahNumber }
+                            .map { group ->
+                                val surahArabicName =
+                                    state.surahesData.firstOrNull { surah -> surah.id == group.key }?.arabic
+                                Content(
+                                    surahArabicName ?: "",
+                                    group.value,
+                                    convertVerseToText(
+                                        group.value,
+                                        fontFamilies[it.first - 1],
+                                        state.selectedVerse
+                                    )
+                                )
+                            }
+                        PageUI(
+                            contents = contents,
+                            orgContents = contents,
+                            pageIndex = it.first,
+                            fontFamily = fontFamilies[it.first - 1],
+                            surahName = getSurahesOfPage(it.second, _state.value.surahesData),
+                            juz = ceil(it.first / 20.0).toInt(),
+                            hezb = if (currentHezbNumber == pageHezb) {
+                                null
+                            } else {
+                                val prev = currentHezbNumber
+                                currentHezbNumber = pageHezb
+                                getHezbStr(prev)
+                            },
+                            hasSajdah = hasSajdah(it.second)
+                        )
+                    }
                     state.copy(
-                        pages = ayahs.groupBy { it.pageIndex }.toList().map {
-                            val pageHezb = getHezbNumbre(it.second)//2
-                            PageUI(
-                                pageIndex = it.first,
-                                verses = it.second,
-                                fontFamily = fontFamilies[it.first - 1],
-                                surahName = getSurahesOfPage(it.second, _state.value.surahesData),
-                                juz = ceil(it.first / 20.0).toInt(),
-                                hezb = if (currentHezbNumber == pageHezb) {
-                                    null
-                                } else {
-                                    val prev = currentHezbNumber
-                                    currentHezbNumber = pageHezb
-                                    getHezbStr(prev)
-                                },
-                                hasSajdah = hasSajdah(it.second)
-                            )
-                        },
+                        orgPages = pages,
+                        pages = pages,
                     )
                 }
             }
@@ -110,9 +224,15 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
 
     }
 
-    override fun onVerseSelected(verse: VerseModel) {
+    override fun onVerseSelected(pageUI: PageUI, content: Content, verse: VerseModel) {
         viewModelScope.launch(Dispatchers.IO) {
-            _state.update { it.copy(selectedVerse = verse) }
+            val contentIndex = pageUI.contents.indexOfFirst { it == content }//0
+            val contents = pageUI.orgContents.toMutableList()//pure
+            contents[contentIndex] = pageUI.contents.first { it == content }
+                .copy(text = convertVerseToText(content.verses, pageUI.fontFamily, verse))
+            val pages = state.value.orgPages.toMutableList()
+            pages[pageUI.pageIndex - 1] = pageUI.copy(contents = contents)
+            _state.update { it.copy(selectedVerse = verse, pages = pages) }
         }
     }
 

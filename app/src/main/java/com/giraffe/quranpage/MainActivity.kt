@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,10 +22,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            QuranPageTheme {
+            QuranPageTheme(
+                darkTheme = false
+            ) {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    containerColor = Color.White
                 ) {
                     QuranScreen()
                     //HomeScreen()

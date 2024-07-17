@@ -1,0 +1,35 @@
+package com.giraffe.quranpage.ui.composables
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import com.giraffe.quranpage.local.model.VerseModel
+import com.giraffe.quranpage.ui.screens.quran.Content
+import com.giraffe.quranpage.ui.screens.quran.PageUI
+
+@Composable
+fun Page(
+    modifier: Modifier = Modifier,
+    pageUI: PageUI,
+    onVerseSelected: (PageUI, Content, VerseModel) -> Unit,
+    onPageSelected: (Int) -> Unit
+) {
+    Column(
+        modifier = modifier
+            .statusBarsPadding(),
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        PageHeader(pageUI = pageUI, onPageSelected = onPageSelected)
+        PageContent(
+            modifier = Modifier.weight(1f),
+            pageUI = pageUI,
+            onVerseSelected = onVerseSelected
+        )
+        PageFooter(pageUI = pageUI, onPageSelected = onPageSelected)
+    }
+
+}
