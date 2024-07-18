@@ -4,5 +4,5 @@ import com.giraffe.quranpage.local.model.VerseModel
 
 interface QuranEvents {
     fun onVerseSelected(pageUI: PageUI,content: Content,verse: VerseModel)
-    fun onPageSelected(pageIndex: Int)
+    fun onPageChanged(pageIndex: Int)
 }

@@ -49,7 +49,7 @@ fun PageContent(
                 style = TextStyle(
                     fontSize = 20.ssp,
                     textDirection = TextDirection.Rtl,
-                    lineHeight = 41.ssp,
+                    lineHeight = 39.ssp,
                     localeList = LocaleList(Locale("ar")),
                     textAlign = TextAlign.Center,
                 ),

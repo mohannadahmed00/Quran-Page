@@ -236,9 +236,9 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
         }
     }
 
-    override fun onPageSelected(pageIndex: Int) {
+    override fun onPageChanged(pageIndex: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            _state.update { it.copy(selectedPageIndex = pageIndex) }
+            _state.update { it.copy(currentPageIndex = pageIndex) }
         }
     }
 }

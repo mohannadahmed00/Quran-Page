@@ -13,13 +13,12 @@ data class QuranScreenState(
     val pages: List<PageUI> = listOf(),
     val surahesData: List<SurahModel> = listOf(),
     val ayahs: List<VerseModel> = listOf(),
-    val selectedPageIndex: Int = 0
+    val currentPageIndex: Int = 0
 )
 
 @Immutable
 data class PageUI(
     val pageIndex: Int,
-    //val verses: List<VerseModel>,
     val orgContents:List<Content>,
     val contents:List<Content>,
     val fontFamily: FontFamily,
