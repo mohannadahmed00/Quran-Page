@@ -141,7 +141,9 @@ fun QuranContent(
             ) {
                 val surah = state.surahesData[(state.selectedVerse?.surahNumber?.minus(1)) ?: 0]
                 Text(
-                    "Surah (${surah.name}) Index : ${surah.id}\nVrese Index : ${state.selectedVerse?.verseNumber ?: 0}",
+                    "Surah (${surah.name}) Index : ${surah.id}" +
+                            "\nVrese Index : ${state.selectedVerse?.verseNumber ?: 0}" +
+                            "\nPage Index : ${state.selectedVerse?.pageIndex ?: 0}",
                     style = TextStyle(
                         color = MaterialTheme.colorScheme.onPrimary,
                         fontSize = 16.ssp

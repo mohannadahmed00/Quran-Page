@@ -94,9 +94,9 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
     private fun handelALFatiha(txt: String, verseNumber: Int): String {
         val str = StringBuilder()
         when (verseNumber) {
-            1, 2, 4 -> {
-                str.append(txt)
+            2, 3, 5 -> {
                 str.append("\n")
+                str.append(txt)
             }
 
             7 -> {
