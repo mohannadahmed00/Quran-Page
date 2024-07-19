@@ -1,7 +1,8 @@
 package com.giraffe.quranpage.utils
 
 object Constants {
-    const val BASE_URL = "https://api.alquran.cloud/"
+    const val BASE_URL = "http://api.quran-tafseer.com/"//4/2/7//tafsir/surah/ayah
+    //const val BASE_URL = "https://api.alquran.cloud/"
     //const val BASE_URL = "https://mp3quran.net/api/v3/"
     const val PAGES_URL = "https://www.mp3quran.net/api/quran_pages_svg/000.svg"
     //const val PAGES_URL = "https://www.maknoon.com/quran/hafs/000.svgz"
@@ -28,6 +29,7 @@ object Constants {
     object EndPoints {
         const val AYAT_TIMING = "ayat_timing"
         const val SUWAR = "suwar"
+        const val TAFSIR = "tafseer"
     }
 
     object QueryParameters {

@@ -63,9 +63,9 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                         ) else Color.Transparent
                     )
                 ) {
-                    append(handledVerse.substring(0,handledVerse.length-1))
-                    withStyle(style = SpanStyle(color = brown)){
-                        append(handledVerse.substring(handledVerse.length-1))
+                    append(handledVerse.substring(0, handledVerse.length - 1))
+                    withStyle(style = SpanStyle(color = brown)) {
+                        append(handledVerse.substring(handledVerse.length - 1))
                     }
 
                 }
@@ -74,19 +74,23 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
             }
         }
     }
-    private fun handleVerse(verse: VerseModel):String{
+
+    private fun handleVerse(verse: VerseModel): String {
         return when (verse.pageIndex) {
             1 -> {
-                handelALFatiha(verse.qcfData,verse.verseNumber)
+                handelALFatiha(verse.qcfData, verse.verseNumber)
             }
+
             2 -> {
-                handelFirstPageOfAlBaqarah(verse.qcfData,verse.verseNumber)
+                handelFirstPageOfAlBaqarah(verse.qcfData, verse.verseNumber)
             }
+
             else -> {
                 verse.qcfData
             }
         }
     }
+
     private fun handelALFatiha(txt: String, verseNumber: Int): String {
         val str = StringBuilder()
         when (verseNumber) {
@@ -94,12 +98,14 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                 str.append(txt)
                 str.append("\n")
             }
+
             7 -> {
                 txt.forEachIndexed { index, c ->
                     str.append(c)
                     if (index == txt.length - 4) str.append("\n")
                 }
             }
+
             else -> {
                 str.append(txt)
             }
@@ -118,12 +124,14 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                     if (index == l - 3) str.append("\n")
                 }
             }
+
             5 -> {
                 txt.forEachIndexed { index, c ->
                     str.append(c)
                     if (index == l - 4) str.append("\n")
                 }
             }
+
             else -> {
                 str.append(txt)
             }
@@ -240,5 +248,21 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
         viewModelScope.launch(Dispatchers.IO) {
             _state.update { it.copy(currentPageIndex = pageIndex) }
         }
+    }
+
+    override fun getTafseer(surahIndex: Int, ayahNumber: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update {
+                it.copy(
+                    selectedVerse = state.value.selectedVerse?.copy(
+                        tafseer = repository.getTafseer(
+                            surahIndex,
+                            ayahNumber
+                        )
+                    )
+                )
+            }
+        }
+
     }
 }

@@ -1,5 +1,7 @@
 package com.giraffe.quranpage.local.model
 
+import com.giraffe.quranpage.remote.response.TafseerResponse
+
 
 data class VerseModel(
     val content: String,
@@ -10,4 +12,5 @@ data class VerseModel(
     val pageIndex: Int,
     val sajda: Boolean = false,
     val quarterHezbIndex: Int,
+    val tafseer:TafseerResponse? = null
 )

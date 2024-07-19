@@ -6,6 +6,7 @@ import com.giraffe.quranpage.local.model.AyahModel
 import com.giraffe.quranpage.local.model.PageModel
 import com.giraffe.quranpage.local.model.SurahDataModel
 import com.giraffe.quranpage.remote.RemoteDataSource
+import com.giraffe.quranpage.remote.response.TafseerResponse
 import com.giraffe.quranpage.utils.OnResponse
 import javax.inject.Inject
 
@@ -85,6 +86,15 @@ class Repository @Inject constructor(
 
     fun getAllVerses() = localDataSource.getAllVerses()
     fun getSurahesData() = localDataSource.getSurahesData()
+
+
+    suspend fun getTafseer(
+        surahIndex: Int,
+        ayahNumber: Int
+    ):TafseerResponse? {
+        val response = remoteDataSource.getTafseer(surahIndex = surahIndex, ayahNumber = ayahNumber)
+        return if (response.isSuccessful) response.body() else null
+    }
 
     companion object {
         private const val TAG = "Repository"
