@@ -16,7 +16,7 @@ import com.giraffe.quranpage.ui.screens.quran.PageUI
 import ir.kaaveh.sdpcompose.ssp
 
 @Composable
-fun PageHeader(modifier: Modifier = Modifier, pageUI: PageUI, onDrawerClicked: () -> Unit) {
+fun PageHeader(modifier: Modifier = Modifier, pageUI: PageUI, onSurahNameClick: () -> Unit,onPartClick: () -> Unit,) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -24,7 +24,7 @@ fun PageHeader(modifier: Modifier = Modifier, pageUI: PageUI, onDrawerClicked: (
     ) {
         Text(
             modifier = Modifier.clickable {
-                onDrawerClicked()
+                onSurahNameClick()
             },
             text = pageUI.surahName,
             style = TextStyle(
@@ -34,6 +34,9 @@ fun PageHeader(modifier: Modifier = Modifier, pageUI: PageUI, onDrawerClicked: (
             )
         )
         Text(
+            modifier = Modifier.clickable {
+                onPartClick()
+            },
             text = "juz' ${pageUI.juz}",
             style = TextStyle(
                 fontSize = 10.ssp,

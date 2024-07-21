@@ -32,7 +32,7 @@ class LocalDataSource(
     fun getPagesCount() = appDao.getPagesCount()
     fun getPages() = appDao.getPages()
     fun storeSurahData(surahDataModel: SurahDataModel) = appDao.insertSurahData(surahDataModel)
-    fun getSurahData(surahIndex: Int) = appDao.getSurahData(surahIndex)
+    fun getSurahData(surahIndex: Int) = getSurahesData().toMutableList().firstOrNull { it.id == surahIndex }
     fun getCountOfSurahesData() = appDao.getCountOfSurahesData()
 
     //==============================================================================================

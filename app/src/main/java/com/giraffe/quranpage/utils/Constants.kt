@@ -1,9 +1,9 @@
 package com.giraffe.quranpage.utils
 
 object Constants {
-    const val BASE_URL = "http://api.quran-tafseer.com/"//4/2/7//tafsir/surah/ayah
-    //const val BASE_URL = "https://api.alquran.cloud/"
-    //const val BASE_URL = "https://mp3quran.net/api/v3/"
+    const val TAFSEER_BASE_URL = "http://api.quran-tafseer.com/"//4/2/7//tafsir/surah/ayah
+    //const val READS_BASE_URL = "https://api.alquran.cloud/"
+    const val RECITERS_BASE_URL = "https://mp3quran.net/api/v3/"
     const val PAGES_URL = "https://www.mp3quran.net/api/quran_pages_svg/000.svg"
     //const val PAGES_URL = "https://www.maknoon.com/quran/hafs/000.svgz"
 
@@ -23,10 +23,12 @@ object Constants {
         const val NAME = "name"
         const val START_PAGE = "start_page"
         const val TYPE = "type"
+        const val FOLDER_URL = "folder_url"
 
     }
 
     object EndPoints {
+        const val READS = "reads"
         const val AYAT_TIMING = "ayat_timing"
         const val SUWAR = "suwar"
         const val TAFSIR = "tafseer"
@@ -40,6 +42,13 @@ object Constants {
     object DatabaseTables {
         const val PAGES = "pages"
         const val SURAHES_DATA = "surahes_data"
+    }
+
+
+    object PathSegments {
+        const val TAFSEER_ID = "TAFSEER_ID"
+        const val SURAH_INDEX = "SURAH_INDEX"
+        const val AYAH_INDEX = "AYAH_INDEX"
     }
 
     object PageDimensions {

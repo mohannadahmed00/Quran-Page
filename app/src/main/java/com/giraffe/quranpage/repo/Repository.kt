@@ -5,7 +5,9 @@ import com.giraffe.quranpage.local.LocalDataSource
 import com.giraffe.quranpage.local.model.AyahModel
 import com.giraffe.quranpage.local.model.PageModel
 import com.giraffe.quranpage.local.model.SurahDataModel
+import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.remote.RemoteDataSource
+import com.giraffe.quranpage.remote.response.ReciterResponse
 import com.giraffe.quranpage.remote.response.TafseerResponse
 import com.giraffe.quranpage.utils.OnResponse
 import javax.inject.Inject
@@ -25,27 +27,30 @@ class Repository @Inject constructor(
     }
 
     private fun downloadPages(
-        surahData: SurahDataModel,
+        surahData: SurahModel?,
         ayahs: List<AyahModel>?,
         onResponse: (MutableList<PageModel>) -> Unit
     ) {
-        for (pageIndex in surahData.startPage..surahData.endPage) {
-            remoteDataSource.downloadPage(pageIndex, object : OnResponse {
-                override fun onSuccess(result: String) {
-                    storePage(
-                        svgData = result,
-                        ayahs = ayahs,
-                        pageIndex = pageIndex,
-                        endPage = surahData.endPage,
-                        onResponse = onResponse
-                    )
-                }
+        surahData?.let {
+            for (pageIndex in it.startPage..it.endPage) {
+                remoteDataSource.downloadPage(pageIndex, object : OnResponse {
+                    override fun onSuccess(result: String) {
+                        storePage(
+                            svgData = result,
+                            ayahs = ayahs,
+                            pageIndex = pageIndex,
+                            endPage = surahData.endPage,
+                            onResponse = onResponse
+                        )
+                    }
 
-                override fun onFail(errorMsg: String) {
-                    Log.e(TAG, "onFail: $errorMsg")
-                }
-            })
+                    override fun onFail(errorMsg: String) {
+                        Log.e(TAG, "onFail: $errorMsg")
+                    }
+                })
+            }
         }
+
     }
 
     private fun storePage(
@@ -65,21 +70,12 @@ class Repository @Inject constructor(
         }
     }
 
-    private suspend fun getSurahData(surahIndex: Int): SurahDataModel {
-        if (localDataSource.getCountOfSurahesData() == 0) {
-            val surahesDataResponse = remoteDataSource.getSurahesData()
-            if (surahesDataResponse.isSuccessful) surahesDataResponse.body()?.surahesData
-                ?.forEach {
-                    localDataSource.storeSurahData(
-                        it.toSurahDataModel()
-                    )
-                }
-        }
+    private fun getSurahData(surahIndex: Int): SurahModel? {
         return localDataSource.getSurahData(surahIndex)
     }
 
     private suspend fun getAyahsOfSurah(surahIndex: Int) =
-        remoteDataSource.getAyahsOfSurah(surahIndex).body()
+        remoteDataSource.getAyahsTimingOfSurah(surahIndex).body()
             ?.map {
                 it.toAyahModel().copy(surahIndex = surahIndex)
             }
@@ -90,11 +86,15 @@ class Repository @Inject constructor(
 
     suspend fun getTafseer(
         surahIndex: Int,
-        ayahNumber: Int
-    ):TafseerResponse? {
-        val response = remoteDataSource.getTafseer(surahIndex = surahIndex, ayahNumber = ayahNumber)
-        return if (response.isSuccessful) response.body() else null
+        ayahIndex: Int
+    ) = remoteDataSource.getTafseer(surahIndex = surahIndex, ayahIndex = ayahIndex).let {
+        if (it.isSuccessful) it.body() else null
     }
+
+    suspend fun getReciters() = remoteDataSource.getReciters().let {
+        if (!it.isSuccessful || it.body() == null) emptyList() else it.body()!!
+    }
+
 
     companion object {
         private const val TAG = "Repository"

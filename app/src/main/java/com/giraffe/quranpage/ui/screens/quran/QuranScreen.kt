@@ -1,9 +1,14 @@
 package com.giraffe.quranpage.ui.screens.quran
 
+import android.media.MediaPlayer
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -13,6 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -32,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,16 +48,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.giraffe.quranpage.R
 import com.giraffe.quranpage.ui.composables.Page
 import com.giraffe.quranpage.ui.theme.brown
 import com.giraffe.quranpage.ui.theme.cream
 import com.giraffe.quranpage.ui.theme.fontFamilies
 import com.giraffe.quranpage.ui.theme.transparent
+import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 import kotlinx.coroutines.launch
 
@@ -118,6 +133,12 @@ fun QuranContent(
     ) {
         var showOptionsBottomSheet by remember { mutableStateOf(false) }
         var showTafseerBottomSheet by remember { mutableStateOf(false) }
+        var showRecitersBottomSheet by remember { mutableStateOf(false) }
+
+        val context = LocalContext.current
+        val mediaPlayer = remember { MediaPlayer.create(context, R.raw.ahmed_nu_018) }
+        val mediaPlayerState = remember { mutableStateOf(mediaPlayer.isPlaying) }
+
 
         HorizontalPager(
             state = pagerState,
@@ -126,11 +147,12 @@ fun QuranContent(
             Page(
                 modifier = Modifier.fillMaxSize(),
                 pageUI = state.pages[page],
-                onVerseSelected = { a, s, c ->
-                    events.onVerseSelected(a, s, c)
+                onVerseSelected = { pageUi, content, verse ->
+                    events.onVerseSelected(pageUi, content, verse)
                     showOptionsBottomSheet = true
                 },
-                onDrawerClicked = { scope.launch { drawerState.open() } }
+                onSurahNameClick = { scope.launch { drawerState.open() } },
+                onPartClick = {}
             )
         }
         if (showOptionsBottomSheet) {
@@ -141,15 +163,58 @@ fun QuranContent(
             ) {
                 val surah = state.surahesData[(state.selectedVerse?.surahNumber?.minus(1)) ?: 0]
                 Text(
-                    "Surah (${surah.name}) Index : ${surah.id}" +
-                            "\nVrese Index : ${state.selectedVerse?.verseNumber ?: 0}" +
-                            "\nPage Index : ${state.selectedVerse?.pageIndex ?: 0}",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .clickable { showRecitersBottomSheet = true },
+                    text = state.selectedReciter?.name ?: "",
                     style = TextStyle(
+                        textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onPrimary,
                         fontSize = 16.ssp
                     ),
-                    modifier = Modifier.padding(16.dp)
                 )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    Arrangement.SpaceEvenly
+                ) {
+                    Image(
+                        modifier = Modifier.size(35.sdp),
+                        painter = painterResource(id = R.drawable.ic_previous),
+                        contentDescription = "previous",
+                        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onPrimary)
+                    )
+                    if (!mediaPlayerState.value) Image(
+                        modifier = Modifier
+                            .size(35.sdp)
+                            .clickable {
+                                mediaPlayerState.value = true
+                                mediaPlayer.start()
+                            },
+                        painter = painterResource(id = R.drawable.ic_play),
+                        contentDescription = "play",
+                        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onPrimary)
+                    )
+                    else Image(
+                        modifier = Modifier
+                            .size(35.sdp)
+                            .clickable {
+                                mediaPlayerState.value = false
+                                mediaPlayer.pause()
+                            },
+                        painter = painterResource(id = R.drawable.ic_pause),
+                        contentDescription = "pause",
+                        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onPrimary)
+                    )
+                    Image(
+                        modifier = Modifier.size(35.sdp),
+                        painter = painterResource(id = R.drawable.ic_next),
+                        contentDescription = "next",
+                        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onPrimary)
+                    )
+                }
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = brown.copy(alpha = 0.1f)),
@@ -164,12 +229,6 @@ fun QuranContent(
                     colors = ButtonDefaults.buttonColors(containerColor = brown.copy(alpha = 0.2f)),
                     onClick = {}) {
                     Text("Share")
-                }
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = brown.copy(alpha = 0.3f)),
-                    onClick = {}) {
-                    Text("Listen")
                 }
                 Button(
                     modifier = Modifier.fillMaxWidth(),
@@ -226,6 +285,59 @@ fun QuranContent(
                         )
                     }
                 }
+
+
+            }
+        }
+        if (showRecitersBottomSheet) {
+            ModalBottomSheet(
+                modifier = Modifier.fillMaxHeight(),
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                onDismissRequest = { showRecitersBottomSheet = false }
+            ) {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl ) {
+                    LazyColumn(contentPadding = PaddingValues(vertical = 4.sdp)) {
+                        items(state.reciters) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.sdp)
+                                    .clickable {
+                                        events.onReciterClick(it)
+                                        showRecitersBottomSheet = false
+                                    }
+                            ) {
+                                Image(
+                                    modifier = Modifier
+                                        .size(25.sdp)
+                                        .clickable {},
+                                    painter = painterResource(id = R.drawable.ic_download),
+                                    contentDescription = "download",
+                                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.3f))
+                                )
+                                Spacer(modifier = Modifier.width(4.sdp))
+                                Text(
+                                    text = it.name,
+                                    style = TextStyle(
+                                        fontSize = 18.ssp,
+                                        color = MaterialTheme.colorScheme.onPrimary
+                                    ),
+                                )
+                                Spacer(modifier = Modifier.width(4.sdp))
+                                if (it.rewaya != "حفص عن عاصم") Text(
+                                    text = "(${it.rewaya})",
+                                    style = TextStyle(
+                                        fontSize = 16.ssp,
+                                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.3f)
+                                    ),
+                                )
+                            }
+
+                        }
+
+                    }
+                }
+
 
 
             }

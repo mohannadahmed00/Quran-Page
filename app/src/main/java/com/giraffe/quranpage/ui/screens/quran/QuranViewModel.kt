@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.local.model.VerseModel
+import com.giraffe.quranpage.remote.response.ReciterResponse
 import com.giraffe.quranpage.repo.Repository
 import com.giraffe.quranpage.ui.theme.brown
 import com.giraffe.quranpage.ui.theme.fontFamilies
@@ -30,15 +31,26 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
     val state = _state.asStateFlow()
 
     init {
+        getReciters()
         getSurahesData()
         getAllVerses()
     }
 
+    private fun getReciters() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val reciters = repository.getReciters()
+            _state.update {
+                it.copy(
+                    reciters = reciters,
+                    selectedReciter = if (reciters.isNotEmpty()) reciters[0] else null
+                )
+            }
+        }
+    }
+
     private fun getSurahesData() {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getSurahesData().let { surahes ->
-                _state.update { it.copy(surahesData = surahes) }
-            }
+            _state.update { it.copy(surahesData = repository.getSurahesData()) }
         }
     }
 
@@ -250,19 +262,24 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
         }
     }
 
-    override fun getTafseer(surahIndex: Int, ayahNumber: Int) {
+    override fun getTafseer(surahIndex: Int, ayahIndex: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             _state.update {
                 it.copy(
                     selectedVerse = state.value.selectedVerse?.copy(
                         tafseer = repository.getTafseer(
                             surahIndex,
-                            ayahNumber
+                            ayahIndex
                         )
                     )
                 )
             }
         }
+    }
 
+    override fun onReciterClick(reciter: ReciterResponse) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update { it.copy(selectedReciter = reciter) }
+        }
     }
 }
