@@ -5,8 +5,10 @@ import android.content.Context
 import android.util.Log
 import com.caverock.androidsvg.SVG
 import com.giraffe.quranpage.local.database.AppDao
+import com.giraffe.quranpage.local.database.RecitersDao
 import com.giraffe.quranpage.local.model.AyahModel
 import com.giraffe.quranpage.local.model.PageModel
+import com.giraffe.quranpage.local.model.ReciterModel
 import com.giraffe.quranpage.local.model.SurahDataModel
 import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.local.model.VerseModel
@@ -20,6 +22,7 @@ import com.google.gson.reflect.TypeToken
 class LocalDataSource(
     private val context: Context,
     private val appDao: AppDao,
+    private val recitersDao: RecitersDao,
     private val dataStorePreferences: DataStorePreferences,
 ) {
     fun storePageInDatabase(pageIndex: Int, svgData: String, ayahs: List<AyahModel>) {
@@ -47,7 +50,6 @@ class LocalDataSource(
             //.filter { it.pageIndex == pageIndex }
         }
     } catch (e: Exception) {
-        Log.e(TAG, "Error loading page content: ${e.message}")
         emptyList()
     }
 
@@ -61,9 +63,14 @@ class LocalDataSource(
             Gson().fromJson(json, verseListType)
         }
     } catch (e: Exception) {
-        Log.e(TAG, "Error loading page content: ${e.message}")
         emptyList()
     }
+
+
+    fun storeReciter(reciterModel: ReciterModel) =recitersDao.insertReciter(reciterModel)
+    fun getAllReciters() =  recitersDao.getAllReciters()
+    fun getRecitersCount() =  recitersDao.getRecitersCount()
+    fun getReciter(reciterId:Int) = recitersDao.getReciter(reciterId)
 
     companion object {
         private const val TAG = "LocalDataSource"

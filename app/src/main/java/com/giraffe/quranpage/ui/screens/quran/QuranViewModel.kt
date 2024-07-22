@@ -1,6 +1,7 @@
 package com.giraffe.quranpage.ui.screens.quran
 
 
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -9,12 +10,14 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.withStyle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.giraffe.quranpage.local.model.ReciterModel
 import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.remote.response.ReciterResponse
 import com.giraffe.quranpage.repo.Repository
 import com.giraffe.quranpage.ui.theme.brown
 import com.giraffe.quranpage.ui.theme.fontFamilies
+import com.giraffe.quranpage.utils.isNetworkAvailable
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +41,7 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
 
     private fun getReciters() {
         viewModelScope.launch(Dispatchers.IO) {
-            val reciters = repository.getReciters()
+            val reciters = repository.getReciters(isNetworkAvailable())
             _state.update {
                 it.copy(
                     reciters = reciters,
@@ -277,9 +280,43 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
         }
     }
 
-    override fun onReciterClick(reciter: ReciterResponse) {
+
+    override fun onReciterClick(reciter: ReciterModel) {
         viewModelScope.launch(Dispatchers.IO) {
-            _state.update { it.copy(selectedReciter = reciter) }
+            val listOfSurahesAudioData = reciter.surahesAudioData
+            val selectedSurahesAudioData =
+                listOfSurahesAudioData.firstOrNull { it.surahId == _state.value.selectedVerse?.surahNumber }
+            _state.update {
+                it.copy(
+                    selectedReciter = reciter
+                )
+            }
+            selectedSurahesAudioData?.let { surahesAudioData ->
+                _state.update { it.copy(selectedAudioData = surahesAudioData) }
+            }
+        }
+    }
+
+    override fun downloadSurahForReciter(reciter: ReciterModel) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.downloadSurahAudio(
+                reciter.id,
+                reciter.folderUrl,
+                state.value.selectedVerse?.surahNumber ?: 1
+            ) { listOfReciters ->
+                val selectedReciter = listOfReciters.firstOrNull { r -> r.id == reciter.id }
+                val listOfSurahesAudioData = selectedReciter?.surahesAudioData
+                val selectedSurahesAudioData =
+                    listOfSurahesAudioData?.firstOrNull { it.surahId == _state.value.selectedVerse?.surahNumber }
+                _state.update {
+                    it.copy(
+                        selectedReciter = selectedReciter,
+                        reciters = listOfReciters,
+                        selectedAudioData = selectedSurahesAudioData
+                    )
+                }
+            }
+
         }
     }
 }

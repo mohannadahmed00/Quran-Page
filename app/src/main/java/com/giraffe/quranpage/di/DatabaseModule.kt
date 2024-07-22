@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.giraffe.quranpage.local.LocalDataSource
 import com.giraffe.quranpage.local.database.AppDao
 import com.giraffe.quranpage.local.database.AppDatabase
+import com.giraffe.quranpage.local.database.RecitersDao
 import com.giraffe.quranpage.local.preferences.DataStorePreferences
 import dagger.Module
 import dagger.Provides
@@ -34,6 +35,12 @@ object DatabaseModule {
 
     @Provides
     @Singleton
+    fun provideRecitersDao(appDataBase: AppDatabase): RecitersDao {
+        return appDataBase.getRecitersDao()
+    }
+
+    @Provides
+    @Singleton
     fun provideDataStore(@ApplicationContext context: Context): DataStorePreferences {
         return DataStorePreferences(context)
     }
@@ -43,8 +50,9 @@ object DatabaseModule {
     fun provideLocalDataSource(
         @ApplicationContext context: Context,
         appDao: AppDao,
+        recitersDao: RecitersDao,
         dataStorePreferences: DataStorePreferences
     ): LocalDataSource {
-        return LocalDataSource(context, appDao, dataStorePreferences)
+        return LocalDataSource(context, appDao,recitersDao, dataStorePreferences)
     }
 }

@@ -1,6 +1,5 @@
 package com.giraffe.quranpage.ui.screens.quran
 
-import android.media.MediaPlayer
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,6 +39,8 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,7 +50,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -64,6 +64,7 @@ import com.giraffe.quranpage.ui.theme.brown
 import com.giraffe.quranpage.ui.theme.cream
 import com.giraffe.quranpage.ui.theme.fontFamilies
 import com.giraffe.quranpage.ui.theme.transparent
+import com.giraffe.quranpage.utils.MediaPlayerManager
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 import kotlinx.coroutines.launch
@@ -135,9 +136,29 @@ fun QuranContent(
         var showTafseerBottomSheet by remember { mutableStateOf(false) }
         var showRecitersBottomSheet by remember { mutableStateOf(false) }
 
-        val context = LocalContext.current
-        val mediaPlayer = remember { MediaPlayer.create(context, R.raw.ahmed_nu_018) }
-        val mediaPlayerState = remember { mutableStateOf(mediaPlayer.isPlaying) }
+        val mediaPlayer = remember { MediaPlayerManager() }//remember { MediaPlayer.create(context, R.raw.ahmed_nu_018) }
+        val mediaPlayerState = remember { mutableStateOf(mediaPlayer.isPlaying()) }
+
+        LaunchedEffect(state.selectedAudioData) {
+            mediaPlayerState.value = false
+            mediaPlayer.stopAudio()
+        }
+        LaunchedEffect(mediaPlayerState.value){
+            if (mediaPlayerState.value) {
+                mediaPlayer.addOnCompleteListener {
+                    mediaPlayerState.value = false
+                    mediaPlayer.release()
+                }
+            }
+        }
+
+        DisposableEffect(Unit) {
+            onDispose {
+                mediaPlayer.release()
+            }
+        }
+
+
 
 
         HorizontalPager(
@@ -174,6 +195,18 @@ fun QuranContent(
                         fontSize = 16.ssp
                     ),
                 )
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .clickable { showRecitersBottomSheet = true },
+                    text = "سورة ${state.surahesData[state.selectedAudioData?.surahId?.minus(1)?:0].arabic}",
+                    style = TextStyle(
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontSize = 14.ssp
+                    ),
+                )
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -191,18 +224,17 @@ fun QuranContent(
                             .size(35.sdp)
                             .clickable {
                                 mediaPlayerState.value = true
-                                mediaPlayer.start()
+                                mediaPlayer.playAudio(state.selectedAudioData?.audioPath ?: "")
                             },
                         painter = painterResource(id = R.drawable.ic_play),
                         contentDescription = "play",
                         colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onPrimary)
-                    )
-                    else Image(
+                    ) else Image(
                         modifier = Modifier
                             .size(35.sdp)
                             .clickable {
                                 mediaPlayerState.value = false
-                                mediaPlayer.pause()
+                                mediaPlayer.pauseAudio()
                             },
                         painter = painterResource(id = R.drawable.ic_pause),
                         contentDescription = "pause",
@@ -295,7 +327,7 @@ fun QuranContent(
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
                 onDismissRequest = { showRecitersBottomSheet = false }
             ) {
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl ) {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                     LazyColumn(contentPadding = PaddingValues(vertical = 4.sdp)) {
                         items(state.reciters) {
                             Row(
@@ -303,17 +335,30 @@ fun QuranContent(
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.sdp)
                                     .clickable {
-                                        events.onReciterClick(it)
+                                        if (it.surahesAudioData.firstOrNull {
+                                                it.surahId == (state.selectedVerse?.surahNumber
+                                                    ?: 0)
+                                            } == null) {
+                                            events.downloadSurahForReciter(it)
+                                        } else {
+                                            events.onReciterClick(it)
+                                        }
                                         showRecitersBottomSheet = false
                                     }
                             ) {
+                                val isDownloaded = it.surahesAudioData.firstOrNull {
+                                    it.surahId == (state.selectedVerse?.surahNumber ?: 0)
+                                } == null
                                 Image(
                                     modifier = Modifier
-                                        .size(25.sdp)
-                                        .clickable {},
-                                    painter = painterResource(id = R.drawable.ic_download),
+                                        .size(25.sdp),
+                                    painter = painterResource(id = if (isDownloaded) R.drawable.ic_download else R.drawable.ic_check),
                                     contentDescription = "download",
-                                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.3f))
+                                    colorFilter = ColorFilter.tint(
+                                        color = MaterialTheme.colorScheme.onPrimary.copy(
+                                            alpha = if (isDownloaded) 0.2f else 0.6f
+                                        )
+                                    )
                                 )
                                 Spacer(modifier = Modifier.width(4.sdp))
                                 Text(
@@ -337,7 +382,6 @@ fun QuranContent(
 
                     }
                 }
-
 
 
             }

@@ -1,5 +1,6 @@
 package com.giraffe.quranpage.remote.api
 
+import com.giraffe.quranpage.remote.response.AyahResponse
 import com.giraffe.quranpage.remote.response.SurahResponse
 import com.giraffe.quranpage.remote.response.QuranDataResponse
 import com.giraffe.quranpage.remote.response.ReciterResponse

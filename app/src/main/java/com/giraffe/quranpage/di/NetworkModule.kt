@@ -1,8 +1,10 @@
 package com.giraffe.quranpage.di
 
+import android.content.Context
 import com.giraffe.quranpage.remote.RemoteDataSource
 import com.giraffe.quranpage.remote.api.RecitersApiServices
 import com.giraffe.quranpage.remote.api.TafseerApiServices
+import com.giraffe.quranpage.remote.downloader.FileDownloader
 import com.giraffe.quranpage.remote.downloader.PageDownloader
 import com.giraffe.quranpage.utils.Constants.RECITERS_BASE_URL
 import com.giraffe.quranpage.utils.Constants.TAFSEER_BASE_URL
@@ -11,6 +13,7 @@ import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -73,8 +76,14 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideDownloaderPage(httpClient: OkHttpClient.Builder): PageDownloader {
+    fun providePageDownloader(httpClient: OkHttpClient.Builder): PageDownloader {
         return PageDownloader(httpClient)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFileDownloader(@ApplicationContext context: Context,httpClient: OkHttpClient.Builder): FileDownloader {
+        return FileDownloader(context,httpClient)
     }
 
 
@@ -83,9 +92,10 @@ object NetworkModule {
     fun provideRemoteDataSource(
         tafseerApiServices: TafseerApiServices,
         recitersApiServices: RecitersApiServices,
-        pageDownloader: PageDownloader
+        pageDownloader: PageDownloader,
+        fileDownloader: FileDownloader,
     ): RemoteDataSource {
-        return RemoteDataSource(tafseerApiServices,recitersApiServices, pageDownloader)
+        return RemoteDataSource(tafseerApiServices,recitersApiServices, pageDownloader,fileDownloader)
     }
 }
 

@@ -2,6 +2,7 @@ package com.giraffe.quranpage.remote.downloader
 
 import com.giraffe.quranpage.utils.Constants.PAGES_URL
 import com.giraffe.quranpage.utils.OnResponse
+import com.giraffe.quranpage.utils.toThreeDigits
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -27,16 +28,8 @@ class PageDownloader(private val httpClient: OkHttpClient.Builder) {
         })
     }
 
-    private fun toThreeDigits(number: Int): String {
-        var intStr = number.toString()
-        while (intStr.length < 3) {
-            intStr = "0".plus(intStr)
-        }
-        return intStr
-    }
-
     private fun getPageUrl(pageIndex: Int) = PAGES_URL.replace(
         "000",
-        if (PAGES_URL.contains("mp3quran")) toThreeDigits(pageIndex) else pageIndex.toString()
+        if (PAGES_URL.contains("mp3quran")) pageIndex.toThreeDigits() else pageIndex.toString()
     )
 }

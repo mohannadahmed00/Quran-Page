@@ -40,6 +40,7 @@ object Constants {
     }
 
     object DatabaseTables {
+        const val RECITERS = "RECITERS"
         const val PAGES = "pages"
         const val SURAHES_DATA = "surahes_data"
     }

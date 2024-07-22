@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.room.TypeConverter
 import com.giraffe.quranpage.local.model.AyahModel
+import com.giraffe.quranpage.local.model.SurahAudioModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.ByteArrayOutputStream
@@ -30,6 +31,21 @@ class Converters {
     fun toAyahs(json: String): List<AyahModel> {
         return try {
             Gson().fromJson<List<AyahModel>>(json)
+        } catch (e: Exception) {
+            arrayListOf()
+        }
+    }
+
+
+    @TypeConverter
+    fun fromSurahesAudioModel(surahesAudioModel: List<SurahAudioModel>): String {
+        return Gson().toJson(surahesAudioModel)
+    }
+
+    @TypeConverter
+    fun toSurahesAudioModel(json: String): List<SurahAudioModel> {
+        return try {
+            Gson().fromJson<List<SurahAudioModel>>(json)
         } catch (e: Exception) {
             arrayListOf()
         }

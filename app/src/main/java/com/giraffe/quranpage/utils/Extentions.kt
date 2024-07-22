@@ -11,8 +11,30 @@ import com.caverock.androidsvg.SVG
 import com.giraffe.quranpage.R
 import com.giraffe.quranpage.local.model.AyahModel
 import com.giraffe.quranpage.utils.Constants.PageDimensions
+import java.io.IOException
 
 
+fun isNetworkAvailable(): Boolean {
+    val runtime = Runtime.getRuntime()
+    try {
+        val ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8")
+        val exitValue = ipProcess.waitFor()
+        return exitValue == 0
+    } catch (e: IOException) {
+        e.printStackTrace()
+    } catch (e: InterruptedException) {
+        e.printStackTrace()
+    }
+    return false
+}
+
+fun Int.toThreeDigits(): String {
+    var intStr = this.toString()
+    while (intStr.length < 3) {
+        intStr = "0".plus(intStr)
+    }
+    return intStr
+}
 fun Offset.normalizePoint(newWidth: Int, newHeight: Int, isSmall: Boolean) =
     Offset(
         x * (newWidth / if (isSmall) PageDimensions.SMALL_WIDTH else PageDimensions.NORMAL_WIDTH),
