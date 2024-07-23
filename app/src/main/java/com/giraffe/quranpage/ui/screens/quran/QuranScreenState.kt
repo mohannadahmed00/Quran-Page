@@ -11,6 +11,7 @@ import com.giraffe.quranpage.remote.response.ReciterResponse
 
 
 data class QuranScreenState(
+    val selectedVerseToRead: VerseModel? = null,
     val selectedVerse: VerseModel? = null,
     val orgPages: List<PageUI> = listOf(),
     val pages: List<PageUI> = listOf(),
@@ -38,6 +39,7 @@ data class PageUI(
 data class Content(
     val surahNameAr: String,
     val verses: List<VerseModel>,
-    val text: AnnotatedString
+    val text: AnnotatedString,
+    val pageIndex:Int
 )
 

@@ -135,15 +135,13 @@ fun QuranContent(
         var showOptionsBottomSheet by remember { mutableStateOf(false) }
         var showTafseerBottomSheet by remember { mutableStateOf(false) }
         var showRecitersBottomSheet by remember { mutableStateOf(false) }
-
-        val mediaPlayer = remember { MediaPlayerManager() }//remember { MediaPlayer.create(context, R.raw.ahmed_nu_018) }
+        val mediaPlayer = remember { MediaPlayerManager() }
         val mediaPlayerState = remember { mutableStateOf(mediaPlayer.isPlaying()) }
-
         LaunchedEffect(state.selectedAudioData) {
             mediaPlayerState.value = false
             mediaPlayer.stopAudio()
         }
-        LaunchedEffect(mediaPlayerState.value){
+        LaunchedEffect(mediaPlayerState.value) {
             if (mediaPlayerState.value) {
                 mediaPlayer.addOnCompleteListener {
                     mediaPlayerState.value = false
@@ -151,7 +149,6 @@ fun QuranContent(
                 }
             }
         }
-
         DisposableEffect(Unit) {
             onDispose {
                 mediaPlayer.release()
@@ -166,10 +163,14 @@ fun QuranContent(
             reverseLayout = true,
         ) { page ->
             Page(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().clickable {
+                    events.onVerseSelected(state.pages[page].contents[0].verses[0])
+                    showOptionsBottomSheet= true
+                                                            },
                 pageUI = state.pages[page],
-                onVerseSelected = { pageUi, content, verse ->
-                    events.onVerseSelected(pageUi, content, verse)
+                onVerseSelected = { verse ->
+                    //events.onVerseSelected(pageUi, content, verse)
+                    events.onVerseSelected(verse)
                     showOptionsBottomSheet = true
                 },
                 onSurahNameClick = { scope.launch { drawerState.open() } },
@@ -180,7 +181,9 @@ fun QuranContent(
             ModalBottomSheet(
                 modifier = Modifier.fillMaxHeight(),
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false),
-                onDismissRequest = { showOptionsBottomSheet = false }
+                onDismissRequest = {
+                    events.onVerseSelected(null)
+                    showOptionsBottomSheet = false }
             ) {
                 val surah = state.surahesData[(state.selectedVerse?.surahNumber?.minus(1)) ?: 0]
                 Text(
@@ -200,7 +203,7 @@ fun QuranContent(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                         .clickable { showRecitersBottomSheet = true },
-                    text = "سورة ${state.surahesData[state.selectedAudioData?.surahId?.minus(1)?:0].arabic}",
+                    text = "سورة ${state.surahesData[state.selectedAudioData?.surahId?.minus(1) ?: 0].arabic}",
                     style = TextStyle(
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onPrimary,
@@ -225,6 +228,23 @@ fun QuranContent(
                             .clickable {
                                 mediaPlayerState.value = true
                                 mediaPlayer.playAudio(state.selectedAudioData?.audioPath ?: "")
+                                mediaPlayer.trackTime {
+                                    val ayahTiming =
+                                        state.selectedAudioData?.ayahsTiming?.firstOrNull { ayah -> it >= ayah.startTime && it <= ayah.endTime }
+                                    val ayahPageIndex =
+                                        if (ayahTiming?.pageUrl != null) ayahTiming.getPageIndexFromUrl() else state.selectedAudioData?.ayahsTiming
+                                            ?.get(
+                                                1
+                                            )
+                                            ?.getPageIndexFromUrl()
+                                    val pageUi = state.pages[ayahPageIndex?.minus(1) ?: 0]
+                                    val content = pageUi.contents.firstOrNull { content ->
+                                        content.verses.firstOrNull { v -> v.verseNumber == ayahTiming?.ayahIndex && v.surahNumber == state.selectedAudioData.surahId } != null
+                                    }
+                                    val verse =
+                                        content?.verses?.firstOrNull { v -> v.verseNumber == ayahTiming?.ayahIndex }
+                                    verse?.let { v -> events.onVerseSelected(v, true) }
+                                }
                             },
                         painter = painterResource(id = R.drawable.ic_play),
                         contentDescription = "play",

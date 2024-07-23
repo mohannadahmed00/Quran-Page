@@ -1,7 +1,6 @@
 package com.giraffe.quranpage.ui.screens.quran
 
 
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -13,7 +12,6 @@ import androidx.lifecycle.viewModelScope
 import com.giraffe.quranpage.local.model.ReciterModel
 import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.local.model.VerseModel
-import com.giraffe.quranpage.remote.response.ReciterResponse
 import com.giraffe.quranpage.repo.Repository
 import com.giraffe.quranpage.ui.theme.brown
 import com.giraffe.quranpage.ui.theme.fontFamilies
@@ -25,7 +23,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.ceil
 
 @HiltViewModel
 class QuranViewModel @Inject constructor(private val repository: Repository) : ViewModel(),
@@ -172,8 +169,9 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                                     convertVerseToText(
                                         group.value,
                                         fontFamilies[it.first - 1],
-                                        state.selectedVerse
-                                    )
+                                        state.selectedVerse,
+                                    ),
+                                    it.first
                                 )
                             }
                         PageUI(
@@ -182,7 +180,7 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                             pageIndex = it.first,
                             fontFamily = fontFamilies[it.first - 1],
                             surahName = getSurahesOfPage(it.second, _state.value.surahesData),
-                            juz = ceil(it.first / 20.0).toInt(),
+                            juz = getJuzIndexFromPage(it.first),
                             hezb = if (currentHezbNumber == pageHezb) {
                                 null
                             } else {
@@ -198,6 +196,28 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                         pages = pages,
                     )
                 }
+            }
+        }
+    }
+
+    private fun getJuzIndexFromPage(pageIndex: Int): Int {
+        val result = pageIndex/ 20.0
+        val truncatedResult = (result * 10).toInt() / 10.0
+        val digitAfterDecimal = ((result - result.toInt()) * 10).toInt()
+        val juz = if (digitAfterDecimal==0){
+            truncatedResult.toInt()
+        }else{
+            truncatedResult.toInt()+1
+        }
+        return when (juz) {
+            0 -> {
+                1
+            }
+            31 -> {
+                30
+            }
+            else -> {
+                juz
             }
         }
     }
@@ -247,15 +267,28 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
 
     }
 
-    override fun onVerseSelected(pageUI: PageUI, content: Content, verse: VerseModel) {
+    override fun onVerseSelected(verse: VerseModel?, isToRead: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
-            val contentIndex = pageUI.contents.indexOfFirst { it == content }//0
-            val contents = pageUI.orgContents.toMutableList()//pure
-            contents[contentIndex] = pageUI.contents.first { it == content }
-                .copy(text = convertVerseToText(content.verses, pageUI.fontFamily, verse))
-            val pages = state.value.orgPages.toMutableList()
-            pages[pageUI.pageIndex - 1] = pageUI.copy(contents = contents)
-            _state.update { it.copy(selectedVerse = verse, pages = pages) }
+            if (!isToRead) {
+                _state.update { it.copy(selectedVerse = verse) }
+            } else {
+                _state.update { it.copy(selectedVerseToRead = verse) }
+                val pageUI = _state.value.pages[verse?.pageIndex?.minus(1)?:0]
+                val contentIndex = pageUI.contents.indexOfFirst { it.verses.contains(verse) }
+                val contents = pageUI.orgContents.toMutableList()//pure contents
+                contents[contentIndex] = pageUI.contents.first { it.verses.contains(verse) }.copy(
+                    text = convertVerseToText(
+                        contents[contentIndex].verses,
+                        pageUI.fontFamily,
+                        verse
+                    )
+                )
+                val pages = state.value.orgPages.toMutableList()//pure pages
+                pages[pageUI.pageIndex - 1] = pageUI.copy(contents = contents)
+                _state.update { it.copy(pages = pages) }
+            }
+
+
         }
     }
 

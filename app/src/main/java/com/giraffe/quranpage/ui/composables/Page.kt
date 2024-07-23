@@ -14,7 +14,7 @@ import com.giraffe.quranpage.ui.screens.quran.PageUI
 fun Page(
     modifier: Modifier = Modifier,
     pageUI: PageUI,
-    onVerseSelected: (PageUI, Content, VerseModel) -> Unit,
+    onVerseSelected: (VerseModel) -> Unit,
     onSurahNameClick: () -> Unit,
     onPartClick: () -> Unit,
 ) {

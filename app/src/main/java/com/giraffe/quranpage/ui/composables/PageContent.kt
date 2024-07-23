@@ -24,7 +24,7 @@ import ir.kaaveh.sdpcompose.ssp
 fun PageContent(
     modifier: Modifier = Modifier,
     pageUI: PageUI,
-    onVerseSelected: (PageUI, Content, VerseModel) -> Unit
+    onVerseSelected: (VerseModel) -> Unit
 ) {
     Column(modifier = modifier, Arrangement.Center) {
         pageUI.contents.forEach { content ->
@@ -61,7 +61,7 @@ fun PageContent(
                             end = offset
                         )
                             .firstOrNull()?.let {
-                                onVerseSelected(pageUI, content, verse)
+                                onVerseSelected(verse)
                             }
                     }
 

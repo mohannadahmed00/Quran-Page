@@ -2,12 +2,16 @@ package com.giraffe.quranpage.utils
 
 import android.content.Context
 import android.media.MediaPlayer
+import android.os.Handler
+import android.os.Looper
 import java.io.IOException
 
 class MediaPlayerManager() {
     private var mediaPlayer: MediaPlayer? = null
     private var isPaused = false
     private var isStopped = false
+    private val handler = Handler(Looper.getMainLooper())
+    private var currentPosition = 0
 
     fun playAudio(filePath: String) {
         if (mediaPlayer == null) {
@@ -37,6 +41,7 @@ class MediaPlayerManager() {
     }
 
     private fun resumeAudio() {
+        mediaPlayer?.seekTo(currentPosition)
         mediaPlayer?.start()
         isPaused = false
     }
@@ -44,19 +49,22 @@ class MediaPlayerManager() {
     fun pauseAudio() {
         mediaPlayer?.pause()
         isPaused = true
+        currentPosition = mediaPlayer?.currentPosition ?: 0
+        stopTrackingTime()
     }
 
     fun stopAudio() {
         mediaPlayer?.stop()
         mediaPlayer?.reset()
-
         isPaused = false
         isStopped = true
+        stopTrackingTime()
     }
 
     fun release() {
         mediaPlayer?.release()
         mediaPlayer = null
+        stopTrackingTime()
     }
 
     fun isPlaying(): Boolean {
@@ -67,5 +75,19 @@ class MediaPlayerManager() {
         mediaPlayer?.setOnCompletionListener {
             onComplete()
         }
+    }
+
+    private fun stopTrackingTime() {
+        handler.removeCallbacksAndMessages(null)
+    }
+
+    fun trackTime(action:(Int)->Unit) {
+        handler.post(object : Runnable {
+            override fun run() {
+                val currentTime = mediaPlayer?.currentPosition ?: 0
+                action(currentTime)
+                handler.postDelayed(this, 500)
+            }
+        })
     }
 }
