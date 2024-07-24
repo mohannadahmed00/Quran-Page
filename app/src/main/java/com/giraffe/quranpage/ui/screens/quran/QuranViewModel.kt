@@ -275,8 +275,9 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                 _state.update { it.copy(selectedVerseToRead = verse) }
                 val pageUI = _state.value.pages[verse?.pageIndex?.minus(1)?:0]
                 val contentIndex = pageUI.contents.indexOfFirst { it.verses.contains(verse) }
+                val content = pageUI.contents[contentIndex]
                 val contents = pageUI.orgContents.toMutableList()//pure contents
-                contents[contentIndex] = pageUI.contents.first { it.verses.contains(verse) }.copy(
+                contents[contentIndex] = content.copy(
                     text = convertVerseToText(
                         contents[contentIndex].verses,
                         pageUI.fontFamily,
