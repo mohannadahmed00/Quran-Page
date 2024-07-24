@@ -6,7 +6,7 @@ import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.remote.response.ReciterResponse
 
 interface QuranEvents {
-    fun onVerseSelected(verse: VerseModel?, isToRead: Boolean = false)
+    fun onVerseSelected(verse: VerseModel?, isToRead:Boolean = false)
     fun onPageChanged(pageIndex: Int)
     fun getTafseer(
         surahIndex: Int,

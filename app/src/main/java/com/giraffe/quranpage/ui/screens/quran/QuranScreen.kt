@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -132,6 +133,7 @@ fun QuranContent(
             }
         }
     ) {
+        val interactionSource = remember { MutableInteractionSource() }
         var showOptionsBottomSheet by remember { mutableStateOf(false) }
         var showTafseerBottomSheet by remember { mutableStateOf(false) }
         var showRecitersBottomSheet by remember { mutableStateOf(false) }
@@ -146,8 +148,13 @@ fun QuranContent(
                 mediaPlayer.addOnCompleteListener {
                     mediaPlayerState.value = false
                     mediaPlayer.release()
+                    events.onVerseSelected(null,true)
                 }
             }
+        }
+        LaunchedEffect(state.pageIndexToRead) {
+            state.pageIndexToRead?.let { pagerState.scrollToPage(it-1) }
+
         }
         DisposableEffect(Unit) {
             onDispose {
@@ -163,14 +170,18 @@ fun QuranContent(
             reverseLayout = true,
         ) { page ->
             Page(
-                modifier = Modifier.fillMaxSize().clickable {
-                    events.onVerseSelected(state.pages[page].contents[0].verses[0])
-                    showOptionsBottomSheet= true
-                                                            },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
+                        //events.onVerseSelected(verseToSelect = state.pages[page].contents[0].verses[0], verseToRead = state.selectedVerseToRead)
+                        //showOptionsBottomSheet = true
+                    },
                 pageUI = state.pages[page],
                 onVerseSelected = { verse ->
-                    //events.onVerseSelected(pageUi, content, verse)
-                    events.onVerseSelected(verse)
+                    events.onVerseSelected(verse = verse)
                     showOptionsBottomSheet = true
                 },
                 onSurahNameClick = { scope.launch { drawerState.open() } },
@@ -182,7 +193,7 @@ fun QuranContent(
                 modifier = Modifier.fillMaxHeight(),
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false),
                 onDismissRequest = {
-                    events.onVerseSelected(null)
+                    //events.onVerseSelected(null)
                     showOptionsBottomSheet = false }
             ) {
                 val surah = state.surahesData[(state.selectedVerse?.surahNumber?.minus(1)) ?: 0]
@@ -243,7 +254,12 @@ fun QuranContent(
                                     }
                                     val verse =
                                         content?.verses?.firstOrNull { v -> v.verseNumber == ayahTiming?.ayahIndex }
-                                    verse?.let { v -> events.onVerseSelected(v, true) }
+                                    verse?.let { v ->
+                                        events.onVerseSelected(
+                                            verse = v,
+                                            isToRead = true
+                                        )
+                                    }
                                 }
                             },
                         painter = painterResource(id = R.drawable.ic_play),
@@ -310,7 +326,7 @@ fun QuranContent(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
                     )
-                    state.selectedVerse?.tafseer?.let {
+                    state.selectedVerseTafseer?.let {
                         Text(
                             it.text,
                             style = TextStyle(

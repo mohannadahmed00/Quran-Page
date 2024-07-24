@@ -8,6 +8,7 @@ import com.giraffe.quranpage.local.model.SurahAudioModel
 import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.remote.response.ReciterResponse
+import com.giraffe.quranpage.remote.response.TafseerResponse
 
 
 data class QuranScreenState(
@@ -21,6 +22,8 @@ data class QuranScreenState(
     val reciters: List<ReciterModel> = emptyList(),
     val selectedReciter: ReciterModel? = null,
     val selectedAudioData: SurahAudioModel? = null,
+    val selectedVerseTafseer: TafseerResponse? = null,
+    val pageIndexToRead:Int? = null
 )
 
 @Immutable

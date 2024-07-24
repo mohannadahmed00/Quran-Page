@@ -12,5 +12,4 @@ data class VerseModel(
     val pageIndex: Int,
     val sajda: Boolean = false,
     val quarterHezbIndex: Int,
-    val tafseer:TafseerResponse? = null
 )
