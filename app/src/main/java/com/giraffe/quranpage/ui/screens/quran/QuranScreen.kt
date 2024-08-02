@@ -1,5 +1,6 @@
 package com.giraffe.quranpage.ui.screens.quran
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -148,12 +149,12 @@ fun QuranContent(
                 mediaPlayer.addOnCompleteListener {
                     mediaPlayerState.value = false
                     mediaPlayer.release()
-                    events.onVerseSelected(null,true)
+                    events.onVerseSelected(null, true)
                 }
             }
         }
         LaunchedEffect(state.pageIndexToRead) {
-            state.pageIndexToRead?.let { pagerState.scrollToPage(it-1) }
+            state.pageIndexToRead?.let { pagerState.scrollToPage(it - 1) }
 
         }
         DisposableEffect(Unit) {
@@ -194,7 +195,8 @@ fun QuranContent(
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false),
                 onDismissRequest = {
                     //events.onVerseSelected(null)
-                    showOptionsBottomSheet = false }
+                    showOptionsBottomSheet = false
+                }
             ) {
                 val surah = state.surahesData[(state.selectedVerse?.surahNumber?.minus(1)) ?: 0]
                 Text(
@@ -228,7 +230,67 @@ fun QuranContent(
                     Arrangement.SpaceEvenly
                 ) {
                     Image(
-                        modifier = Modifier.size(35.sdp),
+                        modifier = Modifier
+                            .size(35.sdp)
+                            .clickable {
+                                mediaPlayerState.value = true
+                                mediaPlayer.playAudio(state.selectedAudioData?.audioPath ?: "")
+                                var verseToReadIndex =
+                                    state.selectedVerseToRead?.verseNumber?.minus(1) ?: -1
+                                if (verseToReadIndex == -1) {
+                                    verseToReadIndex = 0
+                                } else {
+                                    if ((state.selectedAudioData?.surahId ?: 0) == 1) {
+                                        if ((state.selectedAudioData?.ayahsTiming?.size
+                                                ?: 0) == 7
+                                        ) {
+                                            verseToReadIndex--
+                                        }
+                                    }
+                                }
+                                mediaPlayer.seekTo(
+                                    state.selectedAudioData?.ayahsTiming?.get(
+                                        verseToReadIndex
+                                    )?.startTime ?: 0
+                                )
+                                mediaPlayer.trackTime {
+                                    val ayahTiming =
+                                        state.selectedAudioData?.ayahsTiming?.firstOrNull { ayah -> it >= ayah.startTime && it <= ayah.endTime }
+                                    val ayahPageIndex =
+                                        if (ayahTiming?.pageUrl != null) ayahTiming.getPageIndexFromUrl() else state.selectedAudioData?.ayahsTiming
+                                            ?.get(
+                                                1
+                                            )
+                                            ?.getPageIndexFromUrl()
+                                    val pageUi = state.pages[ayahPageIndex?.minus(1) ?: 0]
+                                    val content = pageUi.contents.firstOrNull { content ->
+                                        content.verses.firstOrNull { v -> v.verseNumber == ayahTiming?.ayahIndex && v.surahNumber == state.selectedAudioData.surahId } != null
+                                    }
+                                    var verseIndex =
+                                        content?.verses?.indexOfFirst { v -> v.verseNumber == ayahTiming?.ayahIndex }
+                                            ?: -1
+                                    if (verseIndex == -1) {
+                                        verseIndex = 0
+                                    } else {
+                                        if ((state.selectedAudioData?.surahId ?: 0) == 1) {
+                                            if ((state.selectedAudioData?.ayahsTiming?.size
+                                                    ?: 0) == 7
+                                            ) {
+                                                verseIndex++
+                                            }
+                                        }
+                                    }
+                                    content?.verses
+                                        ?.get(verseIndex)
+                                        ?.let { v ->
+                                            events.onVerseSelected(
+                                                verse = v,
+                                                isToRead = true
+                                            )
+                                        }
+                                }
+
+                            },
                         painter = painterResource(id = R.drawable.ic_previous),
                         contentDescription = "previous",
                         colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onPrimary)
@@ -252,14 +314,28 @@ fun QuranContent(
                                     val content = pageUi.contents.firstOrNull { content ->
                                         content.verses.firstOrNull { v -> v.verseNumber == ayahTiming?.ayahIndex && v.surahNumber == state.selectedAudioData.surahId } != null
                                     }
-                                    val verse =
-                                        content?.verses?.firstOrNull { v -> v.verseNumber == ayahTiming?.ayahIndex }
-                                    verse?.let { v ->
-                                        events.onVerseSelected(
-                                            verse = v,
-                                            isToRead = true
-                                        )
+                                    var verseIndex =
+                                        content?.verses?.indexOfFirst { v -> v.verseNumber == ayahTiming?.ayahIndex }
+                                            ?: -1
+                                    if (verseIndex == -1) {
+                                        verseIndex = 0
+                                    } else {
+                                        if ((state.selectedAudioData?.surahId ?: 0) == 1) {
+                                            if ((state.selectedAudioData?.ayahsTiming?.size
+                                                    ?: 0) == 7
+                                            ) {
+                                                verseIndex++
+                                            }
+                                        }
                                     }
+                                    content?.verses
+                                        ?.get(verseIndex)
+                                        ?.let { v ->
+                                            events.onVerseSelected(
+                                                verse = v,
+                                                isToRead = true
+                                            )
+                                        }
                                 }
                             },
                         painter = painterResource(id = R.drawable.ic_play),
@@ -277,7 +353,73 @@ fun QuranContent(
                         colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onPrimary)
                     )
                     Image(
-                        modifier = Modifier.size(35.sdp),
+                        modifier = Modifier
+                            .size(35.sdp)
+                            .clickable {
+                                if ((state.selectedVerseToRead?.verseNumber?.plus(1)
+                                        ?: 0) <= (state.selectedAudioData?.ayahsTiming?.size?.minus(
+                                        1
+                                    ) ?: 0)
+                                ) {
+                                    mediaPlayerState.value = true
+                                    mediaPlayer.playAudio(state.selectedAudioData?.audioPath ?: "")
+                                    var verseToReadIndex = state.selectedVerseToRead?.verseNumber?.plus(1) ?: -1
+                                    if (verseToReadIndex == -1) {
+                                        verseToReadIndex = 1
+                                    } else {
+                                        if ((state.selectedAudioData?.surahId ?: 0) == 1) {
+                                            if ((state.selectedAudioData?.ayahsTiming?.size
+                                                    ?: 0) == 7
+                                            ) {
+                                                verseToReadIndex--
+                                            }
+                                        }
+                                    }
+                                    mediaPlayer.seekTo(
+                                        state.selectedAudioData?.ayahsTiming?.get(
+                                            verseToReadIndex
+                                        )?.startTime ?: 0
+                                    )
+                                    mediaPlayer.trackTime {
+
+                                        val ayahTiming =
+                                            state.selectedAudioData?.ayahsTiming?.firstOrNull { ayah -> it >= ayah.startTime && it <= ayah.endTime }
+                                        val ayahPageIndex =
+                                            if (ayahTiming?.pageUrl != null) ayahTiming.getPageIndexFromUrl() else state.selectedAudioData?.ayahsTiming
+                                                ?.get(
+                                                    1
+                                                )
+                                                ?.getPageIndexFromUrl()
+                                        val pageUi = state.pages[ayahPageIndex?.minus(1) ?: 0]
+                                        val content = pageUi.contents.firstOrNull { content ->
+                                            content.verses.firstOrNull { v -> v.verseNumber == ayahTiming?.ayahIndex && v.surahNumber == state.selectedAudioData.surahId } != null
+                                        }
+                                        var verseIndex =
+                                            content?.verses?.indexOfFirst { v -> v.verseNumber == ayahTiming?.ayahIndex }
+                                                ?: -1
+                                        if (verseIndex == -1) {
+                                            verseIndex = 0
+                                        } else {
+                                            if ((state.selectedAudioData?.surahId ?: 0) == 1) {
+                                                if ((state.selectedAudioData?.ayahsTiming?.size
+                                                        ?: 0) == 7
+                                                ) {
+                                                    verseIndex++
+                                                }
+                                            }
+                                        }
+                                        content?.verses
+                                            ?.get(verseIndex)
+                                            ?.let { v ->
+                                                events.onVerseSelected(
+                                                    verse = v,
+                                                    isToRead = true
+                                                )
+                                            }
+                                    }
+
+                                }
+                            },
                         painter = painterResource(id = R.drawable.ic_next),
                         contentDescription = "next",
                         colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onPrimary)
@@ -418,8 +560,6 @@ fun QuranContent(
 
                     }
                 }
-
-
             }
         }
     }

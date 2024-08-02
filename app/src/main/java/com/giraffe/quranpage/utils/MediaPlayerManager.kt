@@ -14,31 +14,40 @@ class MediaPlayerManager() {
     private var currentPosition = 0
 
     fun playAudio(filePath: String) {
-        if (mediaPlayer == null) {
-            mediaPlayer = MediaPlayer()
-        } else {
-            if (isPaused) {
-                resumeAudio()
-                return
+        if (mediaPlayer?.isPlaying==false || mediaPlayer==null) {
+            if (mediaPlayer == null) {
+                mediaPlayer = MediaPlayer()
             } else {
-                mediaPlayer?.reset()
-            }
-        }
-
-        if (!isPaused) {
-            try {
-                mediaPlayer?.apply {
-                    setDataSource(filePath)
-                    prepare()
-                    start()
-                    isPaused = false
+                if (isPaused) {
+                    resumeAudio()
+                    return
+                } else {
+                    mediaPlayer?.reset()
                 }
-            } catch (e: IOException) {
-                e.printStackTrace()
+            }
+
+            if (!isPaused) {
+                try {
+                    mediaPlayer?.apply {
+                        setDataSource(filePath)
+                        prepare()
+                        start()
+                        isPaused = false
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
             }
         }
 
     }
+
+    fun seekTo(positionTime: Int) {
+        currentPosition = positionTime
+        mediaPlayer?.seekTo(currentPosition)
+        isPaused = false
+    }
+
 
     private fun resumeAudio() {
         mediaPlayer?.seekTo(currentPosition)

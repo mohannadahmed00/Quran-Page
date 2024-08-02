@@ -411,7 +411,7 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                 listOfSurahesAudioData.firstOrNull { it.surahId == _state.value.selectedVerse?.surahNumber }
             _state.update {
                 it.copy(
-                    selectedReciter = reciter
+                    selectedReciter = reciter,
                 )
             }
             selectedSurahesAudioData?.let { surahesAudioData ->
@@ -435,7 +435,7 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                     it.copy(
                         selectedReciter = selectedReciter,
                         reciters = listOfReciters,
-                        selectedAudioData = selectedSurahesAudioData
+                        selectedAudioData = selectedSurahesAudioData,
                     )
                 }
             }
