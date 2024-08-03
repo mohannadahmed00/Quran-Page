@@ -17,7 +17,7 @@ class FileDownloader(
     private val httpClient: OkHttpClient.Builder
 ) {
     fun download(folderUrl: String, surahIndex: Int,onComplete: (String?) -> Unit) {
-        //https://server7.mp3quran.net/basit/Almusshaf-Al-Mojawwad/001.mp3
+        //https://server7.mp3quran.net/basit/Almusshaf-Al-Mojawwad/020.mp3
         val url = folderUrl + surahIndex.toThreeDigits() + ".mp3"
         val request = Request.Builder()
             .url(url)

@@ -70,6 +70,7 @@ import com.giraffe.quranpage.utils.MediaPlayerManager
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
 @Composable
 fun QuranScreen(
@@ -194,7 +195,6 @@ fun QuranContent(
                 modifier = Modifier.fillMaxHeight(),
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false),
                 onDismissRequest = {
-                    //events.onVerseSelected(null)
                     showOptionsBottomSheet = false
                 }
             ) {
@@ -234,62 +234,15 @@ fun QuranContent(
                             .size(35.sdp)
                             .clickable {
                                 mediaPlayerState.value = true
-                                mediaPlayer.playAudio(state.selectedAudioData?.audioPath ?: "")
-                                var verseToReadIndex =
-                                    state.selectedVerseToRead?.verseNumber?.minus(1) ?: -1
-                                if (verseToReadIndex == -1) {
-                                    verseToReadIndex = 0
-                                } else {
-                                    if ((state.selectedAudioData?.surahId ?: 0) == 1) {
-                                        if ((state.selectedAudioData?.ayahsTiming?.size
-                                                ?: 0) == 7
-                                        ) {
-                                            verseToReadIndex--
-                                        }
-                                    }
-                                }
-                                mediaPlayer.seekTo(
-                                    state.selectedAudioData?.ayahsTiming?.get(
-                                        verseToReadIndex
-                                    )?.startTime ?: 0
-                                )
+                                mediaPlayer.setSurahAudioData(state.selectedAudioData, state.pages)
+                                mediaPlayer.seekTo(state.selectedVerseToRead?.verseNumber?.minus(1) ?: 0)
+                                mediaPlayer.playAudio()
                                 mediaPlayer.trackTime {
-                                    val ayahTiming =
-                                        state.selectedAudioData?.ayahsTiming?.firstOrNull { ayah -> it >= ayah.startTime && it <= ayah.endTime }
-                                    val ayahPageIndex =
-                                        if (ayahTiming?.pageUrl != null) ayahTiming.getPageIndexFromUrl() else state.selectedAudioData?.ayahsTiming
-                                            ?.get(
-                                                1
-                                            )
-                                            ?.getPageIndexFromUrl()
-                                    val pageUi = state.pages[ayahPageIndex?.minus(1) ?: 0]
-                                    val content = pageUi.contents.firstOrNull { content ->
-                                        content.verses.firstOrNull { v -> v.verseNumber == ayahTiming?.ayahIndex && v.surahNumber == state.selectedAudioData.surahId } != null
-                                    }
-                                    var verseIndex =
-                                        content?.verses?.indexOfFirst { v -> v.verseNumber == ayahTiming?.ayahIndex }
-                                            ?: -1
-                                    if (verseIndex == -1) {
-                                        verseIndex = 0
-                                    } else {
-                                        if ((state.selectedAudioData?.surahId ?: 0) == 1) {
-                                            if ((state.selectedAudioData?.ayahsTiming?.size
-                                                    ?: 0) == 7
-                                            ) {
-                                                verseIndex++
-                                            }
-                                        }
-                                    }
-                                    content?.verses
-                                        ?.get(verseIndex)
-                                        ?.let { v ->
-                                            events.onVerseSelected(
-                                                verse = v,
-                                                isToRead = true
-                                            )
-                                        }
+                                    events.onVerseSelected(
+                                        verse = it,
+                                        isToRead = true
+                                    )
                                 }
-
                             },
                         painter = painterResource(id = R.drawable.ic_previous),
                         contentDescription = "previous",
@@ -300,42 +253,13 @@ fun QuranContent(
                             .size(35.sdp)
                             .clickable {
                                 mediaPlayerState.value = true
-                                mediaPlayer.playAudio(state.selectedAudioData?.audioPath ?: "")
+                                mediaPlayer.setSurahAudioData(state.selectedAudioData, state.pages)
+                                mediaPlayer.playAudio()
                                 mediaPlayer.trackTime {
-                                    val ayahTiming =
-                                        state.selectedAudioData?.ayahsTiming?.firstOrNull { ayah -> it >= ayah.startTime && it <= ayah.endTime }
-                                    val ayahPageIndex =
-                                        if (ayahTiming?.pageUrl != null) ayahTiming.getPageIndexFromUrl() else state.selectedAudioData?.ayahsTiming
-                                            ?.get(
-                                                1
-                                            )
-                                            ?.getPageIndexFromUrl()
-                                    val pageUi = state.pages[ayahPageIndex?.minus(1) ?: 0]
-                                    val content = pageUi.contents.firstOrNull { content ->
-                                        content.verses.firstOrNull { v -> v.verseNumber == ayahTiming?.ayahIndex && v.surahNumber == state.selectedAudioData.surahId } != null
-                                    }
-                                    var verseIndex =
-                                        content?.verses?.indexOfFirst { v -> v.verseNumber == ayahTiming?.ayahIndex }
-                                            ?: -1
-                                    if (verseIndex == -1) {
-                                        verseIndex = 0
-                                    } else {
-                                        if ((state.selectedAudioData?.surahId ?: 0) == 1) {
-                                            if ((state.selectedAudioData?.ayahsTiming?.size
-                                                    ?: 0) == 7
-                                            ) {
-                                                verseIndex++
-                                            }
-                                        }
-                                    }
-                                    content?.verses
-                                        ?.get(verseIndex)
-                                        ?.let { v ->
-                                            events.onVerseSelected(
-                                                verse = v,
-                                                isToRead = true
-                                            )
-                                        }
+                                    events.onVerseSelected(
+                                        verse = it,
+                                        isToRead = true
+                                    )
                                 }
                             },
                         painter = painterResource(id = R.drawable.ic_play),
@@ -356,68 +280,15 @@ fun QuranContent(
                         modifier = Modifier
                             .size(35.sdp)
                             .clickable {
-                                if ((state.selectedVerseToRead?.verseNumber?.plus(1)
-                                        ?: 0) <= (state.selectedAudioData?.ayahsTiming?.size?.minus(
-                                        1
-                                    ) ?: 0)
-                                ) {
-                                    mediaPlayerState.value = true
-                                    mediaPlayer.playAudio(state.selectedAudioData?.audioPath ?: "")
-                                    var verseToReadIndex = state.selectedVerseToRead?.verseNumber?.plus(1) ?: -1
-                                    if (verseToReadIndex == -1) {
-                                        verseToReadIndex = 1
-                                    } else {
-                                        if ((state.selectedAudioData?.surahId ?: 0) == 1) {
-                                            if ((state.selectedAudioData?.ayahsTiming?.size
-                                                    ?: 0) == 7
-                                            ) {
-                                                verseToReadIndex--
-                                            }
-                                        }
-                                    }
-                                    mediaPlayer.seekTo(
-                                        state.selectedAudioData?.ayahsTiming?.get(
-                                            verseToReadIndex
-                                        )?.startTime ?: 0
+                                mediaPlayerState.value = true
+                                mediaPlayer.setSurahAudioData(state.selectedAudioData, state.pages)
+                                mediaPlayer.seekTo(state.selectedVerseToRead?.verseNumber?.plus(1) ?: 1)
+                                mediaPlayer.playAudio()
+                                mediaPlayer.trackTime {
+                                    events.onVerseSelected(
+                                        verse = it,
+                                        isToRead = true
                                     )
-                                    mediaPlayer.trackTime {
-
-                                        val ayahTiming =
-                                            state.selectedAudioData?.ayahsTiming?.firstOrNull { ayah -> it >= ayah.startTime && it <= ayah.endTime }
-                                        val ayahPageIndex =
-                                            if (ayahTiming?.pageUrl != null) ayahTiming.getPageIndexFromUrl() else state.selectedAudioData?.ayahsTiming
-                                                ?.get(
-                                                    1
-                                                )
-                                                ?.getPageIndexFromUrl()
-                                        val pageUi = state.pages[ayahPageIndex?.minus(1) ?: 0]
-                                        val content = pageUi.contents.firstOrNull { content ->
-                                            content.verses.firstOrNull { v -> v.verseNumber == ayahTiming?.ayahIndex && v.surahNumber == state.selectedAudioData.surahId } != null
-                                        }
-                                        var verseIndex =
-                                            content?.verses?.indexOfFirst { v -> v.verseNumber == ayahTiming?.ayahIndex }
-                                                ?: -1
-                                        if (verseIndex == -1) {
-                                            verseIndex = 0
-                                        } else {
-                                            if ((state.selectedAudioData?.surahId ?: 0) == 1) {
-                                                if ((state.selectedAudioData?.ayahsTiming?.size
-                                                        ?: 0) == 7
-                                                ) {
-                                                    verseIndex++
-                                                }
-                                            }
-                                        }
-                                        content?.verses
-                                            ?.get(verseIndex)
-                                            ?.let { v ->
-                                                events.onVerseSelected(
-                                                    verse = v,
-                                                    isToRead = true
-                                                )
-                                            }
-                                    }
-
                                 }
                             },
                         painter = painterResource(id = R.drawable.ic_next),
