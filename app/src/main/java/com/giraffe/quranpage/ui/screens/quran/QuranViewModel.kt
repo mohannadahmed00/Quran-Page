@@ -11,6 +11,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.giraffe.quranpage.local.model.ReciterModel
+import com.giraffe.quranpage.local.model.SurahAudioModel
 import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.repo.Repository
@@ -201,6 +202,7 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                         )
                     }
                     state.copy(
+                        ayahs = ayahs,
                         orgPages = pages,
                         pages = pages,
                     )
@@ -404,18 +406,13 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
     }
 
 
-    override fun onReciterClick(reciter: ReciterModel) {
+    override fun onReciterClick(reciter: ReciterModel,surahAudioData: SurahAudioModel) {
         viewModelScope.launch(Dispatchers.IO) {
-            val listOfSurahesAudioData = reciter.surahesAudioData
-            val selectedSurahesAudioData =
-                listOfSurahesAudioData.firstOrNull { it.surahId == _state.value.selectedVerse?.surahNumber }
             _state.update {
                 it.copy(
                     selectedReciter = reciter,
+                    selectedAudioData = surahAudioData
                 )
-            }
-            selectedSurahesAudioData?.let { surahesAudioData ->
-                _state.update { it.copy(selectedAudioData = surahesAudioData) }
             }
         }
     }
@@ -441,5 +438,9 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
             }
 
         }
+    }
+
+    override fun removeSelectedVerse() {
+        onVerseSelected(null,true)
     }
 }

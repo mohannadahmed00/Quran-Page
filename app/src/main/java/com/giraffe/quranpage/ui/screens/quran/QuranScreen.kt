@@ -52,6 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -66,6 +67,7 @@ import com.giraffe.quranpage.ui.theme.brown
 import com.giraffe.quranpage.ui.theme.cream
 import com.giraffe.quranpage.ui.theme.fontFamilies
 import com.giraffe.quranpage.ui.theme.transparent
+import com.giraffe.quranpage.utils.AudioPlayerManager
 import com.giraffe.quranpage.utils.MediaPlayerManager
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
@@ -135,28 +137,28 @@ fun QuranContent(
             }
         }
     ) {
+        val context = LocalContext.current
+        val isPlaying = AudioPlayerManager.isPlaying.collectAsState()
         val interactionSource = remember { MutableInteractionSource() }
         var showOptionsBottomSheet by remember { mutableStateOf(false) }
         var showTafseerBottomSheet by remember { mutableStateOf(false) }
         var showRecitersBottomSheet by remember { mutableStateOf(false) }
-        val mediaPlayer = remember { MediaPlayerManager() }
-        val mediaPlayerState = remember { mutableStateOf(mediaPlayer.isPlaying()) }
-        LaunchedEffect(state.selectedAudioData) {
-            mediaPlayerState.value = false
-            mediaPlayer.stopAudio()
+        val mediaPlayer = remember { AudioPlayerManager }
+        LaunchedEffect(state.ayahs) {
+            mediaPlayer.setAyahs(state.ayahs)
         }
-        LaunchedEffect(mediaPlayerState.value) {
-            if (mediaPlayerState.value) {
-                mediaPlayer.addOnCompleteListener {
-                    mediaPlayerState.value = false
-                    mediaPlayer.release()
-                    events.onVerseSelected(null, true)
-                }
+        LaunchedEffect(state.selectedAudioData) {
+            state.selectedAudioData?.let {
+                Log.d("TAG", "selectedAudioData: ${state.selectedVerseToRead} ")
+                mediaPlayer.initializePlayer(
+                    context,
+                    it,
+                    state.selectedVerseToRead
+                )
             }
         }
         LaunchedEffect(state.pageIndexToRead) {
             state.pageIndexToRead?.let { pagerState.scrollToPage(it - 1) }
-
         }
         DisposableEffect(Unit) {
             onDispose {
@@ -233,11 +235,10 @@ fun QuranContent(
                         modifier = Modifier
                             .size(35.sdp)
                             .clickable {
-                                mediaPlayerState.value = true
-                                mediaPlayer.setSurahAudioData(state.selectedAudioData, state.pages)
-                                mediaPlayer.seekTo(state.selectedVerseToRead?.verseNumber?.minus(1) ?: 0)
-                                mediaPlayer.playAudio()
-                                mediaPlayer.trackTime {
+                                mediaPlayer.seekTo(
+                                    state.selectedVerseToRead?.verseNumber?.minus(1) ?: 0
+                                )
+                                if (!isPlaying.value) mediaPlayer.resume {
                                     events.onVerseSelected(
                                         verse = it,
                                         isToRead = true
@@ -248,14 +249,11 @@ fun QuranContent(
                         contentDescription = "previous",
                         colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onPrimary)
                     )
-                    if (!mediaPlayerState.value) Image(
+                    if (!isPlaying.value) Image(
                         modifier = Modifier
                             .size(35.sdp)
                             .clickable {
-                                mediaPlayerState.value = true
-                                mediaPlayer.setSurahAudioData(state.selectedAudioData, state.pages)
-                                mediaPlayer.playAudio()
-                                mediaPlayer.trackTime {
+                                mediaPlayer.play {
                                     events.onVerseSelected(
                                         verse = it,
                                         isToRead = true
@@ -269,8 +267,7 @@ fun QuranContent(
                         modifier = Modifier
                             .size(35.sdp)
                             .clickable {
-                                mediaPlayerState.value = false
-                                mediaPlayer.pauseAudio()
+                                mediaPlayer.pause()
                             },
                         painter = painterResource(id = R.drawable.ic_pause),
                         contentDescription = "pause",
@@ -280,11 +277,10 @@ fun QuranContent(
                         modifier = Modifier
                             .size(35.sdp)
                             .clickable {
-                                mediaPlayerState.value = true
-                                mediaPlayer.setSurahAudioData(state.selectedAudioData, state.pages)
-                                mediaPlayer.seekTo(state.selectedVerseToRead?.verseNumber?.plus(1) ?: 1)
-                                mediaPlayer.playAudio()
-                                mediaPlayer.trackTime {
+                                mediaPlayer.seekTo(
+                                    state.selectedVerseToRead?.verseNumber?.plus(1) ?: 1
+                                )
+                                if (!isPlaying.value) mediaPlayer.resume {
                                     events.onVerseSelected(
                                         verse = it,
                                         isToRead = true
@@ -309,7 +305,7 @@ fun QuranContent(
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = brown.copy(alpha = 0.2f)),
                     onClick = {}) {
-                    Text("Share")
+                    Text("Play from here")
                 }
                 Button(
                     modifier = Modifier.fillMaxWidth(),
@@ -384,13 +380,12 @@ fun QuranContent(
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.sdp)
                                     .clickable {
-                                        if (it.surahesAudioData.firstOrNull {
-                                                it.surahId == (state.selectedVerse?.surahNumber
-                                                    ?: 0)
-                                            } == null) {
+                                        val surahAudioData =
+                                            it.surahesAudioData.firstOrNull { it.surahId == (state.selectedVerse?.surahNumber) }
+                                        if (surahAudioData == null) {
                                             events.downloadSurahForReciter(it)
                                         } else {
-                                            events.onReciterClick(it)
+                                            events.onReciterClick(it, surahAudioData)
                                         }
                                         showRecitersBottomSheet = false
                                     }
