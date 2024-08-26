@@ -3,7 +3,6 @@ package com.giraffe.quranpage.ui.screens.quran
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -24,18 +23,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -51,7 +46,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
@@ -62,17 +56,13 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.giraffe.quranpage.R
+import com.giraffe.quranpage.ui.composables.AudioPlayerDialog
 import com.giraffe.quranpage.ui.composables.Page
-import com.giraffe.quranpage.ui.theme.brown
-import com.giraffe.quranpage.ui.theme.cream
 import com.giraffe.quranpage.ui.theme.fontFamilies
-import com.giraffe.quranpage.ui.theme.transparent
 import com.giraffe.quranpage.utils.AudioPlayerManager
-import com.giraffe.quranpage.utils.MediaPlayerManager
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 import kotlinx.coroutines.launch
-import kotlin.math.log
 
 @Composable
 fun QuranScreen(
@@ -100,21 +90,12 @@ fun QuranContent(
                     state.surahesData.forEach {
                         NavigationDrawerItem(
                             modifier = Modifier.padding(vertical = 3.dp),
-                            colors = NavigationDrawerItemDefaults.colors(
-                                selectedContainerColor = brown.copy(alpha = 0.3f),
-                                selectedTextColor = brown,
-                                unselectedTextColor = brown,
-                            ),
                             label = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Box(
                                         contentAlignment = Alignment.Center,
                                         modifier = Modifier
                                             .size(44.dp)
-                                            .background(
-                                                color = if (pagerState.currentPage >= it.startPage - 1 && pagerState.currentPage <= it.endPage - 1) cream else transparent,
-                                                shape = CircleShape
-                                            )
                                     ) {
                                         Text(text = it.id.toString())
                                     }
@@ -143,14 +124,15 @@ fun QuranContent(
         var showOptionsBottomSheet by remember { mutableStateOf(false) }
         var showTafseerBottomSheet by remember { mutableStateOf(false) }
         var showRecitersBottomSheet by remember { mutableStateOf(false) }
-        val mediaPlayer = remember { AudioPlayerManager }
+        var isPlayerDialogVisible by remember { mutableStateOf(false) }
+        val audioPlayer = remember { AudioPlayerManager }
         LaunchedEffect(state.ayahs) {
-            mediaPlayer.setAyahs(state.ayahs)
+            audioPlayer.setAyahs(state.ayahs)
         }
         LaunchedEffect(state.selectedAudioData) {
             state.selectedAudioData?.let {
                 Log.d("TAG", "selectedAudioData: ${state.selectedVerseToRead} ")
-                mediaPlayer.initializePlayer(
+                audioPlayer.initializePlayer(
                     context,
                     it,
                     state.selectedVerseToRead
@@ -162,7 +144,7 @@ fun QuranContent(
         }
         DisposableEffect(Unit) {
             onDispose {
-                mediaPlayer.release()
+                audioPlayer.release()
             }
         }
 
@@ -170,28 +152,115 @@ fun QuranContent(
 
 
         HorizontalPager(
+            modifier = Modifier.clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ) { isPlayerDialogVisible = !isPlayerDialogVisible },
             state = pagerState,
             reverseLayout = true,
         ) { page ->
             Page(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable(
-                        interactionSource = interactionSource,
-                        indication = null
-                    ) {
-                        //events.onVerseSelected(verseToSelect = state.pages[page].contents[0].verses[0], verseToRead = state.selectedVerseToRead)
-                        //showOptionsBottomSheet = true
-                    },
+                modifier = Modifier.fillMaxSize(),
                 pageUI = state.pages[page],
                 onVerseSelected = { verse ->
-                    events.onVerseSelected(verse = verse)
+                    events.selectVerse(verse)
+                    events.highlightVerse()
                     showOptionsBottomSheet = true
                 },
                 onSurahNameClick = { scope.launch { drawerState.open() } },
-                onPartClick = {}
+                onPartClick = {},
+                onPageClick = { isPlayerDialogVisible = !isPlayerDialogVisible }
             )
         }
+        if (isPlayerDialogVisible) {
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(vertical = 26.sdp, horizontal = 8.sdp), Arrangement.Bottom
+            ) {
+                AudioPlayerDialog(
+                    selectedReciter = state.selectedReciter?.name ?: "",
+                    surahName = "سورة ${state.surahesData[state.selectedAudioData?.surahId?.minus(1) ?: 0].arabic}",
+                    audioPlayer = audioPlayer,
+                    selectedVerseToRead = state.selectedVerseToRead,
+                    isPlaying = isPlaying.value,
+                    highlightVerse = events::highlightVerse,
+                    selectVerseToRead = events::selectVerseToRead,
+                ) {
+                    showRecitersBottomSheet = true
+                }
+            }
+        }
+        if (showRecitersBottomSheet) {
+            if (state.selectedVerseToRead == null) {
+                val page = pagerState.currentPage
+                Log.d("bale", "page: $page")
+                val firstVerse = state.pages[pagerState.currentPage].contents[0].verses[0]
+                Log.d("bale", "firstVerse: ${firstVerse.surahNumber} : ${firstVerse.verseNumber}")
+                events.selectVerseToRead(firstVerse)
+            }
+            ModalBottomSheet(
+                modifier = Modifier.fillMaxHeight(),
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                onDismissRequest = { showRecitersBottomSheet = false }
+            ) {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                    LazyColumn(contentPadding = PaddingValues(vertical = 4.sdp)) {
+                        items(state.reciters) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.sdp)
+                                    .clickable {
+                                        val surahAudioData =
+                                            it.surahesAudioData.firstOrNull { it.surahId == (state.selectedVerseToRead?.surahNumber) }
+                                        if (surahAudioData == null) {
+                                            events.downloadSurahForReciter(it)
+                                        } else {
+                                            events.onReciterClick(it, surahAudioData)
+                                        }
+                                        showRecitersBottomSheet = false
+                                    }
+                            ) {
+                                val isDownloaded = it.surahesAudioData.firstOrNull {
+                                    it.surahId == (state.selectedVerseToRead?.surahNumber ?: 0)
+                                } == null
+                                Image(
+                                    modifier = Modifier
+                                        .size(25.sdp),
+                                    painter = painterResource(id = if (isDownloaded) R.drawable.ic_download else R.drawable.ic_check),
+                                    contentDescription = "download",
+                                )
+                                Spacer(modifier = Modifier.width(4.sdp))
+                                Text(
+                                    text = it.name,
+                                    style = TextStyle(
+                                        fontSize = 18.ssp,
+                                    ),
+                                )
+                                Spacer(modifier = Modifier.width(4.sdp))
+                                if (it.rewaya != "حفص عن عاصم") Text(
+                                    text = "(${it.rewaya})",
+                                    style = TextStyle(
+                                        fontSize = 16.ssp,
+                                    ),
+                                )
+                            }
+
+                        }
+
+                    }
+                }
+            }
+        }
+
+
+
+
+
+
+
+
         if (showOptionsBottomSheet) {
             ModalBottomSheet(
                 modifier = Modifier.fillMaxHeight(),
@@ -201,100 +270,9 @@ fun QuranContent(
                 }
             ) {
                 val surah = state.surahesData[(state.selectedVerse?.surahNumber?.minus(1)) ?: 0]
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .clickable { showRecitersBottomSheet = true },
-                    text = state.selectedReciter?.name ?: "",
-                    style = TextStyle(
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        fontSize = 16.ssp
-                    ),
-                )
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .clickable { showRecitersBottomSheet = true },
-                    text = "سورة ${state.surahesData[state.selectedAudioData?.surahId?.minus(1) ?: 0].arabic}",
-                    style = TextStyle(
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        fontSize = 14.ssp
-                    ),
-                )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    Arrangement.SpaceEvenly
-                ) {
-                    Image(
-                        modifier = Modifier
-                            .size(35.sdp)
-                            .clickable {
-                                mediaPlayer.seekTo(
-                                    state.selectedVerseToRead?.verseNumber?.minus(1) ?: 0
-                                )
-                                if (!isPlaying.value) mediaPlayer.resume {
-                                    events.onVerseSelected(
-                                        verse = it,
-                                        isToRead = true
-                                    )
-                                }
-                            },
-                        painter = painterResource(id = R.drawable.ic_previous),
-                        contentDescription = "previous",
-                        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onPrimary)
-                    )
-                    if (!isPlaying.value) Image(
-                        modifier = Modifier
-                            .size(35.sdp)
-                            .clickable {
-                                mediaPlayer.play {
-                                    events.onVerseSelected(
-                                        verse = it,
-                                        isToRead = true
-                                    )
-                                }
-                            },
-                        painter = painterResource(id = R.drawable.ic_play),
-                        contentDescription = "play",
-                        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onPrimary)
-                    ) else Image(
-                        modifier = Modifier
-                            .size(35.sdp)
-                            .clickable {
-                                mediaPlayer.pause()
-                            },
-                        painter = painterResource(id = R.drawable.ic_pause),
-                        contentDescription = "pause",
-                        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onPrimary)
-                    )
-                    Image(
-                        modifier = Modifier
-                            .size(35.sdp)
-                            .clickable {
-                                mediaPlayer.seekTo(
-                                    state.selectedVerseToRead?.verseNumber?.plus(1) ?: 1
-                                )
-                                if (!isPlaying.value) mediaPlayer.resume {
-                                    events.onVerseSelected(
-                                        verse = it,
-                                        isToRead = true
-                                    )
-                                }
-                            },
-                        painter = painterResource(id = R.drawable.ic_next),
-                        contentDescription = "next",
-                        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onPrimary)
-                    )
-                }
                 Button(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = brown.copy(alpha = 0.1f)),
+
                     onClick = {
                         events.getTafseer(surah.id, state.selectedVerse?.verseNumber ?: 1)
                         showTafseerBottomSheet = true
@@ -303,13 +281,11 @@ fun QuranContent(
                 }
                 Button(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = brown.copy(alpha = 0.2f)),
                     onClick = {}) {
                     Text("Play from here")
                 }
                 Button(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = brown.copy(alpha = 0.4f)),
                     onClick = {}) {
                     Text("Bookmark")
                 }
@@ -335,11 +311,16 @@ fun QuranContent(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
                     )
+                    Box(
+                        modifier = Modifier
+                            .padding(8.sdp)
+                            .fillMaxWidth()
+                            .height(1.sdp)
+                    )
                     state.selectedVerseTafseer?.let {
                         Text(
                             it.text,
                             style = TextStyle(
-                                color = brown,
                                 textAlign = TextAlign.Center,
                                 textDirection = TextDirection.ContentOrRtl,
                                 fontSize = 16.ssp
@@ -351,7 +332,6 @@ fun QuranContent(
                         Text(
                             "[ ${it.tafseer_name} ]",
                             style = TextStyle(
-                                color = brown.copy(alpha = 0.5f),
                                 textAlign = TextAlign.Center,
                                 textDirection = TextDirection.ContentOrRtl,
                                 fontSize = 16.ssp
@@ -364,68 +344,6 @@ fun QuranContent(
                 }
 
 
-            }
-        }
-        if (showRecitersBottomSheet) {
-            ModalBottomSheet(
-                modifier = Modifier.fillMaxHeight(),
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                onDismissRequest = { showRecitersBottomSheet = false }
-            ) {
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    LazyColumn(contentPadding = PaddingValues(vertical = 4.sdp)) {
-                        items(state.reciters) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.sdp)
-                                    .clickable {
-                                        val surahAudioData =
-                                            it.surahesAudioData.firstOrNull { it.surahId == (state.selectedVerse?.surahNumber) }
-                                        if (surahAudioData == null) {
-                                            events.downloadSurahForReciter(it)
-                                        } else {
-                                            events.onReciterClick(it, surahAudioData)
-                                        }
-                                        showRecitersBottomSheet = false
-                                    }
-                            ) {
-                                val isDownloaded = it.surahesAudioData.firstOrNull {
-                                    it.surahId == (state.selectedVerse?.surahNumber ?: 0)
-                                } == null
-                                Image(
-                                    modifier = Modifier
-                                        .size(25.sdp),
-                                    painter = painterResource(id = if (isDownloaded) R.drawable.ic_download else R.drawable.ic_check),
-                                    contentDescription = "download",
-                                    colorFilter = ColorFilter.tint(
-                                        color = MaterialTheme.colorScheme.onPrimary.copy(
-                                            alpha = if (isDownloaded) 0.2f else 0.6f
-                                        )
-                                    )
-                                )
-                                Spacer(modifier = Modifier.width(4.sdp))
-                                Text(
-                                    text = it.name,
-                                    style = TextStyle(
-                                        fontSize = 18.ssp,
-                                        color = MaterialTheme.colorScheme.onPrimary
-                                    ),
-                                )
-                                Spacer(modifier = Modifier.width(4.sdp))
-                                if (it.rewaya != "حفص عن عاصم") Text(
-                                    text = "(${it.rewaya})",
-                                    style = TextStyle(
-                                        fontSize = 16.ssp,
-                                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.3f)
-                                    ),
-                                )
-                            }
-
-                        }
-
-                    }
-                }
             }
         }
     }

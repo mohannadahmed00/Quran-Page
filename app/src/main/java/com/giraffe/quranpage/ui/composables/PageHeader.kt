@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,7 +15,12 @@ import com.giraffe.quranpage.ui.screens.quran.PageUI
 import ir.kaaveh.sdpcompose.ssp
 
 @Composable
-fun PageHeader(modifier: Modifier = Modifier, pageUI: PageUI, onSurahNameClick: () -> Unit,onPartClick: () -> Unit,) {
+fun PageHeader(
+    modifier: Modifier = Modifier,
+    pageUI: PageUI,
+    onSurahNameClick: () -> Unit,
+    onPartClick: () -> Unit,
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -30,7 +34,6 @@ fun PageHeader(modifier: Modifier = Modifier, pageUI: PageUI, onSurahNameClick: 
             style = TextStyle(
                 fontSize = 10.ssp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onPrimary
             )
         )
         Text(
@@ -41,7 +44,6 @@ fun PageHeader(modifier: Modifier = Modifier, pageUI: PageUI, onSurahNameClick: 
             style = TextStyle(
                 fontSize = 10.ssp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onPrimary
             )
         )
     }

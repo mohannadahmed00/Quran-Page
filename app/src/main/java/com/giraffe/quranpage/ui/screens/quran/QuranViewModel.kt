@@ -15,8 +15,9 @@ import com.giraffe.quranpage.local.model.SurahAudioModel
 import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.repo.Repository
-import com.giraffe.quranpage.ui.theme.brown
 import com.giraffe.quranpage.ui.theme.fontFamilies
+import com.giraffe.quranpage.ui.theme.onPrimaryContainerLight
+import com.giraffe.quranpage.ui.theme.primaryLight
 import com.giraffe.quranpage.utils.isNetworkAvailable
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -70,15 +71,16 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
 
                 withStyle(
                     style = SpanStyle(
+                        color = onPrimaryContainerLight,
                         fontFamily = fontFamily,
                         background = when (verse) {
                             verseToSelect -> {
-                                brown.copy(
+                                primaryLight.copy(
                                     alpha = 0.2f
                                 )
                             }
                             verseToRead -> {
-                                brown.copy(
+                                primaryLight.copy(
                                     alpha = 0.1f
                                 )
                             }
@@ -87,7 +89,7 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                     )
                 ) {
                     append(handledVerse.substring(0, handledVerse.length - 1))
-                    withStyle(style = SpanStyle(color = brown)) {
+                    withStyle(style = SpanStyle(color = primaryLight.copy(alpha = 0.5f))) {
                         append(handledVerse.substring(handledVerse.length - 1))
                     }
 
@@ -280,10 +282,10 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
 
     }
 
-    override fun onVerseSelected(verse: VerseModel?, isToRead: Boolean) {
+    override fun highlightVerse(isToRead: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (isToRead) _state.update { it.copy(selectedVerseToRead = verse, pageIndexToRead = verse?.pageIndex) }
-            else _state.update { it.copy(selectedVerse = verse) }
+            /*if (isToRead) _state.update { it.copy(selectedVerseToRead = verse, pageIndexToRead = verse?.pageIndex) }
+            else _state.update { it.copy(selectedVerse = verse) }*/
 
             val pages = state.value.orgPages.toMutableList()//pure pages
 
@@ -304,56 +306,64 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
             val contentsToSelect = pageUiToSelect.orgContents.toMutableList()//pure contents
             val contentsToRead = pageUiToRead.orgContents.toMutableList()//pure contents
 
-            val contentToSelect = contentsToSelect[contentIndexToSelect]
+            val contentToSelect = if (contentIndexToSelect != -1) contentsToSelect[contentIndexToSelect] else null
             val contentToRead =
                 if (contentIndexToRead != -1) contentsToRead[contentIndexToRead] else null
 
             if (contentToSelect == contentToRead) {
-                contentsToSelect[contentIndexToSelect] = contentToSelect.copy(
-                    text = convertVerseToText(
-                        contentsToSelect[contentIndexToSelect].verses,
-                        pageUiToSelect.fontFamily,
-                        state.value.selectedVerse,
-                        state.value.selectedVerseToRead
+                contentToSelect?.let {
+                    contentsToSelect[contentIndexToSelect] = contentToSelect.copy(
+                        text = convertVerseToText(
+                            contentsToSelect[contentIndexToSelect].verses,
+                            pageUiToSelect.fontFamily,
+                            state.value.selectedVerse,
+                            state.value.selectedVerseToRead
+                        )
                     )
-                )
-                pages[pageUiToSelect.pageIndex - 1] =
-                    pageUiToSelect.copy(contents = contentsToSelect)
+                    pages[pageUiToSelect.pageIndex - 1] =
+                        pageUiToSelect.copy(contents = contentsToSelect)
+                }
+
 
 
             } else {
-                if (contentToSelect.pageIndex == contentToRead?.pageIndex) {
-                    contentsToSelect[contentIndexToSelect] = contentToSelect.copy(
-                        text = convertVerseToText(
-                            contentsToSelect[contentIndexToSelect].verses,
-                            pageUiToSelect.fontFamily,
-                            state.value.selectedVerse,
-                            state.value.selectedVerseToRead
+                if (contentToSelect?.pageIndex == contentToRead?.pageIndex) {
+                    contentToSelect?.let {
+                        contentsToSelect[contentIndexToSelect] = contentToSelect.copy(
+                            text = convertVerseToText(
+                                contentsToSelect[contentIndexToSelect].verses,
+                                pageUiToSelect.fontFamily,
+                                state.value.selectedVerse,
+                                state.value.selectedVerseToRead
+                            )
                         )
-                    )
-                    contentsToSelect[contentIndexToRead] = contentToRead.copy(
-                        text = convertVerseToText(
-                            contentsToRead[contentIndexToRead].verses,
-                            pageUiToRead.fontFamily,
-                            state.value.selectedVerse,
-                            state.value.selectedVerseToRead
-                        )
-                    )
-                    pages[pageUiToSelect.pageIndex - 1] =
-                        pageUiToSelect.copy(contents = contentsToSelect)
+                        contentToRead?.let {
+                            contentsToSelect[contentIndexToRead] = contentToRead.copy(
+                                text = convertVerseToText(
+                                    contentsToRead[contentIndexToRead].verses,
+                                    pageUiToRead.fontFamily,
+                                    state.value.selectedVerse,
+                                    state.value.selectedVerseToRead
+                                )
+                            )
+                        }
+                        pages[pageUiToSelect.pageIndex - 1] =
+                            pageUiToSelect.copy(contents = contentsToSelect)
+                    }
+
                 } else {
-                    contentsToSelect[contentIndexToSelect] = contentToSelect.copy(
-                        text = convertVerseToText(
-                            contentsToSelect[contentIndexToSelect].verses,
-                            pageUiToSelect.fontFamily,
-                            state.value.selectedVerse,
-                            state.value.selectedVerseToRead
+                    contentToSelect?.let {
+                        contentsToSelect[contentIndexToSelect] = contentToSelect.copy(
+                            text = convertVerseToText(
+                                contentsToSelect[contentIndexToSelect].verses,
+                                pageUiToSelect.fontFamily,
+                                state.value.selectedVerse,
+                                state.value.selectedVerseToRead
+                            )
                         )
-                    )
-                    pages[pageUiToSelect.pageIndex - 1] =
-                        pageUiToSelect.copy(contents = contentsToSelect)
-
-
+                        pages[pageUiToSelect.pageIndex - 1] =
+                            pageUiToSelect.copy(contents = contentsToSelect)
+                    }
                     contentToRead?.let {
                         contentsToRead[contentIndexToRead] = contentToRead.copy(
                             text = convertVerseToText(
@@ -441,6 +451,13 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
     }
 
     override fun removeSelectedVerse() {
-        onVerseSelected(null,true)
+        //highlightVerse(null,true)
+    }
+
+    override fun selectVerseToRead(verse: VerseModel?) {
+        _state.update { it.copy(selectedVerseToRead = verse, pageIndexToRead = verse?.pageIndex) }
+    }
+    override fun selectVerse(verse: VerseModel?) {
+        _state.update { it.copy(selectedVerse = verse, pageIndexToSelection = verse?.pageIndex) }
     }
 }

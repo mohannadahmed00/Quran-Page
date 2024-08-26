@@ -23,7 +23,9 @@ data class QuranScreenState(
     val selectedReciter: ReciterModel? = null,
     val selectedAudioData: SurahAudioModel? = null,
     val selectedVerseTafseer: TafseerResponse? = null,
-    val pageIndexToRead:Int? = null
+    val pageIndexToRead:Int? = null,
+    val pageIndexToSelection:Int? = null,
+    val isPlayerDialogVisible:Boolean=false
 )
 
 @Immutable

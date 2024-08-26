@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,11 +30,11 @@ fun PageFooter(modifier: Modifier = Modifier, pageUI: PageUI) {
                 contentDescription = ""
             )
         }
-        Text(text = (pageUI.pageIndex).toString(),
+        Text(
+            text = (pageUI.pageIndex).toString(),
             style = TextStyle(
                 fontSize = 10.ssp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onPrimary
+                fontWeight = FontWeight.Bold
             )
         )
         Box(modifier = Modifier.weight(1f), Alignment.CenterEnd) {
@@ -44,8 +43,7 @@ fun PageFooter(modifier: Modifier = Modifier, pageUI: PageUI) {
                     text = it,
                     style = TextStyle(
                         fontSize = 10.ssp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimary
+                        fontWeight = FontWeight.Bold
                     )
                 )
             }

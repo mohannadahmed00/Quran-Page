@@ -1,5 +1,6 @@
 package com.giraffe.quranpage.ui.composables
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -17,6 +18,7 @@ fun Page(
     onVerseSelected: (VerseModel) -> Unit,
     onSurahNameClick: () -> Unit,
     onPartClick: () -> Unit,
+    onPageClick: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -28,7 +30,8 @@ fun Page(
         PageContent(
             modifier = Modifier.weight(1f),
             pageUI = pageUI,
-            onVerseSelected = onVerseSelected
+            onVerseSelected = onVerseSelected,
+            onPageClick = onPageClick
         )
         PageFooter(pageUI = pageUI)
     }
