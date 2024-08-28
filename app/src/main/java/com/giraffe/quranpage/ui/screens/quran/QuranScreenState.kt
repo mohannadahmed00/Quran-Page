@@ -14,6 +14,7 @@ import com.giraffe.quranpage.remote.response.TafseerResponse
 data class QuranScreenState(
     val selectedVerseToRead: VerseModel? = null,
     val selectedVerse: VerseModel? = null,
+    val firstVerse: VerseModel? = null,
     val orgPages: List<PageUI> = listOf(),
     val pages: List<PageUI> = listOf(),
     val surahesData: List<SurahModel> = listOf(),

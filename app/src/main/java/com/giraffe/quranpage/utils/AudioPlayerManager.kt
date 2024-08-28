@@ -31,14 +31,7 @@ object AudioPlayerManager {
 
     // Initialize the media player with an audio source
     fun initializePlayer(context: Context,surahAudioData: SurahAudioModel?,currentVerse:VerseModel?) {
-        Log.d("AudioPlayer", "initializePlayer: ${Gson().toJson(surahAudioData?.ayahsTiming)}")
-        if (surahAudioData?.surahId != this.surahAudioData?.surahId){
-            this.currentVerse = null
-            this.currentPosition = 0
-        }else{
-
-            this.currentVerse = currentVerse
-        }
+        this.currentVerse = currentVerse
         this.surahAudioData = surahAudioData
 
 
@@ -82,7 +75,6 @@ object AudioPlayerManager {
     fun pause() {
         if (mediaPlayer?.isPlaying == true) {
             mediaPlayer?.pause()
-            //currentPosition = mediaPlayer?.currentPosition ?: 0
             stopTrackingTime()
             Log.d("AudioPlayer", "Audio paused.")
         }
@@ -116,11 +108,6 @@ object AudioPlayerManager {
             Log.d("AudioPlayer", "Seeking to verse Index $verseIndex at $currentPosition ms.")
         }
         _isPlaying.update { mediaPlayer?.isPlaying ?: false }
-    }
-
-    // Get current playback position
-    fun getCurrentPosition(): Int {
-        return mediaPlayer?.currentPosition ?: 0
     }
 
 

@@ -1,6 +1,7 @@
 package com.giraffe.quranpage.remote.downloader
 
 import android.content.Context
+import android.util.Log
 import com.giraffe.quranpage.utils.toThreeDigits
 import okhttp3.Call
 import okhttp3.Callback
@@ -19,6 +20,8 @@ class FileDownloader(
     fun download(folderUrl: String, surahIndex: Int,onComplete: (String?) -> Unit) {
         //https://server7.mp3quran.net/basit/Almusshaf-Al-Mojawwad/020.mp3
         val url = folderUrl + surahIndex.toThreeDigits() + ".mp3"
+        Log.d("TAG", "QuranContent 0: $url")
+
         val request = Request.Builder()
             .url(url)
             .build()

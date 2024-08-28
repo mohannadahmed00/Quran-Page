@@ -19,6 +19,7 @@ import com.giraffe.quranpage.ui.theme.fontFamilies
 import com.giraffe.quranpage.ui.theme.onPrimaryContainerLight
 import com.giraffe.quranpage.ui.theme.primaryLight
 import com.giraffe.quranpage.utils.isNetworkAvailable
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -79,11 +80,13 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                                     alpha = 0.2f
                                 )
                             }
+
                             verseToRead -> {
                                 primaryLight.copy(
                                     alpha = 0.1f
                                 )
                             }
+
                             else -> Color.Transparent
                         }
                     )
@@ -207,6 +210,7 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                         ayahs = ayahs,
                         orgPages = pages,
                         pages = pages,
+                        //firstVerse = pages[0].contents[0].verses[0]
                     )
                 }
             }
@@ -282,10 +286,8 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
 
     }
 
-    override fun highlightVerse(isToRead: Boolean) {
+    override fun highlightVerse() {
         viewModelScope.launch(Dispatchers.IO) {
-            /*if (isToRead) _state.update { it.copy(selectedVerseToRead = verse, pageIndexToRead = verse?.pageIndex) }
-            else _state.update { it.copy(selectedVerse = verse) }*/
 
             val pages = state.value.orgPages.toMutableList()//pure pages
 
@@ -306,7 +308,8 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
             val contentsToSelect = pageUiToSelect.orgContents.toMutableList()//pure contents
             val contentsToRead = pageUiToRead.orgContents.toMutableList()//pure contents
 
-            val contentToSelect = if (contentIndexToSelect != -1) contentsToSelect[contentIndexToSelect] else null
+            val contentToSelect =
+                if (contentIndexToSelect != -1) contentsToSelect[contentIndexToSelect] else null
             val contentToRead =
                 if (contentIndexToRead != -1) contentsToRead[contentIndexToRead] else null
 
@@ -323,7 +326,6 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                     pages[pageUiToSelect.pageIndex - 1] =
                         pageUiToSelect.copy(contents = contentsToSelect)
                 }
-
 
 
             } else {
@@ -416,7 +418,7 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
     }
 
 
-    override fun onReciterClick(reciter: ReciterModel,surahAudioData: SurahAudioModel) {
+    override fun onReciterClick(reciter: ReciterModel, surahAudioData: SurahAudioModel) {
         viewModelScope.launch(Dispatchers.IO) {
             _state.update {
                 it.copy(
@@ -432,12 +434,18 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
             repository.downloadSurahAudio(
                 reciter.id,
                 reciter.folderUrl,
-                state.value.selectedVerse?.surahNumber ?: 1
+                state.value.selectedVerseToRead?.surahNumber ?: state.value.firstVerse?.surahNumber ?: 1
             ) { listOfReciters ->
                 val selectedReciter = listOfReciters.firstOrNull { r -> r.id == reciter.id }
+                Log.d("TAG", "QuranContent 3: $selectedReciter")
                 val listOfSurahesAudioData = selectedReciter?.surahesAudioData
+                val verse = state.value.selectedVerseToRead ?: state.value.firstVerse
+                Log.d("TAG", "QuranContent 4: $verse")
+                Log.d("TAG", "QuranContent 5: ${Gson().toJson(listOfSurahesAudioData)}")
                 val selectedSurahesAudioData =
-                    listOfSurahesAudioData?.firstOrNull { it.surahId == _state.value.selectedVerse?.surahNumber }
+                    listOfSurahesAudioData?.firstOrNull { it.surahId == verse?.surahNumber }
+                Log.d("TAG", "QuranContent 6: $selectedSurahesAudioData")
+
                 _state.update {
                     it.copy(
                         selectedReciter = selectedReciter,
@@ -457,7 +465,16 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
     override fun selectVerseToRead(verse: VerseModel?) {
         _state.update { it.copy(selectedVerseToRead = verse, pageIndexToRead = verse?.pageIndex) }
     }
+
     override fun selectVerse(verse: VerseModel?) {
         _state.update { it.copy(selectedVerse = verse, pageIndexToSelection = verse?.pageIndex) }
+    }
+
+    override fun setFirstVerse(verse: VerseModel?) {
+        _state.update { it.copy(firstVerse = verse) }
+    }
+
+    override fun clearAudioData() {
+        _state.update { it.copy(selectedAudioData = null) }
     }
 }

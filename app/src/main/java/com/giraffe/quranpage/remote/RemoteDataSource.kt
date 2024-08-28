@@ -1,5 +1,6 @@
 package com.giraffe.quranpage.remote
 
+import android.util.Log
 import com.giraffe.quranpage.local.model.SurahAudioModel
 import com.giraffe.quranpage.remote.api.RecitersApiServices
 import com.giraffe.quranpage.remote.api.TafseerApiServices
@@ -36,6 +37,8 @@ class RemoteDataSource(
     ) =
         fileDownloader.download(folderUrl, surahIndex) { audioPath ->
             if (!audioPath.isNullOrBlank()) {
+                Log.d("TAG", "QuranContent -1: $audioPath")
+
                 CoroutineScope(Dispatchers.IO).launch {
                     recitersApiServices.getAyahsOfSurah(surahIndex, reciterId).let { response ->
                         if (!response.isSuccessful || response.body() == null) {

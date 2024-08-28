@@ -1,6 +1,5 @@
 package com.giraffe.quranpage.ui.composables
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -8,7 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.giraffe.quranpage.local.model.VerseModel
-import com.giraffe.quranpage.ui.screens.quran.Content
 import com.giraffe.quranpage.ui.screens.quran.PageUI
 
 @Composable
@@ -17,7 +15,6 @@ fun Page(
     pageUI: PageUI,
     onVerseSelected: (VerseModel) -> Unit,
     onSurahNameClick: () -> Unit,
-    onPartClick: () -> Unit,
     onPageClick: () -> Unit
 ) {
     Column(
@@ -26,7 +23,7 @@ fun Page(
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        PageHeader(pageUI = pageUI, onSurahNameClick = onSurahNameClick, onPartClick = onPartClick)
+        PageHeader(pageUI = pageUI, onSurahNameClick = onSurahNameClick)
         PageContent(
             modifier = Modifier.weight(1f),
             pageUI = pageUI,

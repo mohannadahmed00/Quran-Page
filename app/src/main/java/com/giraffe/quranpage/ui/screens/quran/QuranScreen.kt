@@ -1,6 +1,5 @@
 package com.giraffe.quranpage.ui.screens.quran
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -27,6 +26,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -46,10 +46,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -81,6 +83,40 @@ fun QuranContent(
     val pagerState = rememberPagerState(pageCount = { state.pages.size })
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val context = LocalContext.current
+    val audioPlayer = remember { AudioPlayerManager }
+    val isPlaying = AudioPlayerManager.isPlaying.collectAsState()
+    val interactionSource = remember { MutableInteractionSource() }
+    var isOptionsBottomSheetVisible by remember { mutableStateOf(false) }
+    var isTafseerBottomSheetVisible by remember { mutableStateOf(false) }
+    var isRecitersBottomSheetVisible by remember { mutableStateOf(false) }
+    var isPlayerDialogVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(state.ayahs) {
+        audioPlayer.setAyahs(state.ayahs)
+    }
+    LaunchedEffect(state.selectedAudioData) {
+        state.selectedAudioData?.let {
+            audioPlayer.initializePlayer(
+                context,
+                it,
+                state.selectedVerseToRead ?: state.firstVerse
+            )
+            isPlayerDialogVisible = true
+        }
+
+    }
+    LaunchedEffect(state.pageIndexToRead) {
+        state.pageIndexToRead?.let { pagerState.scrollToPage(it - 1) }
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            audioPlayer.release()
+        }
+    }
+
+
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -118,39 +154,6 @@ fun QuranContent(
             }
         }
     ) {
-        val context = LocalContext.current
-        val isPlaying = AudioPlayerManager.isPlaying.collectAsState()
-        val interactionSource = remember { MutableInteractionSource() }
-        var showOptionsBottomSheet by remember { mutableStateOf(false) }
-        var showTafseerBottomSheet by remember { mutableStateOf(false) }
-        var showRecitersBottomSheet by remember { mutableStateOf(false) }
-        var isPlayerDialogVisible by remember { mutableStateOf(false) }
-        val audioPlayer = remember { AudioPlayerManager }
-        LaunchedEffect(state.ayahs) {
-            audioPlayer.setAyahs(state.ayahs)
-        }
-        LaunchedEffect(state.selectedAudioData) {
-            state.selectedAudioData?.let {
-                Log.d("TAG", "selectedAudioData: ${state.selectedVerseToRead} ")
-                audioPlayer.initializePlayer(
-                    context,
-                    it,
-                    state.selectedVerseToRead
-                )
-            }
-        }
-        LaunchedEffect(state.pageIndexToRead) {
-            state.pageIndexToRead?.let { pagerState.scrollToPage(it - 1) }
-        }
-        DisposableEffect(Unit) {
-            onDispose {
-                audioPlayer.release()
-            }
-        }
-
-
-
-
         HorizontalPager(
             modifier = Modifier.clickable(
                 interactionSource = interactionSource,
@@ -165,12 +168,64 @@ fun QuranContent(
                 onVerseSelected = { verse ->
                     events.selectVerse(verse)
                     events.highlightVerse()
-                    showOptionsBottomSheet = true
+                    isOptionsBottomSheetVisible = true
                 },
                 onSurahNameClick = { scope.launch { drawerState.open() } },
-                onPartClick = {},
                 onPageClick = { isPlayerDialogVisible = !isPlayerDialogVisible }
             )
+        }
+        if (isOptionsBottomSheetVisible) {
+            ModalBottomSheet(
+                modifier = Modifier.fillMaxHeight(),
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false),
+                onDismissRequest = {
+                    events.selectVerse(null)
+                    events.highlightVerse()
+                    isOptionsBottomSheetVisible = false
+                }
+            ) {
+                val surah = state.surahesData[(state.selectedVerse?.surahNumber?.minus(1)) ?: 0]
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        events.getTafseer(surah.id, state.selectedVerse?.verseNumber ?: 1)
+                        isTafseerBottomSheetVisible = true
+                    }) {
+                    Text("Tafseer")
+                }
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        val tempVerse = state.selectedVerse
+                        events.selectVerse(null)
+                        events.highlightVerse()
+                        events.selectVerseToRead(tempVerse)
+                        val surahAudioData =
+                            state.selectedReciter?.surahesAudioData?.firstOrNull { surah -> surah.surahId == (tempVerse?.surahNumber) }
+                        if (surahAudioData == null) {
+                            state.selectedReciter?.let {
+                                audioPlayer.release()
+                                events.downloadSurahForReciter(state.selectedReciter)
+                            }
+                        } else {
+                            if (surahAudioData == state.selectedAudioData) {
+                                audioPlayer.seekTo(tempVerse?.verseNumber ?: 0)
+                            } else {
+                                audioPlayer.release()
+                                events.onReciterClick(state.selectedReciter, surahAudioData)
+                            }
+                        }
+                        isOptionsBottomSheetVisible = false
+                    }) {
+                    Text("Play from here")
+                }
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {}) {
+                    Text("Bookmark")
+                }
+
+            }
         }
         if (isPlayerDialogVisible) {
             Column(
@@ -179,57 +234,89 @@ fun QuranContent(
                     .padding(vertical = 26.sdp, horizontal = 8.sdp), Arrangement.Bottom
             ) {
                 AudioPlayerDialog(
-                    selectedReciter = state.selectedReciter?.name ?: "",
+                    pages = state.pages,
+                    currentPage = pagerState.currentPage,
+                    selectedVerseToRead = state.selectedVerseToRead,
+                    selectedReciter = state.selectedReciter,
                     surahName = "سورة ${state.surahesData[state.selectedAudioData?.surahId?.minus(1) ?: 0].arabic}",
                     audioPlayer = audioPlayer,
-                    selectedVerseToRead = state.selectedVerseToRead,
                     isPlaying = isPlaying.value,
+                    isAudioDataExist = state.selectedAudioData != null,
                     highlightVerse = events::highlightVerse,
                     selectVerseToRead = events::selectVerseToRead,
+                    clearAudioData = events::clearAudioData,
+                    downloadSurahForReciter = events::downloadSurahForReciter,
+                    onReciterClick = events::onReciterClick,
+                    setFirstVerse = events::setFirstVerse
                 ) {
-                    showRecitersBottomSheet = true
+                    isRecitersBottomSheetVisible = true
                 }
             }
         }
-        if (showRecitersBottomSheet) {
-            if (state.selectedVerseToRead == null) {
-                val page = pagerState.currentPage
-                Log.d("bale", "page: $page")
-                val firstVerse = state.pages[pagerState.currentPage].contents[0].verses[0]
-                Log.d("bale", "firstVerse: ${firstVerse.surahNumber} : ${firstVerse.verseNumber}")
-                events.selectVerseToRead(firstVerse)
-            }
+        if (isRecitersBottomSheetVisible) {
             ModalBottomSheet(
                 modifier = Modifier.fillMaxHeight(),
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                onDismissRequest = { showRecitersBottomSheet = false }
+                onDismissRequest = { isRecitersBottomSheetVisible = false }
             ) {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                     LazyColumn(contentPadding = PaddingValues(vertical = 4.sdp)) {
+                        events.setFirstVerse(
+                            state.pages.getOrNull(pagerState.currentPage)?.contents?.getOrNull(
+                                0
+                            )?.verses?.getOrNull(0)
+                        )
+                        val verse = state.selectedVerseToRead ?: state.firstVerse
+                        val surah = state.surahesData[verse?.surahNumber?.minus(1) ?: 0]
+                        item {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = "سورة ${surah.arabic}",
+                                    style = TextStyle(
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.ssp
+                                    )
+                                )
+                            }
+                        }
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .padding(8.sdp)
+                                    .fillMaxWidth()
+                                    .height(1.sdp)
+                            )
+                        }
                         items(state.reciters) {
+                            val surahAudioData =
+                                it.surahesAudioData.firstOrNull { surahData -> surahData.surahId == surah.id }
+                            val isDownloaded = surahAudioData != null
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.sdp)
                                     .clickable {
-                                        val surahAudioData =
-                                            it.surahesAudioData.firstOrNull { it.surahId == (state.selectedVerseToRead?.surahNumber) }
-                                        if (surahAudioData == null) {
-                                            events.downloadSurahForReciter(it)
+                                        if (isDownloaded) {
+                                            events.onReciterClick(it, surahAudioData!!)
                                         } else {
-                                            events.onReciterClick(it, surahAudioData)
+                                            events.downloadSurahForReciter(it)
                                         }
-                                        showRecitersBottomSheet = false
+                                        isRecitersBottomSheetVisible = false
                                     }
                             ) {
-                                val isDownloaded = it.surahesAudioData.firstOrNull {
-                                    it.surahId == (state.selectedVerseToRead?.surahNumber ?: 0)
-                                } == null
                                 Image(
                                     modifier = Modifier
                                         .size(25.sdp),
-                                    painter = painterResource(id = if (isDownloaded) R.drawable.ic_download else R.drawable.ic_check),
+                                    painter = painterResource(id = if (isDownloaded) R.drawable.ic_check else R.drawable.ic_download),
                                     contentDescription = "download",
+                                    colorFilter = ColorFilter.tint(
+                                        color = if (isDownloaded) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.secondary.copy(
+                                            alpha = 0.4f
+                                        )
+                                    )
                                 )
                                 Spacer(modifier = Modifier.width(4.sdp))
                                 Text(
@@ -246,57 +333,16 @@ fun QuranContent(
                                     ),
                                 )
                             }
-
                         }
-
                     }
                 }
             }
         }
-
-
-
-
-
-
-
-
-        if (showOptionsBottomSheet) {
-            ModalBottomSheet(
-                modifier = Modifier.fillMaxHeight(),
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false),
-                onDismissRequest = {
-                    showOptionsBottomSheet = false
-                }
-            ) {
-                val surah = state.surahesData[(state.selectedVerse?.surahNumber?.minus(1)) ?: 0]
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-
-                    onClick = {
-                        events.getTafseer(surah.id, state.selectedVerse?.verseNumber ?: 1)
-                        showTafseerBottomSheet = true
-                    }) {
-                    Text("Tafseer")
-                }
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {}) {
-                    Text("Play from here")
-                }
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {}) {
-                    Text("Bookmark")
-                }
-
-            }
-        }
-        if (showTafseerBottomSheet) {
+        if (isTafseerBottomSheetVisible) {
             ModalBottomSheet(
                 modifier = Modifier.fillMaxHeight(),
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                onDismissRequest = { showTafseerBottomSheet = false }
+                onDismissRequest = { isTafseerBottomSheetVisible = false }
             ) {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                     Text(
