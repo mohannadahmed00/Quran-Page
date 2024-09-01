@@ -26,7 +26,8 @@ data class QuranScreenState(
     val selectedVerseTafseer: TafseerResponse? = null,
     val pageIndexToRead:Int? = null,
     val pageIndexToSelection:Int? = null,
-    val isPlayerDialogVisible:Boolean=false
+    val isPlayerDialogVisible:Boolean=false,
+
 )
 
 @Immutable
@@ -35,11 +36,13 @@ data class PageUI(
     val orgContents:List<Content>,
     val contents:List<Content>,
     val fontFamily: FontFamily,
-    val surahName: String,
-    val juz: Int,
-    val hezb: String? = null,
+    val surahName: String = "",
+    val juz: Int = 0,
+    val hezbStr: String? = null,
+    val hezb: Int = 1,
     val hasSajdah: Boolean = false
 )
+
 
 @Immutable
 data class Content(

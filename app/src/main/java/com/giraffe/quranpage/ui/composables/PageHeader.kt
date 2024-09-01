@@ -13,12 +13,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.giraffe.quranpage.ui.screens.quran.PageUI
 import ir.kaaveh.sdpcompose.ssp
+import kotlinx.coroutines.Job
 
 @Composable
 fun PageHeader(
     modifier: Modifier = Modifier,
-    pageUI: PageUI,
-    onSurahNameClick: () -> Unit,
+    surahName:String,
+    juz:Int,
+    onSurahNameClick: () -> Job,
 ) {
     Row(
         modifier = modifier
@@ -29,14 +31,14 @@ fun PageHeader(
             modifier = Modifier.clickable {
                 onSurahNameClick()
             },
-            text = pageUI.surahName,
+            text = surahName,
             style = TextStyle(
                 fontSize = 10.ssp,
                 fontWeight = FontWeight.Bold,
             )
         )
         Text(
-            text = "juz' ${pageUI.juz}",
+            text = "juz' $juz",
             style = TextStyle(
                 fontSize = 10.ssp,
                 fontWeight = FontWeight.Bold,

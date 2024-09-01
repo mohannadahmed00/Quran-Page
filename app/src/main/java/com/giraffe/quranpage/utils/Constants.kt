@@ -7,6 +7,7 @@ object Constants {
     const val PAGES_URL = "https://www.mp3quran.net/api/quran_pages_svg/000.svg"
     //const val PAGES_URL = "https://www.maknoon.com/quran/hafs/000.svgz"
 
+
     object ResponseAttributes {
         const val AYAH = "ayah"
         const val END_TIME = "end_time"

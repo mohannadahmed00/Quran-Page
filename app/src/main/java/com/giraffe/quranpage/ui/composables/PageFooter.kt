@@ -18,27 +18,27 @@ import com.giraffe.quranpage.ui.screens.quran.PageUI
 import ir.kaaveh.sdpcompose.ssp
 
 @Composable
-fun PageFooter(modifier: Modifier = Modifier, pageUI: PageUI) {
+fun PageFooter(modifier: Modifier = Modifier, hasSajdah: Boolean, pageIndex: Int, hezb: String?) {
     Row(
         modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(modifier = Modifier.weight(1f)) {
-            if (pageUI.hasSajdah) Image(
+            if (hasSajdah) Image(
                 modifier = Modifier.size(20.dp),
                 painter = painterResource(id = R.drawable.sajdah),
                 contentDescription = ""
             )
         }
         Text(
-            text = (pageUI.pageIndex).toString(),
+            text = (pageIndex).toString(),
             style = TextStyle(
                 fontSize = 10.ssp,
                 fontWeight = FontWeight.Bold
             )
         )
         Box(modifier = Modifier.weight(1f), Alignment.CenterEnd) {
-            pageUI.hezb?.let {
+            hezb?.let {
                 Text(
                     text = it,
                     style = TextStyle(

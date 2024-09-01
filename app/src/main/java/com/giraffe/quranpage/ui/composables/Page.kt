@@ -8,13 +8,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.ui.screens.quran.PageUI
+import kotlinx.coroutines.Job
 
 @Composable
 fun Page(
     modifier: Modifier = Modifier,
     pageUI: PageUI,
+    pageData: PageUI,
     onVerseSelected: (VerseModel) -> Unit,
-    onSurahNameClick: () -> Unit,
+    onSurahNameClick: () -> Job,
     onPageClick: () -> Unit
 ) {
     Column(
@@ -23,14 +25,21 @@ fun Page(
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        PageHeader(pageUI = pageUI, onSurahNameClick = onSurahNameClick)
+        PageHeader(
+            surahName = pageData.surahName,
+            juz = pageData.juz,
+            onSurahNameClick = onSurahNameClick)
         PageContent(
             modifier = Modifier.weight(1f),
             pageUI = pageUI,
             onVerseSelected = onVerseSelected,
             onPageClick = onPageClick
         )
-        PageFooter(pageUI = pageUI)
+        PageFooter(
+            pageIndex = pageData.pageIndex,
+            hezb = pageData.hezbStr,
+            hasSajdah = pageData.hasSajdah
+        )
     }
 
 }

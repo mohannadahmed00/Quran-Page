@@ -2,8 +2,10 @@ package com.giraffe.quranpage.di
 
 import android.content.Context
 import com.giraffe.quranpage.remote.RemoteDataSource
+import com.giraffe.quranpage.remote.api.AudioService
 import com.giraffe.quranpage.remote.api.RecitersApiServices
 import com.giraffe.quranpage.remote.api.TafseerApiServices
+import com.giraffe.quranpage.remote.downloader.AudioDownloader
 import com.giraffe.quranpage.remote.downloader.FileDownloader
 import com.giraffe.quranpage.remote.downloader.PageDownloader
 import com.giraffe.quranpage.utils.Constants.RECITERS_BASE_URL
@@ -18,6 +20,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -62,6 +65,20 @@ object NetworkModule {
             .client(okHttpClient.build())
             .build()
 
+    @Provides
+    @Singleton
+    @Audio
+    fun provideAudioRetrofit(gson: Gson): Retrofit =
+        Retrofit.Builder()
+            .baseUrl("https://example.com/")
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .client(OkHttpClient.Builder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .build())
+            .build()
+
 
     @Provides
     @Singleton
@@ -76,6 +93,12 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideAudioApiServices(@Audio retrofit: Retrofit): AudioService {
+        return retrofit.create(AudioService::class.java)
+    }
+
+    @Provides
+    @Singleton
     fun providePageDownloader(httpClient: OkHttpClient.Builder): PageDownloader {
         return PageDownloader(httpClient)
     }
@@ -84,6 +107,12 @@ object NetworkModule {
     @Singleton
     fun provideFileDownloader(@ApplicationContext context: Context,httpClient: OkHttpClient.Builder): FileDownloader {
         return FileDownloader(context,httpClient)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAudioDownloader(@ApplicationContext context: Context,audioService: AudioService): AudioDownloader {
+        return AudioDownloader(context,audioService)
     }
 
 
@@ -119,4 +148,14 @@ annotation class Tafseer
     AnnotationTarget.FIELD
 )
 annotation class Reciters
+
+@Qualifier
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.FIELD
+)
+annotation class Audio
 

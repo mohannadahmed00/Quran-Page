@@ -15,9 +15,14 @@ import com.giraffe.quranpage.local.model.SurahAudioModel
 import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.repo.Repository
+import com.giraffe.quranpage.service.DownloadService
 import com.giraffe.quranpage.ui.theme.fontFamilies
 import com.giraffe.quranpage.ui.theme.onPrimaryContainerLight
 import com.giraffe.quranpage.ui.theme.primaryLight
+import com.giraffe.quranpage.utils.getHezb
+import com.giraffe.quranpage.utils.getJuz
+import com.giraffe.quranpage.utils.getSurahesName
+import com.giraffe.quranpage.utils.hasSajdah
 import com.giraffe.quranpage.utils.isNetworkAvailable
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -51,13 +56,11 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
             }
         }
     }
-
     private fun getSurahesData() {
         viewModelScope.launch(Dispatchers.IO) {
             _state.update { it.copy(surahesData = repository.getSurahesData()) }
         }
     }
-
     private fun convertVerseToText(
         verses: List<VerseModel>,
         fontFamily: FontFamily,
@@ -102,7 +105,6 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
             }
         }
     }
-
     private fun handleVerse(verse: VerseModel): String {
         return when (verse.pageIndex) {
             1 -> {
@@ -118,7 +120,6 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
             }
         }
     }
-
     private fun handelALFatiha(txt: String, verseNumber: Int): String {
         val str = StringBuilder()
         when (verseNumber) {
@@ -141,7 +142,6 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
         return str.toString()
 
     }
-
     private fun handelFirstPageOfAlBaqarah(txt: String, verseNumber: Int): String {
         val str = StringBuilder()
         val l = txt.length
@@ -174,7 +174,7 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                 var currentHezbNumber = 1
                 _state.update { state ->
                     val pages = ayahs.groupBy { it.pageIndex }.toList().map {
-                        val pageHezb = getHezbNumbre(it.second)//2
+                        val pageHezbNumber = it.second.last().quarterHezbIndex
                         val contents = it.second.groupBy { verses -> verses.surahNumber }
                             .map { group ->
                                 val surahArabicName =
@@ -194,97 +194,22 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                             orgContents = contents,
                             pageIndex = it.first,
                             fontFamily = fontFamilies[it.first - 1],
-                            surahName = getSurahesOfPage(it.second, _state.value.surahesData),
-                            juz = getJuzIndexFromPage(it.first),
-                            hezb = if (currentHezbNumber == pageHezb) {
-                                null
-                            } else {
-                                val prev = currentHezbNumber
-                                currentHezbNumber = pageHezb
-                                getHezbStr(prev)
-                            },
-                            hasSajdah = hasSajdah(it.second)
+                            surahName = getSurahesName(_state.value.surahesData,it.first),
+                            juz = getJuz(it.first),
+                            hezbStr = getHezb(currentHezbNumber,pageHezbNumber){hezb-> currentHezbNumber = hezb},
+                            hasSajdah = hasSajdah(_state.value.orgPages,it.first)
                         )
                     }
                     state.copy(
                         ayahs = ayahs,
                         orgPages = pages,
                         pages = pages,
-                        //firstVerse = pages[0].contents[0].verses[0]
                     )
                 }
             }
         }
     }
 
-    private fun getJuzIndexFromPage(pageIndex: Int): Int {
-        val result = pageIndex / 20.0
-        val truncatedResult = (result * 10).toInt() / 10.0
-        val digitAfterDecimal = ((result - result.toInt()) * 10).toInt()
-        val juz = if (digitAfterDecimal == 0) {
-            truncatedResult.toInt()
-        } else {
-            truncatedResult.toInt() + 1
-        }
-        return when (juz) {
-            0 -> {
-                1
-            }
-
-            31 -> {
-                30
-            }
-
-            else -> {
-                juz
-            }
-        }
-    }
-
-    private fun hasSajdah(verses: List<VerseModel>): Boolean {
-        var hasSajdah = false
-        for (verse in verses) {
-            if (verse.sajda) {
-                hasSajdah = true
-                break
-            }
-        }
-        return hasSajdah
-    }
-
-    private fun getHezbNumbre(verses: List<VerseModel>): Int {
-        var hezbNumber = 0
-        verses.forEach {
-            hezbNumber = it.quarterHezbIndex
-        }
-        return hezbNumber
-    }
-
-    private fun getHezbStr(quarterIndex: Int): String {
-        val integerPart = (quarterIndex / 4.0).toInt()//0
-        val fractionalPart = (quarterIndex / 4.0) - integerPart//0.25
-        val str = StringBuilder()
-        if (fractionalPart != 0.0) str.append(decimalToFraction(fractionalPart))
-        str.append(" hezb ${integerPart + 1}")
-        return str.toString()
-    }
-
-    private fun decimalToFraction(decimal: Double) =
-        if ((decimal / .25).toInt() == 2) "1/2" else "${(decimal / .25).toInt()}/4"
-
-    private fun getSurahesOfPage(verses: List<VerseModel>, surahesData: List<SurahModel>): String {
-        val str = StringBuilder()
-        var surahNumber = 0
-        verses.forEach {
-            if (it.surahNumber != surahNumber) {
-                surahNumber = it.surahNumber
-                str.append(surahesData.firstOrNull { surah -> surah.id == surahNumber }?.name ?: "")
-                str.append("    ")
-            }
-        }
-        return str.toString().trim()
-
-    }
 
     override fun highlightVerse() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -394,13 +319,6 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
 
         }
     }
-
-    override fun onPageChanged(pageIndex: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _state.update { it.copy(currentPageIndex = pageIndex) }
-        }
-    }
-
     override fun getTafseer(surahIndex: Int, ayahIndex: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getTafseer(
@@ -416,8 +334,6 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
 
         }
     }
-
-
     override fun onReciterClick(reciter: ReciterModel, surahAudioData: SurahAudioModel) {
         viewModelScope.launch(Dispatchers.IO) {
             _state.update {
@@ -428,15 +344,10 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
             }
         }
     }
-
-    override fun downloadSurahForReciter(reciter: ReciterModel) {
+    override fun saveAudioFile(downloadedAudio: DownloadService.DownloadedAudio) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.downloadSurahAudio(
-                reciter.id,
-                reciter.folderUrl,
-                state.value.selectedVerseToRead?.surahNumber ?: state.value.firstVerse?.surahNumber ?: 1
-            ) { listOfReciters ->
-                val selectedReciter = listOfReciters.firstOrNull { r -> r.id == reciter.id }
+            repository.saveAudioFile(downloadedAudio){ listOfReciters ->
+                val selectedReciter = listOfReciters.firstOrNull { r -> r.id == downloadedAudio.reciterId }
                 Log.d("TAG", "QuranContent 3: $selectedReciter")
                 val listOfSurahesAudioData = selectedReciter?.surahesAudioData
                 val verse = state.value.selectedVerseToRead ?: state.value.firstVerse
@@ -454,27 +365,20 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                     )
                 }
             }
-
         }
     }
-
-    override fun removeSelectedVerse() {
-        //highlightVerse(null,true)
-    }
-
     override fun selectVerseToRead(verse: VerseModel?) {
         _state.update { it.copy(selectedVerseToRead = verse, pageIndexToRead = verse?.pageIndex) }
     }
-
     override fun selectVerse(verse: VerseModel?) {
         _state.update { it.copy(selectedVerse = verse, pageIndexToSelection = verse?.pageIndex) }
     }
-
     override fun setFirstVerse(verse: VerseModel?) {
         _state.update { it.copy(firstVerse = verse) }
     }
-
     override fun clearAudioData() {
         _state.update { it.copy(selectedAudioData = null) }
     }
+
+
 }

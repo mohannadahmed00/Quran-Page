@@ -1,5 +1,7 @@
 package com.giraffe.quranpage.ui.composables
 
+import android.content.Intent
+import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -48,7 +50,6 @@ fun AudioPlayerDialog(
     selectVerseToRead: (VerseModel?) -> Unit,
     setFirstVerse: (VerseModel?) -> Unit,
     clearAudioData: () -> Unit,
-    downloadSurahForReciter: (ReciterModel) -> Unit,
     onReciterClick: (ReciterModel, SurahAudioModel) -> Unit,
     showRecitersBottomSheet: () -> Unit,
 ) {
@@ -95,9 +96,7 @@ fun AudioPlayerDialog(
                                     val surahAudioData =
                                         selectedReciter?.surahesAudioData?.firstOrNull { surah -> surah.surahId == (firstVerse?.surahNumber) }
                                     if (surahAudioData == null) {
-                                        selectedReciter?.let {
-                                            downloadSurahForReciter(selectedReciter)
-                                        }
+                                        selectedReciter?.let {}
                                     } else {
                                         onReciterClick(selectedReciter, surahAudioData)
                                     }

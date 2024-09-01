@@ -6,6 +6,7 @@ import com.giraffe.quranpage.remote.api.RecitersApiServices
 import com.giraffe.quranpage.remote.api.TafseerApiServices
 import com.giraffe.quranpage.remote.downloader.FileDownloader
 import com.giraffe.quranpage.remote.downloader.PageDownloader
+import com.giraffe.quranpage.service.DownloadService
 import com.giraffe.quranpage.utils.OnResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -58,4 +59,23 @@ class RemoteDataSource(
                 onComplete(null)
             }
         }
+
+    fun getSurahAudioData(
+        reciterId: Int,
+        audioPath: String,
+        surahIndex: Int, onComplete: (SurahAudioModel?) -> Unit
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            recitersApiServices.getAyahsOfSurah(surahIndex, reciterId).let { response ->
+                if (!response.isSuccessful || response.body() == null) {
+                    onComplete(null)
+                } else {
+                    val surahAudioModel = SurahAudioModel(
+                        surahIndex, audioPath, response.body() ?: emptyList()
+                    )
+                    onComplete(surahAudioModel)
+                }
+            }
+        }
+    }
 }
