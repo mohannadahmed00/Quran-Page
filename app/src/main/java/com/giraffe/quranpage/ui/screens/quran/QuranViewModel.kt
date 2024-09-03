@@ -1,7 +1,6 @@
 package com.giraffe.quranpage.ui.screens.quran
 
 
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -12,19 +11,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.giraffe.quranpage.local.model.ReciterModel
 import com.giraffe.quranpage.local.model.SurahAudioModel
-import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.repo.Repository
 import com.giraffe.quranpage.service.DownloadService
 import com.giraffe.quranpage.ui.theme.fontFamilies
 import com.giraffe.quranpage.ui.theme.onPrimaryContainerLight
 import com.giraffe.quranpage.ui.theme.primaryLight
+import com.giraffe.quranpage.utils.addOrUpdate
 import com.giraffe.quranpage.utils.getHezb
 import com.giraffe.quranpage.utils.getJuz
 import com.giraffe.quranpage.utils.getSurahesName
 import com.giraffe.quranpage.utils.hasSajdah
 import com.giraffe.quranpage.utils.isNetworkAvailable
-import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,11 +54,13 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
             }
         }
     }
+
     private fun getSurahesData() {
         viewModelScope.launch(Dispatchers.IO) {
             _state.update { it.copy(surahesData = repository.getSurahesData()) }
         }
     }
+
     private fun convertVerseToText(
         verses: List<VerseModel>,
         fontFamily: FontFamily,
@@ -105,6 +105,7 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
             }
         }
     }
+
     private fun handleVerse(verse: VerseModel): String {
         return when (verse.pageIndex) {
             1 -> {
@@ -120,6 +121,7 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
             }
         }
     }
+
     private fun handelALFatiha(txt: String, verseNumber: Int): String {
         val str = StringBuilder()
         when (verseNumber) {
@@ -142,6 +144,7 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
         return str.toString()
 
     }
+
     private fun handelFirstPageOfAlBaqarah(txt: String, verseNumber: Int): String {
         val str = StringBuilder()
         val l = txt.length
@@ -194,10 +197,13 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                             orgContents = contents,
                             pageIndex = it.first,
                             fontFamily = fontFamilies[it.first - 1],
-                            surahName = getSurahesName(_state.value.surahesData,it.first),
+                            surahName = getSurahesName(_state.value.surahesData, it.first),
                             juz = getJuz(it.first),
-                            hezbStr = getHezb(currentHezbNumber,pageHezbNumber){hezb-> currentHezbNumber = hezb},
-                            hasSajdah = hasSajdah(_state.value.orgPages,it.first)
+                            hezbStr = getHezb(
+                                currentHezbNumber,
+                                pageHezbNumber
+                            ) { hezb -> currentHezbNumber = hezb },
+                            hasSajdah = hasSajdah(_state.value.orgPages, it.first)
                         )
                     }
                     state.copy(
@@ -209,7 +215,6 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
             }
         }
     }
-
 
     override fun highlightVerse() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -319,6 +324,7 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
 
         }
     }
+
     override fun getTafseer(surahIndex: Int, ayahIndex: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getTafseer(
@@ -334,6 +340,7 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
 
         }
     }
+
     override fun onReciterClick(reciter: ReciterModel, surahAudioData: SurahAudioModel) {
         viewModelScope.launch(Dispatchers.IO) {
             _state.update {
@@ -344,41 +351,37 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
             }
         }
     }
+
     override fun saveAudioFile(downloadedAudio: DownloadService.DownloadedAudio) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.saveAudioFile(downloadedAudio){ listOfReciters ->
-                val selectedReciter = listOfReciters.firstOrNull { r -> r.id == downloadedAudio.reciterId }
-                Log.d("TAG", "QuranContent 3: $selectedReciter")
-                val listOfSurahesAudioData = selectedReciter?.surahesAudioData
+            repository.saveAudioFile(downloadedAudio) { reciter ->
                 val verse = state.value.selectedVerseToRead ?: state.value.firstVerse
-                Log.d("TAG", "QuranContent 4: $verse")
-                Log.d("TAG", "QuranContent 5: ${Gson().toJson(listOfSurahesAudioData)}")
                 val selectedSurahesAudioData =
-                    listOfSurahesAudioData?.firstOrNull { it.surahId == verse?.surahNumber }
-                Log.d("TAG", "QuranContent 6: $selectedSurahesAudioData")
-
+                    reciter.surahesAudioData.firstOrNull { it.surahId == verse?.surahNumber }
                 _state.update {
                     it.copy(
-                        selectedReciter = selectedReciter,
-                        reciters = listOfReciters,
+                        selectedReciter = reciter,
+                        reciters = it.reciters.toMutableList().addOrUpdate(reciter),
                         selectedAudioData = selectedSurahesAudioData,
                     )
                 }
             }
         }
     }
+
     override fun selectVerseToRead(verse: VerseModel?) {
         _state.update { it.copy(selectedVerseToRead = verse, pageIndexToRead = verse?.pageIndex) }
     }
+
     override fun selectVerse(verse: VerseModel?) {
         _state.update { it.copy(selectedVerse = verse, pageIndexToSelection = verse?.pageIndex) }
     }
+
     override fun setFirstVerse(verse: VerseModel?) {
         _state.update { it.copy(firstVerse = verse) }
     }
+
     override fun clearAudioData() {
         _state.update { it.copy(selectedAudioData = null) }
     }
-
-
 }

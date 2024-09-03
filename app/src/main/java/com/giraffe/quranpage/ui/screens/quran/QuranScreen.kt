@@ -62,13 +62,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.giraffe.quranpage.service.DownloadService
-import com.giraffe.quranpage.service.DownloadService.DownloadedAudio
 import com.giraffe.quranpage.ui.composables.AudioPlayerDialog
 import com.giraffe.quranpage.ui.composables.Page
 import com.giraffe.quranpage.ui.composables.ReciterItem
 import com.giraffe.quranpage.ui.theme.fontFamilies
 import com.giraffe.quranpage.utils.AudioPlayerManager
-import com.giraffe.quranpage.utils.toThreeDigits
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -115,8 +113,8 @@ fun QuranContent(
     }
     val onSurahNameClick = remember { { scope.launch { drawerState.open() } } }
     val onPageClick = remember { { isPlayerDialogVisible = !isPlayerDialogVisible } }
-    val downloadSurahForReciter = remember<(Int, Int,String)->Unit> {
-        {surahIndex,reciterId,url->
+    val downloadSurahForReciter = remember<(Int, Int, String) -> Unit> {
+        { surahIndex, reciterId, url ->
             Log.d("TAG", "startDownload: $url")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (!queue.containsKey(url)) {
@@ -128,13 +126,6 @@ fun QuranContent(
         }
     }
 
-
-    LaunchedEffect(queue) {
-        queue.filter { it.value.progress == 100 }.forEach { (key, value) ->
-            events.saveAudioFile(value)
-            service?.removeFromQueue(key)
-        }
-    }
     LaunchedEffect(state.ayahs) {
         audioPlayer.setAyahs(state.ayahs)
     }
@@ -303,7 +294,9 @@ fun QuranContent(
                 onDismissRequest = { isRecitersBottomSheetVisible = false }
             ) {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    LazyColumn(contentPadding = PaddingValues(vertical = 4.sdp)) {
+                    LazyColumn(
+                        contentPadding = PaddingValues(vertical = 4.sdp)
+                    ) {
                         val verse = state.selectedVerseToRead ?: firstVerse
                         val surah = state.surahesData[verse?.surahNumber?.minus(1) ?: 0]
                         item {
@@ -320,28 +313,15 @@ fun QuranContent(
                                 )
                             }
                         }
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .padding(8.sdp)
-                                    .fillMaxWidth()
-                                    .height(1.sdp)
-                            )
-                        }
                         items(state.reciters) {
-                            val surahAudioData = it.surahesAudioData.firstOrNull { surahData -> surahData.surahId == surah.id }
-                            val url = it.folderUrl + surah.id.toThreeDigits() + ".mp3"
                             ReciterItem(
                                 reciter = it,
-                                surahAudioData = surahAudioData,
-                                surahId = surah.id,
-                                url = url,
-                                progress = queue.getOrDefault(
-                                    url,
-                                    DownloadedAudio()
-                                ).progress,
+                                surah = surah,
+                                queue = queue,
                                 onReciterClick = events::onReciterClick,
-                                downloadSurahForReciter = downloadSurahForReciter
+                                downloadSurahForReciter = downloadSurahForReciter,
+                                saveAudioFile = events::saveAudioFile,
+                                removeFromQueue = { key -> service?.removeFromQueue(key) }
                             )
                         }
                     }

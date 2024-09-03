@@ -4,15 +4,36 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Rect
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.core.content.ContextCompat
 import com.caverock.androidsvg.SVG
 import com.giraffe.quranpage.R
 import com.giraffe.quranpage.local.model.AyahModel
+import com.giraffe.quranpage.local.model.ReciterModel
 import com.giraffe.quranpage.utils.Constants.PageDimensions
 import java.io.IOException
 
+fun <T> MutableList<T>.addOrUpdate(item: T): MutableList<T> {
+    val index = indexOfFirst { it == item }
+    if (index >= 0) set(index, item) else add(item)
+    return this
+}
+
+fun MutableList<ReciterModel>.addOrUpdate(item: ReciterModel): List<ReciterModel> {
+    val index = indexOfFirst { it.id == item.id }
+    if (index >= 0) set(index, item) else add(item)
+    return this
+}
+
+fun SnapshotStateList<ReciterModel>.addOrUpdate(list: SnapshotStateList<ReciterModel>): SnapshotStateList<ReciterModel> {
+    list.forEach { item ->
+        val index = indexOfFirst { it.id == item.id }
+        if (index >= 0) set(index, item) else add(item)
+    }
+    return this
+}
 
 fun isNetworkAvailable(): Boolean {
     val runtime = Runtime.getRuntime()
@@ -35,6 +56,7 @@ fun Int.toThreeDigits(): String {
     }
     return intStr
 }
+
 fun Offset.normalizePoint(newWidth: Int, newHeight: Int, isSmall: Boolean) =
     Offset(
         x * (newWidth / if (isSmall) PageDimensions.SMALL_WIDTH else PageDimensions.NORMAL_WIDTH),

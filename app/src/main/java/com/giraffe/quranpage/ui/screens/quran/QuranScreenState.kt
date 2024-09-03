@@ -7,7 +7,6 @@ import com.giraffe.quranpage.local.model.ReciterModel
 import com.giraffe.quranpage.local.model.SurahAudioModel
 import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.local.model.VerseModel
-import com.giraffe.quranpage.remote.response.ReciterResponse
 import com.giraffe.quranpage.remote.response.TafseerResponse
 
 
@@ -24,17 +23,16 @@ data class QuranScreenState(
     val selectedReciter: ReciterModel? = null,
     val selectedAudioData: SurahAudioModel? = null,
     val selectedVerseTafseer: TafseerResponse? = null,
-    val pageIndexToRead:Int? = null,
-    val pageIndexToSelection:Int? = null,
-    val isPlayerDialogVisible:Boolean=false,
-
+    val pageIndexToRead: Int? = null,
+    val pageIndexToSelection: Int? = null,
+    val isPlayerDialogVisible: Boolean = false,
 )
 
 @Immutable
 data class PageUI(
     val pageIndex: Int,
-    val orgContents:List<Content>,
-    val contents:List<Content>,
+    val orgContents: List<Content>,
+    val contents: List<Content>,
     val fontFamily: FontFamily,
     val surahName: String = "",
     val juz: Int = 0,
@@ -49,6 +47,6 @@ data class Content(
     val surahNameAr: String,
     val verses: List<VerseModel>,
     val text: AnnotatedString,
-    val pageIndex:Int
+    val pageIndex: Int
 )
 

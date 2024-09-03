@@ -1,18 +1,17 @@
 package com.giraffe.quranpage.repo
 
 import android.util.Log
+import androidx.compose.runtime.toMutableStateList
 import com.giraffe.quranpage.local.LocalDataSource
 import com.giraffe.quranpage.local.model.AyahModel
 import com.giraffe.quranpage.local.model.PageModel
 import com.giraffe.quranpage.local.model.ReciterModel
 import com.giraffe.quranpage.local.model.SurahAudioModel
-import com.giraffe.quranpage.local.model.SurahDataModel
 import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.remote.RemoteDataSource
-import com.giraffe.quranpage.remote.response.ReciterResponse
-import com.giraffe.quranpage.remote.response.TafseerResponse
 import com.giraffe.quranpage.service.DownloadService
 import com.giraffe.quranpage.utils.OnResponse
+import com.giraffe.quranpage.utils.addOrUpdate
 import javax.inject.Inject
 
 class Repository @Inject constructor(
@@ -112,7 +111,10 @@ class Repository @Inject constructor(
         return localDataSource.getAllReciters()
     }
 
-    fun saveAudioFile(downloadedAudio: DownloadService.DownloadedAudio,onComplete: (List<ReciterModel>) -> Unit) {
+    fun saveAudioFile(
+        downloadedAudio: DownloadService.DownloadedAudio,
+        onComplete: (ReciterModel) -> Unit
+    ) {
         remoteDataSource.getSurahAudioData(
             downloadedAudio.reciterId,
             downloadedAudio.filePath,
@@ -120,15 +122,13 @@ class Repository @Inject constructor(
         ) { surahAudioModel ->
             if (surahAudioModel != null) {
                 val reciter = localDataSource.getReciter(downloadedAudio.reciterId)
-                val reciterSurahes =
-                    updateOrAddSurahAudio(
-                        reciter.surahesAudioData.toMutableList(),
-                        surahAudioModel
-                    )
-                localDataSource.storeReciter(reciter.copy(surahesAudioData = reciterSurahes))
-
+                val newReciter = reciter.copy(
+                    surahesAudioData = reciter.surahesAudioData.toMutableStateList()
+                        .addOrUpdate(surahAudioModel)
+                )
+                localDataSource.storeReciter(newReciter)
             }
-            onComplete(localDataSource.getAllReciters())
+            onComplete(localDataSource.getReciter(downloadedAudio.reciterId))
         }
     }
 
@@ -145,12 +145,13 @@ class Repository @Inject constructor(
         ) { surahAudioModel ->
             if (surahAudioModel != null) {
                 val reciter = localDataSource.getReciter(reciterId)
-                val reciterSurahes =
-                    updateOrAddSurahAudio(
-                        reciter.surahesAudioData.toMutableList(),
-                        surahAudioModel
+                reciter.surahesAudioData.toMutableStateList().addOrUpdate(surahAudioModel)
+                localDataSource.storeReciter(
+                    reciter.copy(
+                        surahesAudioData = reciter.surahesAudioData.toMutableStateList()
+                            .addOrUpdate(surahAudioModel)
                     )
-                localDataSource.storeReciter(reciter.copy(surahesAudioData = reciterSurahes))
+                )
 
             }
             onComplete(localDataSource.getAllReciters())

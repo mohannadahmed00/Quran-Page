@@ -8,6 +8,8 @@ import android.content.Intent
 import android.os.Binder
 import android.os.Build
 import android.util.Log
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationCompat
 import com.giraffe.quranpage.R
 import com.giraffe.quranpage.remote.downloader.AudioDownloader
@@ -29,12 +31,12 @@ class DownloadService : Service() {
     private val _queueState = MutableStateFlow(mapOf<String, DownloadedAudio>())
     val queueState = _queueState.asStateFlow()
     fun removeFromQueue(key: String) {
-        _queueState.update {
+        /*_queueState.update {
             val tempMap = mutableMapOf<String, DownloadedAudio>()
             tempMap.putAll(it)
             tempMap.remove(key)
             tempMap.toMap()
-        }
+        }*/
         builders.remove(key)
     }
 
@@ -58,7 +60,11 @@ class DownloadService : Service() {
                 _queueState.update {
                     val tempMap = mutableMapOf<String, DownloadedAudio>()
                     tempMap.putAll(it)
-                    tempMap[url] = DownloadedAudio(progress, reciterId, surahIndex, path)
+                    if (tempMap.containsKey(url)){
+                        tempMap[url]?.progress?.update { progress }
+                    }else {
+                        tempMap[url] = DownloadedAudio(MutableStateFlow(progress), reciterId, surahIndex, path)
+                    }
                     builders[url]?.apply {
                         setProgress(100, progress, false)
                         setContentTitle("$progress %")
@@ -95,7 +101,7 @@ class DownloadService : Service() {
     }
 
     data class DownloadedAudio(
-        val progress: Int = 0,
+        val progress: MutableStateFlow<Int> = MutableStateFlow(0),
         val reciterId: Int = 0,
         val surahIndex: Int = 0,
         val filePath: String = ""
