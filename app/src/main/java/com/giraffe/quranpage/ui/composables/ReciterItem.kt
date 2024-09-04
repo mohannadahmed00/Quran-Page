@@ -52,7 +52,7 @@ fun ReciterItem(
     var color = MaterialTheme.colorScheme.secondary.copy(
         alpha = 0.4f
     )
-    if (progress.value == 100 /*|| isDownloaded*/) {
+    if (progress.value == 100 || isDownloaded) {
         imgRes.intValue = R.drawable.ic_check
         color = MaterialTheme.colorScheme.secondary
     }

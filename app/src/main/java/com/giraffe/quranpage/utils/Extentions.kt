@@ -12,11 +12,12 @@ import com.caverock.androidsvg.SVG
 import com.giraffe.quranpage.R
 import com.giraffe.quranpage.local.model.AyahModel
 import com.giraffe.quranpage.local.model.ReciterModel
+import com.giraffe.quranpage.local.model.SurahAudioModel
 import com.giraffe.quranpage.utils.Constants.PageDimensions
 import java.io.IOException
 
-fun <T> MutableList<T>.addOrUpdate(item: T): MutableList<T> {
-    val index = indexOfFirst { it == item }
+fun MutableList<SurahAudioModel>.addOrUpdate(item: SurahAudioModel): MutableList<SurahAudioModel> {
+    val index = indexOfFirst { it.surahId == item.surahId }
     if (index >= 0) set(index, item) else add(item)
     return this
 }

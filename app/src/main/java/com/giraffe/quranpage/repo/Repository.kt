@@ -113,7 +113,7 @@ class Repository @Inject constructor(
 
     fun saveAudioFile(
         downloadedAudio: DownloadService.DownloadedAudio,
-        onComplete: (ReciterModel) -> Unit
+        onComplete: (ReciterModel, SurahAudioModel?) -> Unit
     ) {
         remoteDataSource.getSurahAudioData(
             downloadedAudio.reciterId,
@@ -128,7 +128,8 @@ class Repository @Inject constructor(
                 )
                 localDataSource.storeReciter(newReciter)
             }
-            onComplete(localDataSource.getReciter(downloadedAudio.reciterId))
+
+            onComplete(localDataSource.getReciter(downloadedAudio.reciterId), surahAudioModel)
         }
     }
 

@@ -103,6 +103,9 @@ fun QuranContent(
         mutableStateOf(emptyMap())
     }
     val isPlaying = AudioPlayerManager.isPlaying.collectAsState()
+    val isPrepared = AudioPlayerManager.isPrepared.collectAsState()
+
+
     val firstVerse by remember(pagerState.currentPage) {
         derivedStateOf {
             state.pages.getOrNull(pagerState.currentPage)?.contents?.getOrNull(
@@ -124,6 +127,15 @@ fun QuranContent(
         }
     }
 
+    LaunchedEffect(isPrepared.value) {
+        val status = if (!isPrepared.value) "not" else ""
+        if (isPrepared.value) {
+            audioPlayer.play {
+                events.selectVerseToRead(it)
+                events.highlightVerse()
+            }
+        }
+    }
     LaunchedEffect(service?.downloadedFiles?.size) {
         service?.downloadedFiles?.forEach { (key, value) ->
             events.saveAudioFile(value)

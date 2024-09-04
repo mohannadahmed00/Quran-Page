@@ -8,29 +8,29 @@ import android.util.Log
 import androidx.core.net.toUri
 import com.giraffe.quranpage.local.model.SurahAudioModel
 import com.giraffe.quranpage.local.model.VerseModel
-import com.giraffe.quranpage.ui.screens.quran.PageUI
-import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import java.io.IOException
-import kotlin.math.abs
-import kotlin.math.log
 
 object AudioPlayerManager {
     private val handler = Handler(Looper.getMainLooper())
     private var surahAudioData: SurahAudioModel? = null
     private var ayahs: List<VerseModel> = emptyList()
     private var mediaPlayer: MediaPlayer? = null
-    private var isPrepared: Boolean = false
-    private var currentVerse:VerseModel? = null
+    private var currentVerse: VerseModel? = null
     private var currentPosition = 0
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying = _isPlaying.asStateFlow()
+    private val _isPrepared = MutableStateFlow(false)
+    val isPrepared = _isPrepared.asStateFlow()
 
 
     // Initialize the media player with an audio source
-    fun initializePlayer(context: Context,surahAudioData: SurahAudioModel?,currentVerse:VerseModel?) {
+    fun initializePlayer(
+        context: Context,
+        surahAudioData: SurahAudioModel?,
+        currentVerse: VerseModel?
+    ) {
         this.currentVerse = currentVerse
         this.surahAudioData = surahAudioData
 
@@ -38,8 +38,11 @@ object AudioPlayerManager {
         release() // Release any existing player instance
         mediaPlayer = MediaPlayer.create(context, surahAudioData?.audioPath?.toUri())
         mediaPlayer?.setOnPreparedListener {
-            isPrepared = true
-            Log.d("AudioPlayer", "Media Player is prepared. from ${currentVerse?.surahNumber} : ${currentVerse?.verseNumber} ")
+            _isPrepared.value = true
+            Log.d(
+                "AudioPlayer",
+                "Media Player is prepared. from ${currentVerse?.surahNumber} : ${currentVerse?.verseNumber} "
+            )
         }
         mediaPlayer?.setOnCompletionListener {
             Log.d("AudioPlayer", "Playback complete.")
@@ -59,8 +62,8 @@ object AudioPlayerManager {
 
 
     // Play the audio if prepared
-    fun play(trackAudio:(VerseModel?) -> Unit) {
-        if (isPrepared) {
+    fun play(trackAudio: (VerseModel?) -> Unit) {
+        if (_isPrepared.value) {
             seekTo(currentVerse?.verseNumber ?: 0)
             mediaPlayer?.start()
             trackTime { trackAudio(it) }
@@ -81,7 +84,7 @@ object AudioPlayerManager {
         _isPlaying.update { mediaPlayer?.isPlaying ?: false }
     }
 
-    fun resume(trackAudio:(VerseModel?) -> Unit) {
+    fun resume(trackAudio: (VerseModel?) -> Unit) {
         mediaPlayer?.start()
         trackTime { trackAudio(it) }
         _isPlaying.update { mediaPlayer?.isPlaying ?: false }
@@ -95,13 +98,13 @@ object AudioPlayerManager {
             mediaPlayer?.reset()
             stopTrackingTime()
             Log.d("AudioPlayer", "Audio stopped.")
-            isPrepared = false
+            _isPrepared.value = false
         }
         _isPlaying.update { mediaPlayer?.isPlaying ?: false }
     }
 
     fun seekTo(verseIndex: Int) {
-        if (isPrepared) {
+        if (_isPrepared.value) {
             currentPosition = getVerseTime(verseIndex)
             currentVerse = getVerseFromTiming(currentPosition)
             mediaPlayer?.seekTo(currentPosition)
@@ -115,7 +118,7 @@ object AudioPlayerManager {
     fun release() {
         mediaPlayer?.release()
         mediaPlayer = null
-        isPrepared = false
+        _isPrepared.value = false
         stopTrackingTime()
         Log.d("AudioPlayer", "Media player resources released.")
         _isPlaying.update { mediaPlayer?.isPlaying ?: false }
@@ -127,24 +130,9 @@ object AudioPlayerManager {
     }
 
 
-
-
-
-
-
-
-
-
     fun setAyahs(ayahs: List<VerseModel>) {
         this.ayahs = ayahs
     }
-
-
-
-
-
-
-
 
 
     private fun getVerseTime(verseToReadIndex: Int): Int {
@@ -155,9 +143,11 @@ object AudioPlayerManager {
         }
         return surahAudioData?.ayahsTiming?.getOrNull(verseToReadIndex)?.startTime ?: 0
     }
+
     private fun stopTrackingTime() {
         handler.removeCallbacksAndMessages(null)
     }
+
     private fun trackTime(action: (VerseModel?) -> Unit) {
         stopTrackingTime()
         handler.post(object : Runnable {
@@ -169,9 +159,13 @@ object AudioPlayerManager {
             }
         })
     }
+
     private fun getVerseFromTiming(trackPosition: Int): VerseModel? {
         val ayahTiming =
             surahAudioData?.ayahsTiming?.firstOrNull { ayah -> trackPosition >= ayah.startTime && trackPosition <= ayah.endTime }
-        return ayahs.firstOrNull { it.verseNumber == (ayahTiming?.ayahIndex ?: 0) && it.surahNumber == surahAudioData?.surahId  }
+        return ayahs.firstOrNull {
+            it.verseNumber == (ayahTiming?.ayahIndex
+                ?: 0) && it.surahNumber == surahAudioData?.surahId
+        }
     }
 }

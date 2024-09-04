@@ -1,6 +1,7 @@
 package com.giraffe.quranpage.ui.screens.quran
 
 
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -23,6 +24,7 @@ import com.giraffe.quranpage.utils.getJuz
 import com.giraffe.quranpage.utils.getSurahesName
 import com.giraffe.quranpage.utils.hasSajdah
 import com.giraffe.quranpage.utils.isNetworkAvailable
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -354,15 +356,12 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
 
     override fun saveAudioFile(downloadedAudio: DownloadService.DownloadedAudio) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.saveAudioFile(downloadedAudio) { reciter ->
-                val verse = state.value.selectedVerseToRead ?: state.value.firstVerse
-                val selectedSurahesAudioData =
-                    reciter.surahesAudioData.firstOrNull { it.surahId == verse?.surahNumber }
+            repository.saveAudioFile(downloadedAudio) { reciter, surahAudioModel ->
                 _state.update {
                     it.copy(
                         selectedReciter = reciter,
                         reciters = it.reciters.toMutableList().addOrUpdate(reciter),
-                        selectedAudioData = selectedSurahesAudioData,
+                        selectedAudioData = surahAudioModel,
                     )
                 }
             }
