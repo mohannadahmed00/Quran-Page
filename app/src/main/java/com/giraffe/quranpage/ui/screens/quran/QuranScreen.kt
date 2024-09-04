@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -115,7 +114,6 @@ fun QuranContent(
     val onPageClick = remember { { isPlayerDialogVisible = !isPlayerDialogVisible } }
     val downloadSurahForReciter = remember<(Int, Int, String) -> Unit> {
         { surahIndex, reciterId, url ->
-            Log.d("TAG", "startDownload: $url")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (!queue.containsKey(url)) {
                     val intent = Intent(context, DownloadService::class.java)
@@ -126,6 +124,12 @@ fun QuranContent(
         }
     }
 
+    LaunchedEffect(service?.downloadedFiles?.size) {
+        service?.downloadedFiles?.forEach { (key, value) ->
+            events.saveAudioFile(value)
+            service?.removeFromQueue(key)
+        }
+    }
     LaunchedEffect(state.ayahs) {
         audioPlayer.setAyahs(state.ayahs)
     }
@@ -319,9 +323,7 @@ fun QuranContent(
                                 surah = surah,
                                 queue = queue,
                                 onReciterClick = events::onReciterClick,
-                                downloadSurahForReciter = downloadSurahForReciter,
-                                saveAudioFile = events::saveAudioFile,
-                                removeFromQueue = { key -> service?.removeFromQueue(key) }
+                                downloadSurahForReciter = downloadSurahForReciter
                             )
                         }
                     }

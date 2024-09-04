@@ -39,8 +39,6 @@ fun ReciterItem(
     queue: Map<String, DownloadedAudio>,
     onReciterClick: (ReciterModel, SurahAudioModel) -> Unit,
     downloadSurahForReciter: (Int, Int, String) -> Unit,
-    saveAudioFile: (downloadedAudio: DownloadedAudio) -> Unit,
-    removeFromQueue: (key: String) -> Unit
 ) {
     val surahAudioData =
         reciter.surahesAudioData.firstOrNull { surahData -> surahData.surahId == surah.id }
@@ -54,16 +52,9 @@ fun ReciterItem(
     var color = MaterialTheme.colorScheme.secondary.copy(
         alpha = 0.4f
     )
-    if (progress.value == 100 || isDownloaded) {
+    if (progress.value == 100 /*|| isDownloaded*/) {
         imgRes.intValue = R.drawable.ic_check
         color = MaterialTheme.colorScheme.secondary
-        if (progress.value == 100 && isDownloaded) {
-            removeFromQueue(url)
-        } else if (progress.value == 100) {
-            queue[url]?.let {
-                saveAudioFile(it)
-            }
-        }
     }
     Row(
         modifier = Modifier

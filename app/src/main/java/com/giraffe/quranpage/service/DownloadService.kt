@@ -7,9 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.Build
-import android.util.Log
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationCompat
 import com.giraffe.quranpage.R
 import com.giraffe.quranpage.remote.downloader.AudioDownloader
@@ -24,19 +22,13 @@ class DownloadService : Service() {
     @Inject
     lateinit var audioDownloader: AudioDownloader
     private val notificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
-    private val binder: LocalBinder by lazy {
-        LocalBinder()
-    }
+    private val binder: LocalBinder by lazy { LocalBinder() }
     private val builders = mutableMapOf<String, NotificationCompat.Builder>()
     private val _queueState = MutableStateFlow(mapOf<String, DownloadedAudio>())
     val queueState = _queueState.asStateFlow()
+    val downloadedFiles = mutableStateMapOf<String, DownloadedAudio>()
     fun removeFromQueue(key: String) {
-        /*_queueState.update {
-            val tempMap = mutableMapOf<String, DownloadedAudio>()
-            tempMap.putAll(it)
-            tempMap.remove(key)
-            tempMap.toMap()
-        }*/
+        downloadedFiles.remove(key)
         builders.remove(key)
     }
 
@@ -60,10 +52,12 @@ class DownloadService : Service() {
                 _queueState.update {
                     val tempMap = mutableMapOf<String, DownloadedAudio>()
                     tempMap.putAll(it)
-                    if (tempMap.containsKey(url)){
+                    //tempMap[url] = DownloadedAudio(MutableStateFlow(progress), reciterId, surahIndex, path)
+                    if (tempMap.containsKey(url)) {
                         tempMap[url]?.progress?.update { progress }
-                    }else {
-                        tempMap[url] = DownloadedAudio(MutableStateFlow(progress), reciterId, surahIndex, path)
+                    } else {
+                        tempMap[url] =
+                            DownloadedAudio(MutableStateFlow(progress), reciterId, surahIndex, path)
                     }
                     builders[url]?.apply {
                         setProgress(100, progress, false)
@@ -74,6 +68,12 @@ class DownloadService : Service() {
                     tempMap.toMap()
                 }
                 if (progress == 100) {
+                    downloadedFiles[url] =
+                        DownloadedAudio(MutableStateFlow(progress), reciterId, surahIndex, path)
+                    /*_queueState.value[url]?.let {
+                        Log.d("TAG", "bale 0: heloo")
+                        downloadedFiles[url] = DownloadedAudio(MutableStateFlow(progress), reciterId, surahIndex, path)
+                    }*/
                     notificationManager.cancel(url.hashCode())
                 }
             }
