@@ -1,5 +1,6 @@
 package com.giraffe.quranpage.ui.composables
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +29,7 @@ import com.giraffe.quranpage.R
 import com.giraffe.quranpage.local.model.ReciterModel
 import com.giraffe.quranpage.local.model.SurahAudioModel
 import com.giraffe.quranpage.local.model.VerseModel
+import com.giraffe.quranpage.service.DownloadService
 import com.giraffe.quranpage.ui.screens.quran.PageUI
 import com.giraffe.quranpage.utils.AudioPlayerManager
 import ir.kaaveh.sdpcompose.sdp
@@ -44,13 +46,24 @@ fun AudioPlayerDialog(
     selectedVerseToRead: VerseModel?,
     isPlaying: Boolean,
     isAudioDataExist: Boolean,
+    isRecentDownloaded: Boolean,
+    recentUrl:String?,
     highlightVerse: () -> Unit,
     selectVerseToRead: (VerseModel?) -> Unit,
     setFirstVerse: (VerseModel?) -> Unit,
     clearAudioData: () -> Unit,
     onReciterClick: (ReciterModel, SurahAudioModel) -> Unit,
+    cancelDownload:()->Unit,
     showRecitersBottomSheet: () -> Unit,
 ) {
+
+    val isRecentExist = recentUrl!=null
+
+    Log.d("messi", "AudioPlayerDialog(isAudioDataExist): $isAudioDataExist")
+    Log.d("messi", "AudioPlayerDialog(isRecentExist): $isRecentExist  - $recentUrl}")
+    Log.d("messi", "AudioPlayerDialog(isRecentDownloaded): $isRecentDownloaded}")
+
+
     Card {
         Column(
             modifier = Modifier.padding(4.sdp),
@@ -59,9 +72,9 @@ fun AudioPlayerDialog(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = if (isAudioDataExist) Arrangement.SpaceBetween else Arrangement.Center
+                horizontalArrangement = if (isAudioDataExist || (isRecentExist && !isRecentDownloaded)) Arrangement.SpaceBetween else Arrangement.Center
             ) {
-                if (isAudioDataExist) Spacer(modifier = Modifier.width(1.sdp))
+                Spacer(modifier = Modifier.width(1.sdp))
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -82,28 +95,30 @@ fun AudioPlayerDialog(
                             imageVector = Icons.Default.KeyboardArrowDown,
                             contentDescription = "KeyboardArrowDown"
                         )
-                        if (!isAudioDataExist) Image(
-                            modifier = Modifier
-                                .size(35.sdp)
-                                .clickable {
-                                    val firstVerse =
-                                        pages.getOrNull(currentPage)?.contents?.getOrNull(0)?.verses?.getOrNull(
-                                            0
-                                        )
-                                    setFirstVerse(firstVerse)
-                                    val surahAudioData =
-                                        selectedReciter?.surahesAudioData?.firstOrNull { surah -> surah.surahId == (firstVerse?.surahNumber) }
-                                    if (surahAudioData == null) {
-                                        selectedReciter?.let {}
-                                    } else {
-                                        onReciterClick(selectedReciter, surahAudioData)
-                                    }
-                                },
-                            painter = painterResource(id = R.drawable.ic_play),
-                            contentDescription = "play",
-                            colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.secondary)
+                        if (!isAudioDataExist && !isRecentExist) {
+                            Image(
+                                modifier = Modifier
+                                    .size(35.sdp)
+                                    .clickable {
+                                        val firstVerse =
+                                            pages.getOrNull(currentPage)?.contents?.getOrNull(0)?.verses?.getOrNull(
+                                                0
+                                            )
+                                        setFirstVerse(firstVerse)
+                                        val surahAudioData =
+                                            selectedReciter?.surahesAudioData?.firstOrNull { surah -> surah.surahId == (firstVerse?.surahNumber) }
+                                        if (surahAudioData == null) {
+                                            selectedReciter?.let {}
+                                        } else {
+                                            onReciterClick(selectedReciter, surahAudioData)
+                                        }
+                                    },
+                                painter = painterResource(id = R.drawable.ic_play),
+                                contentDescription = "play",
+                                colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.secondary)
 
-                        )
+                            )
+                        }
                     }
 
                     if (isAudioDataExist) Text(
@@ -114,14 +129,18 @@ fun AudioPlayerDialog(
                         ),
                     )
                 }
-                if (isAudioDataExist) Icon(modifier = Modifier.clickable {
-                    clearAudioData()
-                    selectVerseToRead(null)
-                    highlightVerse()
-                    audioPlayer.release()
+                if (isAudioDataExist || (isRecentExist && !isRecentDownloaded)) Icon(modifier = Modifier.clickable {
+                    if (isAudioDataExist) {
+                        clearAudioData()
+                        selectVerseToRead(null)
+                        highlightVerse()
+                        audioPlayer.release()
+                    }else {
+                        cancelDownload()
+                    }
                 }, imageVector = Icons.Default.Close, contentDescription = "close")
             }
-
+            if (isRecentExist && !isRecentDownloaded) Text(text = "Downloading...")
             if (isAudioDataExist) Row(
                 modifier = Modifier
                     .fillMaxWidth(),

@@ -356,14 +356,40 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
 
     override fun saveAudioFile(downloadedAudio: DownloadService.DownloadedAudio) {
         viewModelScope.launch(Dispatchers.IO) {
+            Log.d("messi", "saveAudioFile : starting...")
             repository.saveAudioFile(downloadedAudio) { reciter, surahAudioModel ->
                 _state.update {
-                    it.copy(
-                        selectedReciter = reciter,
-                        reciters = it.reciters.toMutableList().addOrUpdate(reciter),
-                        selectedAudioData = surahAudioModel,
+                    Log.d(
+                        "messi",
+                        "saveAudioFile (origin-recent) : ${_state.value.recentDownload?.url}"
                     )
+                    if (downloadedAudio.url == _state.value.recentUrl) {
+
+                        Log.d("messi", "saveAudioFile (recent) : ${downloadedAudio.url}")
+                        it.copy(
+                            selectedReciter = reciter,
+                            reciters = it.reciters.toMutableList().addOrUpdate(reciter),
+                            selectedAudioData = surahAudioModel,
+                            recentUrl = null,
+                            isRecentDownloaded = true
+                        )
+                    } else {
+                        Log.d("messi", "saveAudioFile (not-recent) : ${downloadedAudio.url}")
+                        it.copy(reciters = it.reciters.toMutableList().addOrUpdate(reciter))
+                    }
+
                 }
+            }
+        }
+    }
+
+    override fun setRecentUrl(url: String?, reciterId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update {
+                it.copy(
+                    recentUrl = url,
+                    isRecentDownloaded = false,
+                    selectedReciter = _state.value.reciters.firstOrNull { reciter -> reciter.id == reciterId })
             }
         }
     }

@@ -118,7 +118,7 @@ class Repository @Inject constructor(
         remoteDataSource.getSurahAudioData(
             downloadedAudio.reciterId,
             downloadedAudio.filePath,
-            downloadedAudio.surahIndex
+            downloadedAudio.surahId
         ) { surahAudioModel ->
             if (surahAudioModel != null) {
                 val reciter = localDataSource.getReciter(downloadedAudio.reciterId)

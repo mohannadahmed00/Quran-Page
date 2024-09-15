@@ -8,6 +8,7 @@ import com.giraffe.quranpage.local.model.SurahAudioModel
 import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.remote.response.TafseerResponse
+import com.giraffe.quranpage.service.DownloadService
 
 
 data class QuranScreenState(
@@ -26,6 +27,9 @@ data class QuranScreenState(
     val pageIndexToRead: Int? = null,
     val pageIndexToSelection: Int? = null,
     val isPlayerDialogVisible: Boolean = false,
+    val recentDownload: DownloadService. DownloadedAudio? = null,
+    val isRecentDownloaded:Boolean = false,
+    val recentUrl:String? = null,
 )
 
 @Immutable

@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,12 +50,13 @@ fun ReciterItem(
         DownloadedAudio()
     ).progress.collectAsState()
     val imgRes = remember { mutableIntStateOf(R.drawable.ic_download) }
-    var color = MaterialTheme.colorScheme.secondary.copy(
+    val color = MaterialTheme.colorScheme.secondary.copy(
         alpha = 0.4f
     )
+    val rememberedColor = remember { mutableStateOf(color) }
     if (progress.value == 100 || isDownloaded) {
         imgRes.intValue = R.drawable.ic_check
-        color = MaterialTheme.colorScheme.secondary
+        rememberedColor.value = MaterialTheme.colorScheme.secondary
     }
     Row(
         modifier = Modifier
@@ -78,7 +80,7 @@ fun ReciterItem(
                     modifier = Modifier.fillMaxSize(),
                     painter = painterResource(id = imgRes.intValue),
                     contentDescription = "download",
-                    colorFilter = ColorFilter.tint(color = color)
+                    colorFilter = ColorFilter.tint(color = rememberedColor.value)
                 )
             } else {
                 CircularProgressIndicator(

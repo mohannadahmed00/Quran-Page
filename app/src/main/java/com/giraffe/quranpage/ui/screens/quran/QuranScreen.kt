@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -61,15 +62,25 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.giraffe.quranpage.service.DownloadService
+import com.giraffe.quranpage.service.DownloadService.DownloadedAudio
 import com.giraffe.quranpage.ui.composables.AudioPlayerDialog
 import com.giraffe.quranpage.ui.composables.Page
 import com.giraffe.quranpage.ui.composables.ReciterItem
 import com.giraffe.quranpage.ui.theme.fontFamilies
 import com.giraffe.quranpage.utils.AudioPlayerManager
+import com.giraffe.quranpage.utils.Constants.Actions.CANCEL_DOWNLOAD
+import com.giraffe.quranpage.utils.Constants.Actions.START_DOWNLOAD
+import com.giraffe.quranpage.utils.Constants.Keys.NOTIFICATION_ID
+import com.giraffe.quranpage.utils.Constants.Keys.RECITER_ID
+import com.giraffe.quranpage.utils.Constants.Keys.SURAH_ID
+import com.giraffe.quranpage.utils.Constants.Keys.URL
+import com.giraffe.quranpage.utils.TimerServiceConnection
+import com.google.gson.Gson
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
 
 @Composable
@@ -102,10 +113,9 @@ fun QuranContent(
     val queue by service?.queueState?.collectAsState() ?: remember {
         mutableStateOf(emptyMap())
     }
+    val downloadedFiles = remember(service?.downloadedFiles) { service?.downloadedFiles?: mapOf() }
     val isPlaying = AudioPlayerManager.isPlaying.collectAsState()
     val isPrepared = AudioPlayerManager.isPrepared.collectAsState()
-
-
     val firstVerse by remember(pagerState.currentPage) {
         derivedStateOf {
             state.pages.getOrNull(pagerState.currentPage)?.contents?.getOrNull(
@@ -116,30 +126,50 @@ fun QuranContent(
     val onSurahNameClick = remember { { scope.launch { drawerState.open() } } }
     val onPageClick = remember { { isPlayerDialogVisible = !isPlayerDialogVisible } }
     val downloadSurahForReciter = remember<(Int, Int, String) -> Unit> {
-        { surahIndex, reciterId, url ->
+        { surahId, reciterId, url ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (!queue.containsKey(url)) {
-                    val intent = Intent(context, DownloadService::class.java)
+                    Log.d("messi", "downloadSurahForReciter: ($surahId, $reciterId, $url)")
+                    events.setRecentUrl(url, reciterId)
+                    val intent = Intent(context, DownloadService::class.java).apply {
+                        action = START_DOWNLOAD
+                        putExtra(NOTIFICATION_ID, url.hashCode())
+                        putExtra(RECITER_ID, reciterId)
+                        putExtra(SURAH_ID, surahId)
+                        putExtra(URL, url)
+                    }
                     context.startForegroundService(intent)
-                    service?.startDownload(url, reciterId, surahIndex)
+                    events.clearAudioData()
+                    audioPlayer.release()
                 }
             }
         }
     }
+    val cancelDownloadAudio = remember<(String) -> Unit> {
+        { url ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!queue.containsKey(url)) {
+                    Log.d("messi", "cancelDownloadAudio: ($url)")
+                    val intent = Intent(context, DownloadService::class.java).apply {
+                        action = CANCEL_DOWNLOAD
+                        putExtra(URL, url)
+                    }
+                    context.startForegroundService(intent)
+                }
+            }
+        }
+    }
+    LaunchedEffect(downloadedFiles.size) {
+        Log.d("messi", "LaunchedEffect(downloadedFiles.size): ${downloadedFiles.size}")
+        downloadedFiles.forEach { downloadedAudio -> events.saveAudioFile(downloadedAudio.value) }
+    }
 
     LaunchedEffect(isPrepared.value) {
-        val status = if (!isPrepared.value) "not" else ""
         if (isPrepared.value) {
             audioPlayer.play {
                 events.selectVerseToRead(it)
                 events.highlightVerse()
             }
-        }
-    }
-    LaunchedEffect(service?.downloadedFiles?.size) {
-        service?.downloadedFiles?.forEach { (key, value) ->
-            events.saveAudioFile(value)
-            service?.removeFromQueue(key)
         }
     }
     LaunchedEffect(state.ayahs) {
@@ -280,6 +310,8 @@ fun QuranContent(
             }
         }
         if (isPlayerDialogVisible) {
+            val verse = state.selectedVerseToRead ?: firstVerse
+            val surah = state.surahesData[verse?.surahNumber?.minus(1) ?: 0]
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -290,15 +322,21 @@ fun QuranContent(
                     currentPage = pagerState.currentPage,
                     selectedVerseToRead = state.selectedVerseToRead,
                     selectedReciter = state.selectedReciter,
-                    surahName = "سورة ${state.surahesData[state.selectedAudioData?.surahId?.minus(1) ?: 0].arabic}",
+                    recentUrl = state.recentUrl,
+                    surahName = "سورة ${surah.arabic}",
                     audioPlayer = audioPlayer,
                     isPlaying = isPlaying.value,
+                    isRecentDownloaded = state.isRecentDownloaded,
                     isAudioDataExist = state.selectedAudioData != null,
                     highlightVerse = events::highlightVerse,
                     selectVerseToRead = events::selectVerseToRead,
                     clearAudioData = events::clearAudioData,
                     onReciterClick = events::onReciterClick,
                     setFirstVerse = events::setFirstVerse,
+                    cancelDownload = {
+                        cancelDownloadAudio(state.recentUrl ?: "nothing")
+                        events.setRecentUrl(null, state.selectedReciter?.id ?: 0)
+                    },
                     showRecitersBottomSheet = { isRecitersBottomSheetVisible = true }
                 )
             }
@@ -396,18 +434,5 @@ fun QuranContent(
 
             }
         }
-    }
-}
-
-class TimerServiceConnection : ServiceConnection {
-    private var _service = MutableStateFlow<DownloadService?>(null)
-    var service = _service.asStateFlow()
-
-    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-        this._service.value = (service as DownloadService.LocalBinder).getService()
-    }
-
-    override fun onServiceDisconnected(name: ComponentName?) {
-        _service.value = null
     }
 }

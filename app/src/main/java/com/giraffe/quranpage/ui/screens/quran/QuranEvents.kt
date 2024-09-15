@@ -1,11 +1,9 @@
 package com.giraffe.quranpage.ui.screens.quran
 
-import com.giraffe.quranpage.di.Reciters
 import com.giraffe.quranpage.local.model.ReciterModel
 import com.giraffe.quranpage.local.model.SurahAudioModel
-import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.local.model.VerseModel
-import com.giraffe.quranpage.remote.response.ReciterResponse
+import com.giraffe.quranpage.service.DownloadService
 import com.giraffe.quranpage.service.DownloadService.DownloadedAudio
 
 interface QuranEvents {
@@ -20,4 +18,5 @@ interface QuranEvents {
     fun setFirstVerse(verse: VerseModel?)
     fun clearAudioData()
     fun saveAudioFile(downloadedAudio: DownloadedAudio)
+    fun setRecentUrl(url: String?,reciterId:Int)
 }
