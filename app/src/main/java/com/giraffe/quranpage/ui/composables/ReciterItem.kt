@@ -1,5 +1,6 @@
 package com.giraffe.quranpage.ui.composables
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -10,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -39,22 +42,21 @@ fun ReciterItem(
     surah: SurahModel,
     queue: Map<String, DownloadedAudio>,
     onReciterClick: (ReciterModel, SurahAudioModel) -> Unit,
-    downloadSurahForReciter: (Int, Int, String) -> Unit,
+    downloadSurahForReciter: (Int, ReciterModel, String) -> Unit,
+    cancelDownloadAudio: (String) -> Unit,
+    setRecentUrl: (String?) -> Unit,
 ) {
     val surahAudioData =
         reciter.surahesAudioData.firstOrNull { surahData -> surahData.surahId == surah.id }
     val isDownloaded = surahAudioData != null
     val url = reciter.folderUrl + surah.id.toThreeDigits() + ".mp3"
-    val progress = queue.getOrDefault(
-        url,
-        DownloadedAudio()
-    ).progress.collectAsState()
+    val progress = queue[url]?.progress?.collectAsState()
     val imgRes = remember { mutableIntStateOf(R.drawable.ic_download) }
     val color = MaterialTheme.colorScheme.secondary.copy(
         alpha = 0.4f
     )
     val rememberedColor = remember { mutableStateOf(color) }
-    if (progress.value == 100 || isDownloaded) {
+    if (progress?.value == 100 || isDownloaded) {
         imgRes.intValue = R.drawable.ic_check
         rememberedColor.value = MaterialTheme.colorScheme.secondary
     }
@@ -66,7 +68,7 @@ fun ReciterItem(
                 if (isDownloaded) {
                     onReciterClick(reciter, surahAudioData!!)
                 } else {
-                    downloadSurahForReciter(surah.id, reciter.id, url)
+                    downloadSurahForReciter(surah.id, reciter, url)
                 }
             },
         verticalAlignment = Alignment.CenterVertically
@@ -75,7 +77,8 @@ fun ReciterItem(
             modifier = Modifier
                 .size(25.sdp), contentAlignment = Alignment.Center
         ) {
-            if (progress.value == 0 || progress.value == 100) {
+            Log.d("ReciterItem", "ReciterItem(id = ${reciter.name}): ${progress?.value}")
+            if (progress?.value == 0 || progress?.value == 100 || progress == null) {
                 Image(
                     modifier = Modifier.fillMaxSize(),
                     painter = painterResource(id = imgRes.intValue),
@@ -86,6 +89,17 @@ fun ReciterItem(
                 CircularProgressIndicator(
                     progress = { progress.value.toFloat() / 100 },
                     trackColor = Color.Gray,
+                )
+                Image(
+                    modifier = Modifier
+                        .clickable {
+                            Log.d("messi", "cancel $url")
+                            cancelDownloadAudio(url)
+                            setRecentUrl(null)
+                        },
+                    imageVector = Icons.Default.Clear,
+                    contentDescription = "cancel",
+                    colorFilter = ColorFilter.tint(color = rememberedColor.value)
                 )
             }
         }

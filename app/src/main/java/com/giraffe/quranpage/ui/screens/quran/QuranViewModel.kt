@@ -356,16 +356,16 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
 
     override fun saveAudioFile(downloadedAudio: DownloadService.DownloadedAudio) {
         viewModelScope.launch(Dispatchers.IO) {
-            Log.d("messi", "saveAudioFile : starting...")
+            Log.d("QuranViewModel", "saveAudioFile(${downloadedAudio.id}:${downloadedAudio.url})")
             repository.saveAudioFile(downloadedAudio) { reciter, surahAudioModel ->
                 _state.update {
                     Log.d(
-                        "messi",
-                        "saveAudioFile (origin-recent) : ${_state.value.recentDownload?.url}"
+                        "QuranViewModel",
+                        "saveAudioFile(origin-recent): ${_state.value.recentDownload?.url}"
                     )
                     if (downloadedAudio.url == _state.value.recentUrl) {
 
-                        Log.d("messi", "saveAudioFile (recent) : ${downloadedAudio.url}")
+                        Log.d("QuranViewModel", "saveAudioFile (recent) : ${downloadedAudio.url}")
                         it.copy(
                             selectedReciter = reciter,
                             reciters = it.reciters.toMutableList().addOrUpdate(reciter),
@@ -374,7 +374,10 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                             isRecentDownloaded = true
                         )
                     } else {
-                        Log.d("messi", "saveAudioFile (not-recent) : ${downloadedAudio.url}")
+                        Log.d(
+                            "QuranViewModel",
+                            "saveAudioFile (not-recent) : ${downloadedAudio.url}"
+                        )
                         it.copy(reciters = it.reciters.toMutableList().addOrUpdate(reciter))
                     }
 
@@ -383,13 +386,23 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
         }
     }
 
-    override fun setRecentUrl(url: String?, reciterId: Int) {
+    override fun setRecentUrl(url: String?) {
         viewModelScope.launch(Dispatchers.IO) {
+            Log.d("QuranViewModel", "setRecentUrl($url)")
             _state.update {
                 it.copy(
                     recentUrl = url,
                     isRecentDownloaded = false,
-                    selectedReciter = _state.value.reciters.firstOrNull { reciter -> reciter.id == reciterId })
+                )
+            }
+            Log.d("QuranViewModel", "setRecentUrl: ${_state.value.recentUrl}")
+        }
+    }
+
+    override fun selectReciter(reciter: ReciterModel) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update {
+                it.copy(selectedReciter = reciter)
             }
         }
     }

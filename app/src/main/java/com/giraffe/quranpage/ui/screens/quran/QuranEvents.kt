@@ -18,5 +18,6 @@ interface QuranEvents {
     fun setFirstVerse(verse: VerseModel?)
     fun clearAudioData()
     fun saveAudioFile(downloadedAudio: DownloadedAudio)
-    fun setRecentUrl(url: String?,reciterId:Int)
+    fun setRecentUrl(url: String?)
+    fun selectReciter(reciter:ReciterModel)
 }

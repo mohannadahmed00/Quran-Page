@@ -53,7 +53,8 @@ fun AudioPlayerDialog(
     setFirstVerse: (VerseModel?) -> Unit,
     clearAudioData: () -> Unit,
     onReciterClick: (ReciterModel, SurahAudioModel) -> Unit,
-    cancelDownload:()->Unit,
+    cancelDownload:(String)->Unit,
+    setRecentUrl:(String?)->Unit,
     showRecitersBottomSheet: () -> Unit,
 ) {
 
@@ -136,7 +137,8 @@ fun AudioPlayerDialog(
                         highlightVerse()
                         audioPlayer.release()
                     }else {
-                        cancelDownload()
+                            cancelDownload(recentUrl?:"")
+                            setRecentUrl(null)
                     }
                 }, imageVector = Icons.Default.Close, contentDescription = "close")
             }
