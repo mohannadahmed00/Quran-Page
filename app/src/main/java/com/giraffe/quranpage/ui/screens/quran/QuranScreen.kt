@@ -71,7 +71,7 @@ import com.giraffe.quranpage.utils.Constants.Keys.NOTIFICATION_ID
 import com.giraffe.quranpage.utils.Constants.Keys.RECITER_ID
 import com.giraffe.quranpage.utils.Constants.Keys.SURAH_ID
 import com.giraffe.quranpage.utils.Constants.Keys.URL
-import com.giraffe.quranpage.utils.TimerServiceConnection
+import com.giraffe.quranpage.utils.ServiceConnection
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 import kotlinx.coroutines.launch
@@ -101,8 +101,9 @@ fun QuranContent(
     var isRecitersBottomSheetVisible by remember { mutableStateOf(false) }
     var isPlayerDialogVisible by remember { mutableStateOf(false) }
     val serviceIntent = remember { Intent(context, DownloadService::class.java) }
-    val connection = remember { TimerServiceConnection() }
-    val service by connection.service.collectAsState()
+    val downloadServiceConnection =
+        remember { ServiceConnection { (it as DownloadService.LocalBinder).getService() } }
+    val service by downloadServiceConnection.service.collectAsState()
     val queue by service?.queueState?.collectAsState() ?: remember {
         mutableStateOf(emptyMap())
     }
@@ -183,9 +184,9 @@ fun QuranContent(
         state.pageIndexToRead?.let { pagerState.scrollToPage(it - 1) }
     }
     DisposableEffect(Unit) {
-        context.bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE)
+        context.bindService(serviceIntent, downloadServiceConnection, Context.BIND_AUTO_CREATE)
         onDispose {
-            context.unbindService(connection)
+            context.unbindService(downloadServiceConnection)
             audioPlayer.release()
         }
     }
