@@ -388,15 +388,44 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
         }
     }
 
+    override fun saveLastPageIndex(pageIndex: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.saveLastPageIndex(pageIndex)
+        }
+    }
+
+    private fun getLastPageIndex() {
+        viewModelScope.launch(Dispatchers.IO) {
+            Log.d("TAG", "getLastPageIndex: ${repository.getLastPageIndex()}")
+            _state.update { it.copy(lastPageIndex = repository.getLastPageIndex()) }
+        }
+    }
+
     override fun selectVerseToRead(verse: VerseModel?) {
-        _state.update { it.copy(selectedVerseToRead = verse, pageIndexToRead = verse?.pageIndex) }
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update {
+                it.copy(
+                    selectedVerseToRead = verse,
+                    pageIndexToRead = verse?.pageIndex
+                )
+            }
+        }
     }
 
     override fun selectVerse(verse: VerseModel?) {
-        _state.update { it.copy(selectedVerse = verse, pageIndexToSelection = verse?.pageIndex) }
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update {
+                it.copy(
+                    selectedVerse = verse,
+                    pageIndexToSelection = verse?.pageIndex
+                )
+            }
+        }
     }
 
     override fun setFirstVerse(verse: VerseModel?) {
-        _state.update { it.copy(firstVerse = verse) }
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update { it.copy(firstVerse = verse) }
+        }
     }
 }

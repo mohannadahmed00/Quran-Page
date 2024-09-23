@@ -28,6 +28,9 @@ class Repository @Inject constructor(
         }
     }
 
+    suspend fun saveLastPageIndex(pageIndex: Int) =  localDataSource.saveLastPageIndex(pageIndex)
+    suspend fun getLastPageIndex() =  localDataSource.getLastPageIndex()
+
     private fun downloadPages(
         surahData: SurahModel?,
         ayahs: List<AyahModel>?,

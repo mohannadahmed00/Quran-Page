@@ -62,7 +62,7 @@ class DataStorePreferences(private val context: Context) {
     }
 
     suspend fun readInt(key: String) = context.dataStore.data.map { preferences ->
-        preferences[intPreferencesKey(key)] ?: "not found in preferences !!"
+        preferences[intPreferencesKey(key)] ?: 0
     }.first()
 
     suspend fun readDouble(key: String) = context.dataStore.data.map { preferences ->

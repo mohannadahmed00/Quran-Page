@@ -13,6 +13,7 @@ import com.giraffe.quranpage.local.model.SurahDataModel
 import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.local.preferences.DataStorePreferences
+import com.giraffe.quranpage.utils.Constants
 import com.giraffe.quranpage.utils.drawCircles
 import com.giraffe.quranpage.utils.isSmallPage
 import com.giraffe.quranpage.utils.renderSvgToBitmap
@@ -31,6 +32,11 @@ class LocalDataSource(
         bitmap.drawCircles(context, normalizedAyahs, pageIndex)
         appDao.insertPage(PageModel(pageIndex, bitmap, normalizedAyahs))
     }
+
+    suspend fun saveLastPageIndex(pageIndex: Int) {
+        Log.d(TAG, "saveLastPageIndex: $pageIndex")
+        dataStorePreferences.save(Constants.Keys.LAST_PAGE_INDEX, pageIndex) }
+    suspend fun getLastPageIndex() = dataStorePreferences.readInt(Constants.Keys.LAST_PAGE_INDEX)
 
     fun getPagesCount() = appDao.getPagesCount()
     fun getPages() = appDao.getPages()

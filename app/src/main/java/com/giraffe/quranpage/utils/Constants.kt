@@ -70,6 +70,7 @@ object Constants {
         const val SURAH_ID = "SURAH_ID"
         const val URL = "URL"
         const val NOTIFICATION_ID = "NOTIFICATION_ID"
+        const val LAST_PAGE_INDEX = "LAST_PAGE_INDEX"
     }
 
     object Actions {

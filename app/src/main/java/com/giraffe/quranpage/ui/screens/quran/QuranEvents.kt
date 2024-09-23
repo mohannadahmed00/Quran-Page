@@ -17,4 +17,5 @@ interface QuranEvents {
     fun setFirstVerse(verse: VerseModel?)
     fun saveAudioFile(downloadedAudio: DownloadedAudio)
     fun setRecentUrl(url: String?)
+    fun saveLastPageIndex(pageIndex:Int)
 }

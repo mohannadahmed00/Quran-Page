@@ -176,13 +176,6 @@ fun QuranContent(
             }
         }
     }
-
-
-
-
-
-
-
     LaunchedEffect(playbackService) {
         playbackService?.let {
             Log.d("QuranContent", "LaunchedEffect(playbackService): $playbackService")
@@ -197,15 +190,20 @@ fun QuranContent(
 
     }
     LaunchedEffect(state.pages) {
-        Log.d("QuranContent", "LaunchedEffect(state.pages): currentPage = ${pagerState.currentPage}")
-        events.setFirstVerse(state.pages.getOrNull(pagerState.currentPage)?.contents?.getOrNull(
-            0
-        )?.verses?.getOrNull(0))
+        Log.d(
+            "QuranContent",
+            "LaunchedEffect(state.pages): currentPage = ${pagerState.currentPage}"
+        )
+        events.setFirstVerse(
+            state.pages.getOrNull(pagerState.currentPage)?.contents?.getOrNull(
+                0
+            )?.verses?.getOrNull(0)
+        )
     }
     LaunchedEffect(state.firstVerse) {
         Log.d("QuranContent", "LaunchedEffect(state.firstVerse): ${state.firstVerse}")
         if (!isPlaying) {
-            audioPlayer.setReciter(state.reciters.firstOrNull { reciter->
+            audioPlayer.setReciter(state.reciters.firstOrNull { reciter ->
                 reciter.surahesAudioData.firstOrNull { item -> item.surahId == verse?.surahNumber } != null
             })
         }
@@ -259,6 +257,7 @@ fun QuranContent(
         )
         onDispose {
             Log.d("QuranContent", "DisposableEffect(Unit): onDispose")
+
             context.unbindService(downloadServiceConnection)
             context.unbindService(playbackServiceConnection)
         }

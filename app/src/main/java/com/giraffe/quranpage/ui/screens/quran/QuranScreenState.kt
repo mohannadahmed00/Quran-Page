@@ -27,9 +27,10 @@ data class QuranScreenState(
     val pageIndexToRead: Int? = null,
     val pageIndexToSelection: Int? = null,
     val isPlayerDialogVisible: Boolean = false,
-    val recentDownload: DownloadService. DownloadedAudio? = null,
-    val isRecentDownloaded:Boolean = false,
-    val recentUrl:String? = null,
+    val recentDownload: DownloadService.DownloadedAudio? = null,
+    val isRecentDownloaded: Boolean = false,
+    val recentUrl: String? = null,
+    val lastPageIndex: Int = 0
 )
 
 @Immutable
