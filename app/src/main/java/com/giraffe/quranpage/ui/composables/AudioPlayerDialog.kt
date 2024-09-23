@@ -29,9 +29,7 @@ import com.giraffe.quranpage.R
 import com.giraffe.quranpage.local.model.ReciterModel
 import com.giraffe.quranpage.local.model.SurahAudioModel
 import com.giraffe.quranpage.local.model.VerseModel
-import com.giraffe.quranpage.service.DownloadService
 import com.giraffe.quranpage.ui.screens.quran.PageUI
-import com.giraffe.quranpage.utils.AudioPlayerManager
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 
@@ -42,29 +40,27 @@ fun AudioPlayerDialog(
     currentPage: Int,
     selectedReciter: ReciterModel?,
     surahName: String,
-    audioPlayer: AudioPlayerManager,
     selectedVerseToRead: VerseModel?,
     isPlaying: Boolean,
     isAudioDataExist: Boolean,
     isRecentDownloaded: Boolean,
-    recentUrl:String?,
+    recentUrl: String?,
     highlightVerse: () -> Unit,
     selectVerseToRead: (VerseModel?) -> Unit,
     setFirstVerse: (VerseModel?) -> Unit,
-    clearAudioData: () -> Unit,
-    onReciterClick: (ReciterModel, SurahAudioModel) -> Unit,
-    cancelDownload:(String)->Unit,
-    setRecentUrl:(String?)->Unit,
+    cancelDownload: (String) -> Unit,
+    setRecentUrl: (String?) -> Unit,
+    setSurahAudioData:(SurahAudioModel?)->Unit,
+    setReciter:(ReciterModel?)->Unit,
     showRecitersBottomSheet: () -> Unit,
+    pause: () -> Unit,
+    play: () -> Unit,
+    release: () -> Unit,
+    seekTo: (verseIndex: Int) -> Unit,
 ) {
 
-    val isRecentExist = recentUrl!=null
-
-    Log.d("messi", "AudioPlayerDialog(isAudioDataExist): $isAudioDataExist")
-    Log.d("messi", "AudioPlayerDialog(isRecentExist): $isRecentExist  - $recentUrl}")
-    Log.d("messi", "AudioPlayerDialog(isRecentDownloaded): $isRecentDownloaded}")
-
-
+    val isRecentExist = recentUrl != null
+    Log.d("AudioPlayerDialog", "isAudioDataExist: $isAudioDataExist")
     Card {
         Column(
             modifier = Modifier.padding(4.sdp),
@@ -111,7 +107,9 @@ fun AudioPlayerDialog(
                                         if (surahAudioData == null) {
                                             selectedReciter?.let {}
                                         } else {
-                                            onReciterClick(selectedReciter, surahAudioData)
+                                            setReciter(selectedReciter)
+                                            setSurahAudioData(surahAudioData)
+                                            //onReciterClick(selectedReciter, surahAudioData)
                                         }
                                     },
                                 painter = painterResource(id = R.drawable.ic_play),
@@ -132,13 +130,13 @@ fun AudioPlayerDialog(
                 }
                 if (isAudioDataExist || (isRecentExist && !isRecentDownloaded)) Icon(modifier = Modifier.clickable {
                     if (isAudioDataExist) {
-                        clearAudioData()
+                        setSurahAudioData(null)
                         selectVerseToRead(null)
                         highlightVerse()
-                        audioPlayer.release()
-                    }else {
-                            cancelDownload(recentUrl?:"")
-                            setRecentUrl(null)
+                        release()
+                    } else {
+                        cancelDownload(recentUrl ?: "")
+                        setRecentUrl(null)
                     }
                 }, imageVector = Icons.Default.Close, contentDescription = "close")
             }
@@ -151,15 +149,7 @@ fun AudioPlayerDialog(
                 Image(
                     modifier = Modifier
                         .size(35.sdp)
-                        .clickable {
-                            audioPlayer.seekTo(
-                                selectedVerseToRead?.verseNumber?.minus(1) ?: 0
-                            )
-                            if (!isPlaying) audioPlayer.resume {
-                                selectVerseToRead(it)
-                                highlightVerse()
-                            }
-                        },
+                        .clickable { seekTo(selectedVerseToRead?.verseNumber?.minus(1) ?: 0) },
                     painter = painterResource(id = R.drawable.ic_previous),
                     contentDescription = "previous",
                     colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.secondary)
@@ -168,12 +158,7 @@ fun AudioPlayerDialog(
                 if (!isPlaying) Image(
                     modifier = Modifier
                         .size(35.sdp)
-                        .clickable {
-                            audioPlayer.play {
-                                selectVerseToRead(it)
-                                highlightVerse()
-                            }
-                        },
+                        .clickable { play() },
                     painter = painterResource(id = R.drawable.ic_play),
                     contentDescription = "play",
                     colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.secondary)
@@ -181,9 +166,7 @@ fun AudioPlayerDialog(
                 ) else Image(
                     modifier = Modifier
                         .size(35.sdp)
-                        .clickable {
-                            audioPlayer.pause()
-                        },
+                        .clickable { pause() },
                     painter = painterResource(id = R.drawable.ic_pause),
                     contentDescription = "pause",
                     colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.secondary)
@@ -192,15 +175,7 @@ fun AudioPlayerDialog(
                 Image(
                     modifier = Modifier
                         .size(35.sdp)
-                        .clickable {
-                            audioPlayer.seekTo(
-                                selectedVerseToRead?.verseNumber?.plus(1) ?: 1
-                            )
-                            if (!isPlaying) audioPlayer.resume {
-                                selectVerseToRead(it)
-                                highlightVerse()
-                            }
-                        },
+                        .clickable { seekTo(selectedVerseToRead?.verseNumber?.plus(1) ?: 1) },
                     painter = painterResource(id = R.drawable.ic_next),
                     contentDescription = "next",
                     colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.secondary)

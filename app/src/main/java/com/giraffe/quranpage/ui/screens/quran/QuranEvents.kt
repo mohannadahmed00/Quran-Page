@@ -12,12 +12,9 @@ interface QuranEvents {
         surahIndex: Int,
         ayahIndex: Int
     )
-    fun onReciterClick(reciter: ReciterModel,surahAudioData: SurahAudioModel)
     fun selectVerseToRead(verse: VerseModel?)
     fun selectVerse(verse: VerseModel?)
     fun setFirstVerse(verse: VerseModel?)
-    fun clearAudioData()
     fun saveAudioFile(downloadedAudio: DownloadedAudio)
     fun setRecentUrl(url: String?)
-    fun selectReciter(reciter:ReciterModel)
 }

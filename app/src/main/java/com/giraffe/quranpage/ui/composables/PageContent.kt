@@ -38,8 +38,8 @@ fun PageContent(
             if (verse != null) {
                 SurahHeader(
                     modifier = Modifier.padding(
-                        bottom = if (pageUI.pageIndex == 1 || pageUI.pageIndex == 2) 16.sdp else 8.sdp,
-                        top = 8.sdp
+                        bottom = if (pageUI.pageIndex == 1 || pageUI.pageIndex == 2) 8.sdp else 4.sdp,
+                        top = 4.sdp
                     ),
                     surahName = content.surahNameAr
                 )

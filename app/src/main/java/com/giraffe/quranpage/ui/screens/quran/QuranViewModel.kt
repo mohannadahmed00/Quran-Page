@@ -343,17 +343,6 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
         }
     }
 
-    override fun onReciterClick(reciter: ReciterModel, surahAudioData: SurahAudioModel) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _state.update {
-                it.copy(
-                    selectedReciter = reciter,
-                    selectedAudioData = surahAudioData
-                )
-            }
-        }
-    }
-
     override fun saveAudioFile(downloadedAudio: DownloadService.DownloadedAudio) {
         viewModelScope.launch(Dispatchers.IO) {
             Log.d("QuranViewModel", "saveAudioFile(${downloadedAudio.id}:${downloadedAudio.url})")
@@ -399,14 +388,6 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
         }
     }
 
-    override fun selectReciter(reciter: ReciterModel) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _state.update {
-                it.copy(selectedReciter = reciter)
-            }
-        }
-    }
-
     override fun selectVerseToRead(verse: VerseModel?) {
         _state.update { it.copy(selectedVerseToRead = verse, pageIndexToRead = verse?.pageIndex) }
     }
@@ -417,9 +398,5 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
 
     override fun setFirstVerse(verse: VerseModel?) {
         _state.update { it.copy(firstVerse = verse) }
-    }
-
-    override fun clearAudioData() {
-        _state.update { it.copy(selectedAudioData = null) }
     }
 }

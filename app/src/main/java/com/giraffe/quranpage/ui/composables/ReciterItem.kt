@@ -41,7 +41,8 @@ fun ReciterItem(
     reciter: ReciterModel,
     surah: SurahModel,
     queue: Map<String, DownloadedAudio>,
-    onReciterClick: (ReciterModel, SurahAudioModel) -> Unit,
+    setSurahAudioData:(SurahAudioModel)->Unit,
+    setReciter:(ReciterModel)->Unit,
     downloadSurahForReciter: (Int, ReciterModel, String) -> Unit,
     cancelDownloadAudio: (String) -> Unit,
     setRecentUrl: (String?) -> Unit,
@@ -66,7 +67,8 @@ fun ReciterItem(
             .padding(horizontal = 16.sdp)
             .clickable {
                 if (isDownloaded) {
-                    onReciterClick(reciter, surahAudioData!!)
+                    setReciter(reciter)
+                    setSurahAudioData(surahAudioData!!)
                 } else {
                     downloadSurahForReciter(surah.id, reciter, url)
                 }

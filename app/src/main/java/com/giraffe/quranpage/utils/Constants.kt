@@ -75,5 +75,11 @@ object Constants {
     object Actions {
         const val START_DOWNLOAD = "START_DOWNLOAD"
         const val CANCEL_DOWNLOAD = "CANCEL_DOWNLOAD"
+        const val PLAY = "PLAY"
+        const val PAUSE = "PAUSE"
+        const val STOP = "STOP"
+        const val NEXT = "NEXT"
+        const val PREVIOUS = "PREVIOUS"
+        const val RELEASE = "RELEASE"
     }
 }
