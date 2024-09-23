@@ -22,9 +22,11 @@ fun MutableList<SurahAudioModel>.addOrUpdate(item: SurahAudioModel): MutableList
     return this
 }
 
-fun MutableList<ReciterModel>.addOrUpdate(item: ReciterModel): List<ReciterModel> {
-    val index = indexOfFirst { it.id == item.id }
-    if (index >= 0) set(index, item) else add(item)
+fun MutableList<ReciterModel>.addOrUpdate(item: ReciterModel?): List<ReciterModel> {
+    item?.let {
+        val index = indexOfFirst { it.id == item.id }
+        if (index >= 0) set(index, item) else add(item)
+    }
     return this
 }
 

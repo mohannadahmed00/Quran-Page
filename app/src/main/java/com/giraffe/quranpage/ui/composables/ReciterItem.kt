@@ -43,7 +43,7 @@ fun ReciterItem(
     queue: Map<String, DownloadedAudio>,
     setSurahAudioData:(SurahAudioModel)->Unit,
     setReciter:(ReciterModel)->Unit,
-    downloadSurahForReciter: (Int, ReciterModel, String) -> Unit,
+    downloadSurahForReciter: (Int, ReciterModel, String,String,String) -> Unit,
     cancelDownloadAudio: (String) -> Unit,
     setRecentUrl: (String?) -> Unit,
 ) {
@@ -70,7 +70,7 @@ fun ReciterItem(
                     setReciter(reciter)
                     setSurahAudioData(surahAudioData!!)
                 } else {
-                    downloadSurahForReciter(surah.id, reciter, url)
+                    downloadSurahForReciter(surah.id, reciter, url, reciter.name,surah.name)
                 }
             },
         verticalAlignment = Alignment.CenterVertically

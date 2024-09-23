@@ -72,7 +72,9 @@ import com.giraffe.quranpage.utils.Constants.Actions.PLAY
 import com.giraffe.quranpage.utils.Constants.Actions.START_DOWNLOAD
 import com.giraffe.quranpage.utils.Constants.Keys.NOTIFICATION_ID
 import com.giraffe.quranpage.utils.Constants.Keys.RECITER_ID
+import com.giraffe.quranpage.utils.Constants.Keys.RECITER_NAME
 import com.giraffe.quranpage.utils.Constants.Keys.SURAH_ID
+import com.giraffe.quranpage.utils.Constants.Keys.SURAH_NAME
 import com.giraffe.quranpage.utils.Constants.Keys.URL
 import com.giraffe.quranpage.utils.ServiceConnection
 import ir.kaaveh.sdpcompose.sdp
@@ -141,8 +143,8 @@ fun QuranContent(
     val queue by downloadService?.queueState?.collectAsState() ?: remember {
         mutableStateOf(emptyMap())
     }
-    val downloadSurahForReciter = remember<(Int, ReciterModel, String) -> Unit> {
-        { surahId, reciter, url ->
+    val downloadSurahForReciter = remember<(Int, ReciterModel, String,String,String) -> Unit> {
+        { surahId, reciter, url,reciterName,surahName ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (!queue.containsKey(url)) {
                     Log.d("QuranContent", "downloadSurahForReciter($surahId, ${reciter.id}, $url)")
@@ -152,7 +154,9 @@ fun QuranContent(
                         action = START_DOWNLOAD
                         putExtra(NOTIFICATION_ID, url.hashCode())
                         putExtra(RECITER_ID, reciter.id)
+                        putExtra(RECITER_NAME, reciterName)
                         putExtra(SURAH_ID, surahId)
+                        putExtra(SURAH_NAME,surahName)
                         putExtra(URL, url)
                     }
                     context.startForegroundService(intent)
@@ -209,7 +213,14 @@ fun QuranContent(
         }
     }
     LaunchedEffect(downloadedFiles.size) {
-        downloadedFiles.forEach { downloadedAudio -> events.saveAudioFile(downloadedAudio.value) }
+        downloadedFiles.forEach { downloadedAudio ->
+            events.updateReciter(downloadedAudio.value.reciter)
+            if (downloadedAudio.value.url == state.recentUrl){
+                events.clearRecentDownload()
+                audioPlayer.setReciter(downloadedAudio.value.reciter)
+                audioPlayer.setSurahAudioData(downloadedAudio.value.surahAudioModel)
+            }
+        }
     }
     LaunchedEffect(isPrepared) {
         Log.d(

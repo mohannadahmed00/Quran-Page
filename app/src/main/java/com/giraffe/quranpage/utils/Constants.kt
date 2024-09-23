@@ -67,7 +67,9 @@ object Constants {
 
     object Keys {
         const val RECITER_ID = "RECITER_ID"
+        const val RECITER_NAME = "RECITER_NAME"
         const val SURAH_ID = "SURAH_ID"
+        const val SURAH_NAME = "SURAH_NAME"
         const val URL = "URL"
         const val NOTIFICATION_ID = "NOTIFICATION_ID"
         const val LAST_PAGE_INDEX = "LAST_PAGE_INDEX"
