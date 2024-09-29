@@ -13,6 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.metrics.performance.JankStats
+import androidx.navigation.compose.rememberNavController
 import com.giraffe.quranpage.ui.screens.quran.QuranScreen
 import com.giraffe.quranpage.ui.theme.QuranPageTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,15 +35,17 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         enableEdgeToEdge()
         setContent {
+
+
+
+
+
+
             QuranPageTheme(
                 darkTheme = false
             ) {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    QuranScreen()
-                    //HomeScreen()
-                }
+                AppNavGraph()
+
             }
         }
         jankStats = JankStats.createAndTrack(window, jankFrameListener)

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.hiltAndroid)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -93,4 +94,8 @@ dependencies {
     implementation(libs.richtext.ui.material)
     implementation (libs.androidx.metrics.performance)
     implementation (libs.accompanist.systemuicontroller)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.navigation.compose)
+
+
 }

@@ -59,6 +59,7 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.giraffe.quranpage.local.model.ReciterModel
 import com.giraffe.quranpage.service.DownloadService
 import com.giraffe.quranpage.service.PlaybackService
@@ -86,6 +87,8 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun QuranScreen(
+    resultValue:String,
+    navController: NavController,
     viewModel: QuranViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
