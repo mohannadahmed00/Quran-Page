@@ -92,4 +92,5 @@ dependencies {
     implementation(libs.sdp.compose)
     implementation(libs.richtext.ui.material)
     implementation (libs.androidx.metrics.performance)
+    implementation (libs.accompanist.systemuicontroller)
 }

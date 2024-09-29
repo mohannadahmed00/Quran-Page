@@ -112,7 +112,7 @@ fun QuranPageTheme(
         SideEffect {
             val window = (view.context as Activity).window
             //window.statusBarColor = background.toArgb()
-            window.statusBarColor = colorScheme.background.toArgb()
+            window.statusBarColor = colorScheme.surfaceVariant.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }

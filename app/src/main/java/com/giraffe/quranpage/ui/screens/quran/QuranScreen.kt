@@ -15,11 +15,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -62,6 +62,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.giraffe.quranpage.local.model.ReciterModel
 import com.giraffe.quranpage.service.DownloadService
 import com.giraffe.quranpage.service.PlaybackService
+import com.giraffe.quranpage.ui.composables.AppBar
 import com.giraffe.quranpage.ui.composables.AudioPlayerDialog
 import com.giraffe.quranpage.ui.composables.Page
 import com.giraffe.quranpage.ui.composables.ReciterItem
@@ -77,6 +78,7 @@ import com.giraffe.quranpage.utils.Constants.Keys.SURAH_ID
 import com.giraffe.quranpage.utils.Constants.Keys.SURAH_NAME
 import com.giraffe.quranpage.utils.Constants.Keys.URL
 import com.giraffe.quranpage.utils.ServiceConnection
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 import kotlinx.coroutines.launch
@@ -101,14 +103,20 @@ fun QuranContent(
     val context = LocalContext.current
     val pagerState = rememberPagerState(pageCount = { state.pages.size })
     val scope = rememberCoroutineScope()
+    val systemUiController = rememberSystemUiController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val interactionSource = remember { MutableInteractionSource() }
     var isOptionsBottomSheetVisible by remember { mutableStateOf(false) }
     var isTafseerBottomSheetVisible by remember { mutableStateOf(false) }
     var isRecitersBottomSheetVisible by remember { mutableStateOf(false) }
-    var isPlayerDialogVisible by remember { mutableStateOf(false) }
-    val onSurahNameClick = remember { { scope.launch { drawerState.open() } } }
-    val onPageClick = remember { { isPlayerDialogVisible = !isPlayerDialogVisible } }
+    var isPlayerDialogVisible by remember { mutableStateOf(true) }
+    val openDrawer = remember { { scope.launch { drawerState.open() } } }
+    val onPageClick = remember {
+        {
+            isPlayerDialogVisible = !isPlayerDialogVisible
+            systemUiController.isStatusBarVisible = isPlayerDialogVisible
+        }
+    }
     val firstVerse by remember(pagerState.currentPage) {
         derivedStateOf {
             state.pages.getOrNull(pagerState.currentPage)?.contents?.getOrNull(
@@ -143,8 +151,8 @@ fun QuranContent(
     val queue by downloadService?.queueState?.collectAsState() ?: remember {
         mutableStateOf(emptyMap())
     }
-    val downloadSurahForReciter = remember<(Int, ReciterModel, String,String,String) -> Unit> {
-        { surahId, reciter, url,reciterName,surahName ->
+    val downloadSurahForReciter = remember<(Int, ReciterModel, String, String, String) -> Unit> {
+        { surahId, reciter, url, reciterName, surahName ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (!queue.containsKey(url)) {
                     Log.d("QuranContent", "downloadSurahForReciter($surahId, ${reciter.id}, $url)")
@@ -156,7 +164,7 @@ fun QuranContent(
                         putExtra(RECITER_ID, reciter.id)
                         putExtra(RECITER_NAME, reciterName)
                         putExtra(SURAH_ID, surahId)
-                        putExtra(SURAH_NAME,surahName)
+                        putExtra(SURAH_NAME, surahName)
                         putExtra(URL, url)
                     }
                     context.startForegroundService(intent)
@@ -215,7 +223,7 @@ fun QuranContent(
     LaunchedEffect(downloadedFiles.size) {
         downloadedFiles.forEach { downloadedAudio ->
             events.updateReciter(downloadedAudio.value.reciter)
-            if (downloadedAudio.value.url == state.recentUrl){
+            if (downloadedAudio.value.url == state.recentUrl) {
                 events.clearRecentDownload()
                 audioPlayer.setReciter(downloadedAudio.value.reciter)
                 audioPlayer.setSurahAudioData(downloadedAudio.value.surahAudioModel)
@@ -255,6 +263,7 @@ fun QuranContent(
         }
     }
     DisposableEffect(Unit) {
+        systemUiController.isStatusBarVisible = isPlayerDialogVisible
         Log.d("QuranContent", "DisposableEffect(Unit): Unit")
         context.bindService(
             downloadServiceIntent,
@@ -320,7 +329,6 @@ fun QuranContent(
         ) { page ->
             val pageData = remember { state.orgPages[page] }
             Page(
-                modifier = Modifier.fillMaxSize(),
                 pageUI = state.pages[page],
                 pageData = pageData,
                 onVerseSelected = { verse ->
@@ -328,7 +336,6 @@ fun QuranContent(
                     events.highlightVerse()
                     isOptionsBottomSheetVisible = true
                 },
-                onSurahNameClick = onSurahNameClick,
                 onPageClick = onPageClick
             )
         }
@@ -386,13 +393,19 @@ fun QuranContent(
 
             }
         }
-        if (isPlayerDialogVisible) {
+        if (isPlayerDialogVisible && state.surahesData.isNotEmpty()) {
             val surah = state.surahesData[verse?.surahNumber?.minus(1) ?: 0]
             Column(
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(vertical = 26.sdp, horizontal = 8.sdp), Arrangement.Bottom
+                    .statusBarsPadding()
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
+                AppBar(
+                    onMenuClick = openDrawer,
+                    onSearchClick = {}
+                )
+
                 AudioPlayerDialog(
                     pages = state.pages,
                     currentPage = pagerState.currentPage,

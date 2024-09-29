@@ -50,8 +50,8 @@ fun AudioPlayerDialog(
     setFirstVerse: (VerseModel?) -> Unit,
     cancelDownload: (String) -> Unit,
     setRecentUrl: (String?) -> Unit,
-    setSurahAudioData:(SurahAudioModel?)->Unit,
-    setReciter:(ReciterModel?)->Unit,
+    setSurahAudioData: (SurahAudioModel?) -> Unit,
+    setReciter: (ReciterModel?) -> Unit,
     showRecitersBottomSheet: () -> Unit,
     pause: () -> Unit,
     play: () -> Unit,
@@ -61,7 +61,9 @@ fun AudioPlayerDialog(
 
     val isRecentExist = recentUrl != null
     Log.d("AudioPlayerDialog", "isAudioDataExist: $isAudioDataExist")
-    Card {
+    Card(
+        modifier = Modifier.padding(vertical = 26.sdp, horizontal = 8.sdp),
+    ) {
         Column(
             modifier = Modifier.padding(4.sdp),
             verticalArrangement = Arrangement.Center,

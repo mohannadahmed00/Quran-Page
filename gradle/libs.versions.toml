@@ -29,6 +29,7 @@ caverock-androidsvg = "1.4"
 drawablepainter = "0.32.0"
 sdp-compose = "1.1.0"
 richtext-ui-material = "1.0.0-alpha01"
+accompanist-systemuicontroller = "0.32.0"
 
 [libraries]
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
@@ -65,6 +66,7 @@ caverock-androidsvg = { group = "com.caverock", name = "androidsvg-aar", version
 drawablepainter = { group = "com.google.accompanist", name = "accompanist-drawablepainter", version.ref = "drawablepainter" }
 sdp-compose = { group = "com.github.Kaaveh", name = "sdp-compose", version.ref = "sdp-compose" }
 richtext-ui-material = { group = "com.halilibo.compose-richtext", name = "richtext-ui-material", version.ref = "richtext-ui-material" }
+accompanist-systemuicontroller = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist-systemuicontroller" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
