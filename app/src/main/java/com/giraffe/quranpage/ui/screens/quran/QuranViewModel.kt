@@ -10,6 +10,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.withStyle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.giraffe.quranpage.local.model.ReciterModel
 import com.giraffe.quranpage.local.model.SurahAudioModel
 import com.giraffe.quranpage.local.model.VerseModel
@@ -18,6 +19,8 @@ import com.giraffe.quranpage.service.DownloadService
 import com.giraffe.quranpage.ui.theme.fontFamilies
 import com.giraffe.quranpage.ui.theme.onPrimaryContainerLight
 import com.giraffe.quranpage.ui.theme.primaryLight
+import com.giraffe.quranpage.usecases.BookmarkVerseUseCase
+import com.giraffe.quranpage.usecases.GetBookmarkedVerseUseCase
 import com.giraffe.quranpage.utils.addOrUpdate
 import com.giraffe.quranpage.utils.getHezb
 import com.giraffe.quranpage.utils.getJuz
@@ -34,7 +37,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class QuranViewModel @Inject constructor(private val repository: Repository) : ViewModel(),
+class QuranViewModel @Inject constructor(
+    private val repository: Repository,
+    private val bookmarkVerseUseCase: BookmarkVerseUseCase,
+    private val getBookmarkedVerseUseCase: GetBookmarkedVerseUseCase,
+) : ViewModel(),
     QuranEvents {
     private val _state = MutableStateFlow(QuranScreenState())
     val state = _state.asStateFlow()
@@ -43,6 +50,7 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
         getReciters()
         getSurahesData()
         getAllVerses()
+        getBookmarkedVerse()
     }
 
     private fun getReciters() {
@@ -360,6 +368,23 @@ class QuranViewModel @Inject constructor(private val repository: Repository) : V
                     recentUrl = null,
                     isRecentDownloaded = true
                 )
+            }
+        }
+    }
+
+    override fun bookmarkVerse(verseModel: VerseModel?) {
+        viewModelScope.launch (Dispatchers.IO){
+            _state.update {
+                it.copy(bookmarkedVerse = verseModel)
+            }
+            bookmarkVerseUseCase(verseModel)
+        }
+    }
+
+    override fun getBookmarkedVerse() {
+        viewModelScope.launch (Dispatchers.IO){
+            _state.update {
+                it.copy(bookmarkedVerse = getBookmarkedVerseUseCase())
             }
         }
     }

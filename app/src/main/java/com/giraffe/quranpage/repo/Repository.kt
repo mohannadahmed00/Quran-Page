@@ -8,16 +8,26 @@ import com.giraffe.quranpage.local.model.PageModel
 import com.giraffe.quranpage.local.model.ReciterModel
 import com.giraffe.quranpage.local.model.SurahAudioModel
 import com.giraffe.quranpage.local.model.SurahModel
+import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.remote.RemoteDataSource
 import com.giraffe.quranpage.service.DownloadService
+import com.giraffe.quranpage.utils.Constants.Keys.BOOKMARKED_VERSE
 import com.giraffe.quranpage.utils.OnResponse
 import com.giraffe.quranpage.utils.addOrUpdate
+import com.google.gson.Gson
 import javax.inject.Inject
 
 class Repository @Inject constructor(
     private val remoteDataSource: RemoteDataSource,
     private val localDataSource: LocalDataSource,
 ) {
+
+
+    suspend fun bookmarkVerse(verseModel: VerseModel?)  = localDataSource.bookmarkVerse(verseModel)
+
+    suspend fun getBookmarkedVerse() = localDataSource.getBookmarkedVerse()
+
+
     suspend fun getPagesOfSurah(surahIndex: Int, onResponse: (MutableList<PageModel>) -> Unit) {
         val surahData = getSurahData(surahIndex)
         if (localDataSource.getPagesCount() == 0) {

@@ -19,4 +19,7 @@ interface QuranEvents {
     fun setRecentUrl(url: String?)
     fun saveLastPageIndex(pageIndex:Int)
     fun clearRecentDownload()
+
+    fun bookmarkVerse(verseModel: VerseModel?)
+    fun getBookmarkedVerse()
 }

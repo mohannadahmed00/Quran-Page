@@ -73,6 +73,7 @@ object Constants {
         const val URL = "URL"
         const val NOTIFICATION_ID = "NOTIFICATION_ID"
         const val LAST_PAGE_INDEX = "LAST_PAGE_INDEX"
+        const val BOOKMARKED_VERSE = "BOOKMARKED_VERSE"
     }
 
     object Actions {

@@ -96,7 +96,7 @@ fun QuranScreen(
     navController: NavController,
 ) {
     val state by viewModel.state.collectAsState()
-    QuranContent(state, viewModel,navController)
+    QuranContent(state, viewModel, navController)
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -201,8 +201,8 @@ fun QuranContent(
             Log.d("QuranContent", "currentBackStackEntry(verse): ${it.content}")
             events.selectVerse(it)
             events.highlightVerse()
-            pagerState.scrollToPage(it.pageIndex-1)
-            CoroutineScope(Dispatchers.IO).launch{
+            pagerState.scrollToPage(it.pageIndex - 1)
+            CoroutineScope(Dispatchers.IO).launch {
                 delay(1000L)
                 events.selectVerse(null)
                 events.highlightVerse()
@@ -405,8 +405,14 @@ fun QuranContent(
                 }
                 Button(
                     modifier = Modifier.fillMaxWidth(),
-                    onClick = {}) {
-                    Text("Bookmark")
+                    onClick = {
+                        if (state.selectedVerse?.qcfData == state.bookmarkedVerse?.qcfData) {
+                            state.selectedVerse?.let { events.bookmarkVerse(null) }
+                        } else {
+                            state.selectedVerse?.let { events.bookmarkVerse(it) }
+                        }
+                    }) {
+                    Text(if (state.selectedVerse?.qcfData == state.bookmarkedVerse?.qcfData) "Remove Bookmark" else "Bookmark")
                 }
 
             }
@@ -420,8 +426,28 @@ fun QuranContent(
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 AppBar(
+                    bookmarkedVerse = state.bookmarkedVerse,
                     onMenuClick = openDrawer,
-                    onSearchClick = {navController.navigateToSearch()}
+                    onSearchClick = { navController.navigateToSearch() },
+                    onBookmarkClick = {
+
+                        state.bookmarkedVerse?.let {
+                            scope.launch {
+                                events.selectVerse(it)
+                                events.highlightVerse()
+                                pagerState.scrollToPage(
+                                    it.pageIndex - 1
+                                )
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    delay(1000L)
+                                    events.selectVerse(null)
+                                    events.highlightVerse()
+                                }
+                            }
+                        }
+
+
+                    }
                 )
 
                 AudioPlayerDialog(

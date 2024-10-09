@@ -70,7 +70,7 @@ class DataStorePreferences(private val context: Context) {
     }.first()
 
     suspend fun readString(key: String) = context.dataStore.data.map { preferences ->
-        preferences[stringPreferencesKey(key)] ?: "not found in preferences !!"
+        preferences[stringPreferencesKey(key)]
     }.first()
 
     suspend fun readBoolean(key: String) = context.dataStore.data.map { preferences ->

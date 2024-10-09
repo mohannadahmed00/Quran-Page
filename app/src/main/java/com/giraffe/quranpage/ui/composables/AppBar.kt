@@ -17,13 +17,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.giraffe.quranpage.R
+import com.giraffe.quranpage.local.model.VerseModel
 import kotlinx.coroutines.Job
 
 @Composable
 fun AppBar(
+    bookmarkedVerse: VerseModel? = null,
     onMenuClick: () -> Job,
     onSearchClick: () -> Unit,
+    onBookmarkClick: () -> Unit = {},
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Row(
@@ -43,6 +49,14 @@ fun AppBar(
                 .size(30.dp)
                 .clickable { onMenuClick() },
             imageVector = Icons.Default.Menu, contentDescription = "Menu"
+        )
+        Image(
+            modifier = Modifier
+                .size(30.dp)
+                .clickable { onBookmarkClick() },
+            painter = painterResource(R.drawable.ic_bookmark),
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = if (bookmarkedVerse != null) 0.7f else 0.2f)),
+            contentDescription = "ic_bookmark"
         )
         Image(
             modifier = Modifier

@@ -30,7 +30,8 @@ data class QuranScreenState(
     val recentDownload: DownloadService.DownloadedAudio? = null,
     val isRecentDownloaded: Boolean = false,
     val recentUrl: String? = null,
-    val lastPageIndex: Int = 0
+    val lastPageIndex: Int = 0,
+    val bookmarkedVerse: VerseModel? = null,
 )
 
 @Immutable

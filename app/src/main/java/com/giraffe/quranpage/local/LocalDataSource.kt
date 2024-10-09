@@ -14,6 +14,7 @@ import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.local.preferences.DataStorePreferences
 import com.giraffe.quranpage.utils.Constants
+import com.giraffe.quranpage.utils.Constants.Keys.BOOKMARKED_VERSE
 import com.giraffe.quranpage.utils.drawCircles
 import com.giraffe.quranpage.utils.isSmallPage
 import com.giraffe.quranpage.utils.renderSvgToBitmap
@@ -33,15 +34,36 @@ class LocalDataSource(
         appDao.insertPage(PageModel(pageIndex, bitmap, normalizedAyahs))
     }
 
+    suspend fun bookmarkVerse(verseModel: VerseModel?) {
+        verseModel?.let { dataStorePreferences.save(BOOKMARKED_VERSE, Gson().toJson(verseModel)) }
+            ?: dataStorePreferences.save(BOOKMARKED_VERSE, "")
+
+
+    }
+
+    suspend fun getBookmarkedVerse() =
+        dataStorePreferences.readString(BOOKMARKED_VERSE)?.let {
+            if (it.isNotEmpty()){
+                Gson().fromJson(it, VerseModel::class.java)
+            }else{
+                null
+            }
+        }
+
+
     suspend fun saveLastPageIndex(pageIndex: Int) {
         Log.d(TAG, "saveLastPageIndex: $pageIndex")
-        dataStorePreferences.save(Constants.Keys.LAST_PAGE_INDEX, pageIndex) }
+        dataStorePreferences.save(Constants.Keys.LAST_PAGE_INDEX, pageIndex)
+    }
+
     suspend fun getLastPageIndex() = dataStorePreferences.readInt(Constants.Keys.LAST_PAGE_INDEX)
 
     fun getPagesCount() = appDao.getPagesCount()
     fun getPages() = appDao.getPages()
     fun storeSurahData(surahDataModel: SurahDataModel) = appDao.insertSurahData(surahDataModel)
-    fun getSurahData(surahIndex: Int) = getSurahesData().toMutableList().firstOrNull { it.id == surahIndex }
+    fun getSurahData(surahIndex: Int) =
+        getSurahesData().toMutableList().firstOrNull { it.id == surahIndex }
+
     fun getCountOfSurahesData() = appDao.getCountOfSurahesData()
 
     //==============================================================================================
@@ -73,10 +95,10 @@ class LocalDataSource(
     }
 
 
-    fun storeReciter(reciterModel: ReciterModel) =recitersDao.insertReciter(reciterModel)
-    fun getAllReciters() =  recitersDao.getAllReciters()
-    fun getRecitersCount() =  recitersDao.getRecitersCount()
-    fun getReciter(reciterId:Int) = recitersDao.getReciter(reciterId)
+    fun storeReciter(reciterModel: ReciterModel) = recitersDao.insertReciter(reciterModel)
+    fun getAllReciters() = recitersDao.getAllReciters()
+    fun getRecitersCount() = recitersDao.getRecitersCount()
+    fun getReciter(reciterId: Int) = recitersDao.getReciter(reciterId)
 
     companion object {
         private const val TAG = "LocalDataSource"
