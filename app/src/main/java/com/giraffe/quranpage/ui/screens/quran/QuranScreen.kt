@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -42,12 +41,12 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -125,14 +124,6 @@ fun QuranContent(
             systemUiController.isStatusBarVisible = isPlayerDialogVisible
         }
     }
-    val firstVerse by remember(pagerState.currentPage) {
-        derivedStateOf {
-            state.pages.getOrNull(pagerState.currentPage)?.contents?.getOrNull(
-                0
-            )?.verses?.getOrNull(0)
-        }
-    }
-    val verse = state.selectedVerseToRead ?: firstVerse ?: state.firstVerse
 
 
     //=================================playback=================================
@@ -196,7 +187,23 @@ fun QuranContent(
             }
         }
     }
-    LaunchedEffect(0) {
+
+    LaunchedEffect(pagerState, state.pages, state.reciters) {
+        snapshotFlow { pagerState.currentPage }.collect { page ->
+            val firstVerse = state.pages.getOrNull(page)?.contents?.getOrNull(
+                0
+            )?.verses?.getOrNull(0)
+            events.setFirstVerse(firstVerse)
+            if (reciter == null) {
+                audioPlayer.setReciter(state.reciters.firstOrNull { reciter ->
+                    reciter.surahesAudioData.firstOrNull { item -> item.surahId == firstVerse?.surahNumber } != null
+                } ?: state.reciters.firstOrNull())
+            }
+        }
+    }
+
+
+    LaunchedEffect(Unit) {
         navController.currentBackStackEntry?.savedStateHandle?.get<VerseModel?>("verse")?.let {
             Log.d("QuranContent", "currentBackStackEntry(verse): ${it.content}")
             events.selectVerse(it)
@@ -218,28 +225,12 @@ fun QuranContent(
             if (audioPlayer.ayahs.value.isEmpty()) {
                 audioPlayer.setAyahs(state.ayahs)
             }
-            it.setTracker { verse ->
-                events.selectVerseToRead(verse)
+            it.setTracker { trackedVerse ->
+                events.selectVerseToRead(trackedVerse)
                 events.highlightVerse()
             }
         }
 
-    }
-    LaunchedEffect(state.pages) {
-        //Log.d( "QuranContent", "LaunchedEffect(state.pages): currentPage = ${pagerState.currentPage}" )
-        events.setFirstVerse(
-            state.pages.getOrNull(pagerState.currentPage)?.contents?.getOrNull(
-                0
-            )?.verses?.getOrNull(0)
-        )
-    }
-    LaunchedEffect(state.firstVerse) {
-        //Log.d("QuranContent", "LaunchedEffect(state.firstVerse): ${state.firstVerse}")
-        if (!isPlaying) {
-            audioPlayer.setReciter(state.reciters.firstOrNull { reciter ->
-                reciter.surahesAudioData.firstOrNull { item -> item.surahId == verse?.surahNumber } != null
-            })
-        }
     }
     LaunchedEffect(downloadedFiles.size) {
         downloadedFiles.forEach { downloadedAudio ->
@@ -259,21 +250,18 @@ fun QuranContent(
     }
     LaunchedEffect(surahAudioData) {
         //Log.d("QuranContent", "LaunchedEffect(state.selectedAudioData): ${state.selectedAudioData}")
-
-        surahAudioData?.let {
+        surahAudioData?.let { surahAudioData ->
             if (!isPlaying) {
-                val surahName = state.surahesData[verse?.surahNumber?.minus(1) ?: 0].name
                 audioPlayer.initializePlayer(
-                    context,
-                    it,
-                    verse,
-                    surahName,
-                    reciter?.name ?: "",
+                    context = context,
+                    surahAudioData = surahAudioData,
+                    currentVerse = state.selectedVerseToRead ?: state.firstVerse,
+                    surahName = state.surahesData[surahAudioData.surahId - 1].name,
+                    reciterName = reciter?.name ?: "",
                 )
                 isPlayerDialogVisible = true
             }
         }
-
     }
     LaunchedEffect(state.pageIndexToRead) {
         state.pageIndexToRead?.let {
@@ -400,6 +388,15 @@ fun QuranContent(
                             }
                         }
                         isOptionsBottomSheetVisible = false*/
+
+
+                        /*if (isDownloaded) {
+                            setReciter(reciter)
+                            setSurahAudioData(surahAudioData!!)
+                        } else {
+                            downloadSurahForReciter(surah.id, reciter, url, reciter.name,surah.name)
+                        }*/
+
                     }) {
                     Text("Play from here")
                 }
@@ -417,8 +414,7 @@ fun QuranContent(
 
             }
         }
-        if (isPlayerDialogVisible && state.surahesData.isNotEmpty()) {
-            val surah = state.surahesData[verse?.surahNumber?.minus(1) ?: 0]
+        if (isPlayerDialogVisible) {
             Column(
                 modifier = Modifier
                     .statusBarsPadding()
@@ -449,22 +445,17 @@ fun QuranContent(
 
                     }
                 )
-
                 AudioPlayerDialog(
-                    pages = state.pages,
-                    currentPage = pagerState.currentPage,
                     selectedVerseToRead = state.selectedVerseToRead,
                     selectedReciter = reciter,
                     recentUrl = state.recentUrl,
-                    surahName = "سورة ${surah.arabic}",
+                    surahesData = state.surahesData,
+                    playerSurahAudioData = surahAudioData,
                     isPlaying = isPlaying,
                     isRecentDownloaded = state.isRecentDownloaded,
-                    isAudioDataExist = surahAudioData != null,
                     highlightVerse = events::highlightVerse,
                     selectVerseToRead = events::selectVerseToRead,
-                    //clearAudioData = audioPlayer::clearAudioData,
-                    //onReciterClick = events::onReciterClick,
-                    setFirstVerse = events::setFirstVerse,
+                    firstVerse = state.firstVerse,
                     cancelDownload = cancelDownloadAudio,
                     setSurahAudioData = audioPlayer::setSurahAudioData,
                     setReciter = audioPlayer::setReciter,
@@ -487,14 +478,13 @@ fun QuranContent(
                     LazyColumn(
                         contentPadding = PaddingValues(vertical = 4.sdp)
                     ) {
-                        val surah = state.surahesData[verse?.surahNumber?.minus(1) ?: 0]
                         item {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.Center
                             ) {
                                 Text(
-                                    text = "سورة ${surah.arabic}",
+                                    text = state.surahesData[state.firstVerse?.surahNumber?.minus(1)?:0].arabic,
                                     style = TextStyle(
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 18.ssp
@@ -505,7 +495,7 @@ fun QuranContent(
                         items(state.reciters) {
                             ReciterItem(
                                 reciter = it,
-                                surah = surah,
+                                surah = state.surahesData[state.firstVerse?.surahNumber?.minus(1)?:0],
                                 queue = queue,
                                 setReciter = audioPlayer::setReciter,
                                 setSurahAudioData = audioPlayer::setSurahAudioData,
