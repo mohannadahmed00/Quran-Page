@@ -66,9 +66,10 @@ fun SearchContent(
                 Card(
                     modifier = Modifier.clickable {
                         navController.popBackStack()
-                        navController.currentBackStackEntry
-                            ?.savedStateHandle
-                            ?.set(SEARCH_RESULT, it)
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            SEARCH_RESULT,
+                            it
+                        )
                     },
                     colors = CardDefaults.cardColors()
                         .copy(containerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))

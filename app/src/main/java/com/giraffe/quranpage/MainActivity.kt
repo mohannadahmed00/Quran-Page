@@ -35,18 +35,7 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         enableEdgeToEdge()
         setContent {
-
-
-
-
-
-
-            QuranPageTheme(
-                darkTheme = false
-            ) {
-                AppNavGraph()
-
-            }
+            QuranPageTheme(darkTheme = false) { AppNavGraph() }
         }
         jankStats = JankStats.createAndTrack(window, jankFrameListener)
     }

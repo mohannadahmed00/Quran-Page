@@ -3,7 +3,6 @@ package com.giraffe.quranpage.ui.screens.quran
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -62,7 +61,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.giraffe.quranpage.local.model.ReciterModel
-import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.navigateToSearch
 import com.giraffe.quranpage.service.DownloadService
 import com.giraffe.quranpage.service.PlaybackService
@@ -70,7 +68,6 @@ import com.giraffe.quranpage.ui.composables.AppBar
 import com.giraffe.quranpage.ui.composables.AudioPlayerDialog
 import com.giraffe.quranpage.ui.composables.Page
 import com.giraffe.quranpage.ui.composables.ReciterItem
-import com.giraffe.quranpage.ui.screens.quran.QuranArgs.Companion.SEARCH_RESULT
 import com.giraffe.quranpage.ui.theme.fontFamilies
 import com.giraffe.quranpage.utils.AudioPlayerManager
 import com.giraffe.quranpage.utils.Constants.Actions.CANCEL_DOWNLOAD
@@ -93,7 +90,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun QuranScreen(
     viewModel: QuranViewModel = hiltViewModel(),
@@ -104,7 +100,6 @@ fun QuranScreen(
     QuranContent(state, viewModel, navController)
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuranContent(
@@ -124,6 +119,7 @@ fun QuranContent(
     var isRecitersBottomSheetVisible by remember { mutableStateOf(false) }
     var isPlayerDialogVisible by remember { mutableStateOf(true) }
     val openDrawer = remember { { scope.launch { drawerState.open() } } }
+    val args = remember { QuranArgs(navController.currentBackStackEntry?.savedStateHandle) }
 
     //=================================playback=================================
     val playbackServiceIntent = remember { Intent(context, PlaybackService::class.java) }
@@ -176,7 +172,6 @@ fun QuranContent(
         { url ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (!queue.containsKey(url)) {
-                    //Log.d("QuranContent", "cancelDownloadAudio($url)")
                     val intent = Intent(context, DownloadService::class.java).apply {
                         action = CANCEL_DOWNLOAD
                         putExtra(URL, url)
@@ -190,28 +185,21 @@ fun QuranContent(
 
     LaunchedEffect(state.lastPageIndex) {
         scope.launch {
-            val searchResult =
-                navController.currentBackStackEntry?.savedStateHandle?.get<VerseModel?>(
-                    SEARCH_RESULT
-                )
-            if (searchResult == null) {
+            if (args.searchResult == null) {
                 pagerState.scrollToPage(state.lastPageIndex - 1)
             } else {
-                events.selectVerse(searchResult)
+                events.selectVerse(args.searchResult)
                 events.highlightVerse()
-                pagerState.scrollToPage(searchResult.pageIndex - 1)
+                pagerState.scrollToPage(args.searchResult.pageIndex - 1)
                 CoroutineScope(Dispatchers.IO).launch {
                     delay(2000L)
                     events.selectVerse(null)
                     events.highlightVerse()
                 }
+                args.clear()
             }
         }
     }
-
-
-
-
     LaunchedEffect(pagerState, state.pages, state.reciters) {
         snapshotFlow { pagerState.currentPage }.collect { page ->
             val firstVerse = state.pages.getOrNull(page)?.contents?.getOrNull(
@@ -225,11 +213,6 @@ fun QuranContent(
             }
         }
     }
-
-
-
-
-
     LaunchedEffect(isPlayerDialogVisible) {
         systemUiController.isStatusBarVisible = isPlayerDialogVisible
     }

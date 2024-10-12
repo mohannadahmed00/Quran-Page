@@ -1,7 +1,6 @@
 package com.giraffe.quranpage.ui.screens.quran
 
 
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -37,18 +36,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class QuranViewModel @Inject constructor(
-    //private val savedStateHandle: SavedStateHandle,
     private val repository: Repository,
     private val bookmarkVerseUseCase: BookmarkVerseUseCase,
     private val getBookmarkedVerseUseCase: GetBookmarkedVerseUseCase,
 ) : ViewModel(),
     QuranEvents, DefaultLifecycleObserver {
-    //private val args = QuranArgs(savedStateHandle)
     private val _state = MutableStateFlow(QuranScreenState())
     val state = _state.asStateFlow()
 
     init {
-        Log.d("LifecycleOwnerVm", "init : ")
         getReciters()
         getSurahesData()
         getAllVerses()
@@ -456,40 +452,11 @@ class QuranViewModel @Inject constructor(
         }
     }
 
-
-    override fun onCreate(owner: LifecycleOwner) {
-        super.onCreate(owner)
-        //getSearchResult()
-        Log.d("LifecycleOwnerVm", "onCreate")
-    }
-
-    override fun onResume(owner: LifecycleOwner) {
-        super.onResume(owner)
-        Log.d("LifecycleOwnerVm", "onResume")
-    }
-
-    override fun onStart(owner: LifecycleOwner) {
-        super.onStart(owner)
-        Log.d("LifecycleOwnerVm", "onStart")
-    }
-
-    override fun onPause(owner: LifecycleOwner) {
-        super.onPause(owner)
-        Log.d("LifecycleOwnerVm", "onPause")
-    }
-
     override fun onStop(owner: LifecycleOwner) {
         super.onStop(owner)
         viewModelScope.launch(Dispatchers.IO) {
             repository.saveLastPageIndex(_state.value.firstVerse?.pageIndex ?: 0)
             _state.update { it.copy(lastPageIndex = _state.value.firstVerse?.pageIndex ?: 0) }
-            Log.d("LifecycleOwnerVm", "onStop: repository.saveLastPageIndex(${_state.value.firstVerse?.pageIndex ?: 0})")
         }
-        Log.d("LifecycleOwnerVm", "onStop: ${_state.value.firstVerse?.pageIndex ?: 0}")
-    }
-
-    override fun onDestroy(owner: LifecycleOwner) {
-        super.onDestroy(owner)
-        Log.d("LifecycleOwnerVm", "onDestroy")
     }
 }
