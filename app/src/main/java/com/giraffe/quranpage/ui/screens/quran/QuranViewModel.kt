@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.log
 
 @HiltViewModel
 class QuranViewModel @Inject constructor(
@@ -47,6 +48,7 @@ class QuranViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     init {
+        Log.d("LifecycleOwnerVm", "init : ")
         getReciters()
         getSurahesData()
         getAllVerses()
@@ -481,14 +483,15 @@ class QuranViewModel @Inject constructor(
 
     override fun onStop(owner: LifecycleOwner) {
         super.onStop(owner)
-        Log.d("LifecycleOwnerVm", "onStop")
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.saveLastPageIndex(_state.value.firstVerse?.pageIndex ?: 0)
+            Log.d("LifecycleOwnerVm", "repository.saveLastPageIndex(${_state.value.firstVerse?.pageIndex ?: 0})")
+        }
+        Log.d("LifecycleOwnerVm", "onStop: ${_state.value.firstVerse?.pageIndex ?: 0}")
     }
 
     override fun onDestroy(owner: LifecycleOwner) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.saveLastPageIndex(_state.value.firstVerse?.pageIndex ?: 0)
-            Log.d("LifecycleOwnerVm", "onDestroy ${_state.value.firstVerse?.pageIndex ?: 0}")
-        }
         super.onDestroy(owner)
+        Log.d("LifecycleOwnerVm", "onDestroy")
     }
 }
