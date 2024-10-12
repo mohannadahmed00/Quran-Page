@@ -4,11 +4,9 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import com.giraffe.quranpage.local.model.ReciterModel
-import com.giraffe.quranpage.local.model.SurahAudioModel
 import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.remote.response.TafseerResponse
-import com.giraffe.quranpage.service.DownloadService
 
 
 data class QuranScreenState(
@@ -19,17 +17,14 @@ data class QuranScreenState(
     val pages: List<PageUI> = listOf(),
     val surahesData: List<SurahModel> = listOf(),
     val ayahs: List<VerseModel> = listOf(),
-    val currentPageIndex: Int = 0,
     val reciters: List<ReciterModel> = emptyList(),
     val selectedReciter: ReciterModel? = null,
-    val selectedAudioData: SurahAudioModel? = null,
     val selectedVerseTafseer: TafseerResponse? = null,
     val pageIndexToRead: Int? = null,
     val pageIndexToSelection: Int? = null,
-    val isPlayerDialogVisible: Boolean = false,
-    val recentDownload: DownloadService.DownloadedAudio? = null,
     val isRecentDownloaded: Boolean = false,
     val recentUrl: String? = null,
+    val recentSurahToDownload: SurahModel? = null,
     val lastPageIndex: Int = 0,
     val bookmarkedVerse: VerseModel? = null,
 )

@@ -150,29 +150,29 @@ fun QuranContent(
     val queue by downloadService?.queueState?.collectAsState() ?: remember {
         mutableStateOf(emptyMap())
     }
-    val downloadSurahForReciter = remember<(Int, ReciterModel, String, String, String) -> Unit> {
-        { surahId, reciter, url, reciterName, surahName ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (!queue.containsKey(url)) {
-                    //Log.d("QuranContent", "downloadSurahForReciter($surahId, ${reciter.id}, $url)")
-                    events.setRecentUrl(url)
-                    audioPlayer.setReciter(reciter)
-                    val intent = Intent(context, DownloadService::class.java).apply {
-                        action = START_DOWNLOAD
-                        putExtra(NOTIFICATION_ID, url.hashCode())
-                        putExtra(RECITER_ID, reciter.id)
-                        putExtra(RECITER_NAME, reciterName)
-                        putExtra(SURAH_ID, surahId)
-                        putExtra(SURAH_NAME, surahName)
-                        putExtra(URL, url)
+    val downloadSurahForReciter =
+        remember<(Int, ReciterModel, String, String, String) -> Unit>(state.surahesData) {
+            { surahId, reciter, url, reciterName, surahName ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    if (!queue.containsKey(url)) {
+                        events.setRecent(url, state.surahesData[surahId - 1])
+                        audioPlayer.setReciter(reciter)
+                        val intent = Intent(context, DownloadService::class.java).apply {
+                            action = START_DOWNLOAD
+                            putExtra(NOTIFICATION_ID, url.hashCode())
+                            putExtra(RECITER_ID, reciter.id)
+                            putExtra(RECITER_NAME, reciterName)
+                            putExtra(SURAH_ID, surahId)
+                            putExtra(SURAH_NAME, surahName)
+                            putExtra(URL, url)
+                        }
+                        context.startForegroundService(intent)
+                        audioPlayer.clearAudioData()
+                        audioPlayer.release()
                     }
-                    context.startForegroundService(intent)
-                    audioPlayer.clearAudioData()
-                    audioPlayer.release()
                 }
             }
         }
-    }
     val cancelDownloadAudio = remember<(String) -> Unit> {
         { url ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -197,7 +197,7 @@ fun QuranContent(
             if (reciter == null) {
                 audioPlayer.setReciter(state.reciters.firstOrNull { reciter ->
                     reciter.surahesAudioData.firstOrNull { item -> item.surahId == firstVerse?.surahNumber } != null
-                } ?: state.reciters.firstOrNull())
+                } ?: state.reciters.getOrNull(0))
             }
         }
     }
@@ -446,9 +446,10 @@ fun QuranContent(
                     }
                 )
                 AudioPlayerDialog(
-                    selectedVerseToRead = state.selectedVerseToRead,
                     selectedReciter = reciter,
+                    selectedVerseToRead = state.selectedVerseToRead,
                     recentUrl = state.recentUrl,
+                    recentSurahToDownload = state.recentSurahToDownload,
                     surahesData = state.surahesData,
                     playerSurahAudioData = surahAudioData,
                     isPlaying = isPlaying,
@@ -456,15 +457,16 @@ fun QuranContent(
                     highlightVerse = events::highlightVerse,
                     selectVerseToRead = events::selectVerseToRead,
                     firstVerse = state.firstVerse,
-                    cancelDownload = cancelDownloadAudio,
                     setSurahAudioData = audioPlayer::setSurahAudioData,
                     setReciter = audioPlayer::setReciter,
-                    setRecentUrl = events::setRecentUrl,
+                    clearRecent = events::clearRecent,
                     showRecitersBottomSheet = { isRecitersBottomSheetVisible = true },
                     pause = { playbackService?.pause() },
                     play = { playbackService?.play() },
                     release = { playbackService?.release() },
                     seekTo = { playbackService?.seekTo(it) },
+                    downloadSurahForReciter = downloadSurahForReciter,
+                    cancelDownload = cancelDownloadAudio,
                 )
             }
         }
@@ -484,7 +486,8 @@ fun QuranContent(
                                 horizontalArrangement = Arrangement.Center
                             ) {
                                 Text(
-                                    text = state.surahesData[state.firstVerse?.surahNumber?.minus(1)?:0].arabic,
+                                    text = state.surahesData[state.firstVerse?.surahNumber?.minus(1)
+                                        ?: 0].arabic,
                                     style = TextStyle(
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 18.ssp
@@ -495,13 +498,14 @@ fun QuranContent(
                         items(state.reciters) {
                             ReciterItem(
                                 reciter = it,
-                                surah = state.surahesData[state.firstVerse?.surahNumber?.minus(1)?:0],
+                                surah = state.surahesData[state.firstVerse?.surahNumber?.minus(1)
+                                    ?: 0],
                                 queue = queue,
                                 setReciter = audioPlayer::setReciter,
                                 setSurahAudioData = audioPlayer::setSurahAudioData,
                                 downloadSurahForReciter = downloadSurahForReciter,
                                 cancelDownloadAudio = cancelDownloadAudio,
-                                setRecentUrl = events::setRecentUrl,
+                                clearRecent = events::clearRecent,
                             )
                         }
                     }

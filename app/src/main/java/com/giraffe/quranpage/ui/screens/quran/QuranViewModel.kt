@@ -10,12 +10,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.withStyle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.giraffe.quranpage.local.model.ReciterModel
-import com.giraffe.quranpage.local.model.SurahAudioModel
+import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.repo.Repository
-import com.giraffe.quranpage.service.DownloadService
 import com.giraffe.quranpage.ui.theme.fontFamilies
 import com.giraffe.quranpage.ui.theme.onPrimaryContainerLight
 import com.giraffe.quranpage.ui.theme.primaryLight
@@ -27,7 +25,6 @@ import com.giraffe.quranpage.utils.getJuz
 import com.giraffe.quranpage.utils.getSurahesName
 import com.giraffe.quranpage.utils.hasSajdah
 import com.giraffe.quranpage.utils.isNetworkAvailable
-import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -373,7 +370,7 @@ class QuranViewModel @Inject constructor(
     }
 
     override fun bookmarkVerse(verseModel: VerseModel?) {
-        viewModelScope.launch (Dispatchers.IO){
+        viewModelScope.launch(Dispatchers.IO) {
             _state.update {
                 it.copy(bookmarkedVerse = verseModel)
             }
@@ -382,23 +379,37 @@ class QuranViewModel @Inject constructor(
     }
 
     override fun getBookmarkedVerse() {
-        viewModelScope.launch (Dispatchers.IO){
+        viewModelScope.launch(Dispatchers.IO) {
             _state.update {
                 it.copy(bookmarkedVerse = getBookmarkedVerseUseCase())
             }
         }
     }
 
-    override fun setRecentUrl(url: String?) {
+    override fun setRecent(url: String, recentSurahToDownload: SurahModel) {
         viewModelScope.launch(Dispatchers.IO) {
             Log.d("QuranViewModel", "setRecentUrl($url)")
             _state.update {
                 it.copy(
                     recentUrl = url,
+                    recentSurahToDownload = recentSurahToDownload,
                     isRecentDownloaded = false,
                 )
             }
             Log.d("QuranViewModel", "setRecentUrl: ${_state.value.recentUrl}")
+        }
+    }
+
+    override fun clearRecent() {
+        viewModelScope.launch(Dispatchers.IO) {
+            Log.d("QuranViewModel", "clearRecent()")
+            _state.update {
+                it.copy(
+                    recentUrl = null,
+                    recentSurahToDownload = null,
+                )
+            }
+            Log.d("QuranViewModel", "clearRecent: ${_state.value.recentUrl}")
         }
     }
 

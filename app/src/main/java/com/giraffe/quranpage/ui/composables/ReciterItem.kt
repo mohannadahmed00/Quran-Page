@@ -41,11 +41,11 @@ fun ReciterItem(
     reciter: ReciterModel,
     surah: SurahModel,
     queue: Map<String, DownloadedAudio>,
-    setSurahAudioData:(SurahAudioModel)->Unit,
-    setReciter:(ReciterModel)->Unit,
-    downloadSurahForReciter: (Int, ReciterModel, String,String,String) -> Unit,
+    setSurahAudioData: (SurahAudioModel) -> Unit,
+    setReciter: (ReciterModel) -> Unit,
+    downloadSurahForReciter: (Int, ReciterModel, String, String, String) -> Unit,
     cancelDownloadAudio: (String) -> Unit,
-    setRecentUrl: (String?) -> Unit,
+    clearRecent: () -> Unit,
 ) {
     val surahAudioData =
         reciter.surahesAudioData.firstOrNull { surahData -> surahData.surahId == surah.id }
@@ -70,7 +70,7 @@ fun ReciterItem(
                     setReciter(reciter)
                     setSurahAudioData(surahAudioData!!)
                 } else {
-                    downloadSurahForReciter(surah.id, reciter, url, reciter.name,surah.name)
+                    downloadSurahForReciter(surah.id, reciter, url, reciter.name, surah.name)
                 }
             },
         verticalAlignment = Alignment.CenterVertically
@@ -97,7 +97,7 @@ fun ReciterItem(
                         .clickable {
                             Log.d("messi", "cancel $url")
                             cancelDownloadAudio(url)
-                            setRecentUrl(null)
+                            clearRecent()
                         },
                     imageVector = Icons.Default.Clear,
                     contentDescription = "cancel",

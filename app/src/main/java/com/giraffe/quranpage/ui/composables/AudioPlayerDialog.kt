@@ -27,6 +27,7 @@ import com.giraffe.quranpage.local.model.ReciterModel
 import com.giraffe.quranpage.local.model.SurahAudioModel
 import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.local.model.VerseModel
+import com.giraffe.quranpage.utils.toThreeDigits
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 
@@ -41,10 +42,11 @@ fun AudioPlayerDialog(
     firstVerse: VerseModel?,
     isRecentDownloaded: Boolean,
     recentUrl: String?,
+    recentSurahToDownload: SurahModel?,
     highlightVerse: () -> Unit,
     selectVerseToRead: (VerseModel?) -> Unit,
     cancelDownload: (String) -> Unit,
-    setRecentUrl: (String?) -> Unit,
+    clearRecent: () -> Unit,
     setSurahAudioData: (SurahAudioModel?) -> Unit,
     setReciter: (ReciterModel?) -> Unit,
     showRecitersBottomSheet: () -> Unit,
@@ -52,11 +54,16 @@ fun AudioPlayerDialog(
     play: () -> Unit,
     release: () -> Unit,
     seekTo: (verseIndex: Int) -> Unit,
+    downloadSurahForReciter: (Int, ReciterModel, String, String, String) -> Unit,
 ) {
     val reciterSurahAudioData =
         selectedReciter?.surahesAudioData?.firstOrNull { surah -> surah.surahId == (firstVerse?.surahNumber) }
     val isPlayerAudioDataExist = playerSurahAudioData != null
     val isRecentUrlExist = recentUrl != null
+    val surah = surahesData.getOrNull(
+        playerSurahAudioData?.surahId?.minus(1) ?: firstVerse?.surahNumber?.minus(1)
+        ?: 0
+    )
     Card(
         modifier = Modifier.padding(vertical = 26.sdp, horizontal = 8.sdp),
     ) {
@@ -87,7 +94,17 @@ fun AudioPlayerDialog(
                                 .size(35.sdp)
                                 .clickable {
                                     if (reciterSurahAudioData == null) {
-                                        selectedReciter?.let {}
+                                        selectedReciter?.let { selectedReciter ->
+                                            firstVerse?.let { firstVerse ->
+                                                downloadSurahForReciter(
+                                                    firstVerse.surahNumber,
+                                                    selectedReciter,
+                                                    selectedReciter.folderUrl + firstVerse.surahNumber.toThreeDigits() + ".mp3",
+                                                    selectedReciter.name,
+                                                    surah?.name ?: ""
+                                                )
+                                            }
+                                        }
                                     } else {
                                         setReciter(selectedReciter)
                                         setSurahAudioData(reciterSurahAudioData)
@@ -110,7 +127,7 @@ fun AudioPlayerDialog(
                                 release()
                             } else {
                                 cancelDownload(recentUrl ?: "")
-                                setRecentUrl(null)
+                                clearRecent()
                             }
                         },
                         imageVector = Icons.Default.Close, contentDescription = "close"
@@ -119,10 +136,8 @@ fun AudioPlayerDialog(
             }
             if (isPlayerAudioDataExist || (isRecentUrlExist && !isRecentDownloaded)) {
                 Text(
-                    text = surahesData.getOrNull(
-                        playerSurahAudioData?.surahId?.minus(1) ?: firstVerse?.surahNumber?.minus(1)
-                        ?: 0
-                    )?.arabic ?: "",
+                    text = if (isRecentUrlExist && !isRecentDownloaded) recentSurahToDownload?.arabic
+                        ?: "" else surah?.arabic ?: "",
                     style = TextStyle(
                         textAlign = TextAlign.Center,
                         fontSize = 14.ssp

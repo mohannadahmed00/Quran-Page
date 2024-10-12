@@ -78,14 +78,21 @@ class DownloadService : Service() {
         val url = intent?.getStringExtra(URL) ?: ""
         val action = intent?.action
         if (action == START_DOWNLOAD && notificationId != -1) {
-            startDownload(notificationId, url, reciterId, reciterName,surahId,surahName)
+            startDownload(notificationId, url, reciterId, reciterName, surahId, surahName)
         } else if (action == CANCEL_DOWNLOAD && url.isNotEmpty()) {
             cancelDownload(url)
         }
         return START_NOT_STICKY
     }
 
-    private fun startDownload(notificationId: Int, url: String, reciterId: Int,reciterName:String, surahId: Int,surahName:String) {
+    private fun startDownload(
+        notificationId: Int,
+        url: String,
+        reciterId: Int,
+        reciterName: String,
+        surahId: Int,
+        surahName: String
+    ) {
         if (!queueState.value.containsKey(url)) {
             Log.d("DownloadService", "startDownload($notificationId, $url, $reciterId, $surahId)")
             val downloadedFile = DownloadedAudio(
@@ -94,7 +101,7 @@ class DownloadService : Service() {
                 progress = MutableStateFlow(0),
                 reciterId = reciterId,
                 surahId = surahId,
-                notificationBuilder = createNotificationBuilder(this,reciterName,surahName)
+                notificationBuilder = createNotificationBuilder(this, reciterName, surahName)
             )
             lastNotificationId = downloadedFile.id
             startForeground(notificationId, downloadedFile.notificationBuilder?.build())
@@ -109,7 +116,11 @@ class DownloadService : Service() {
     }
 
 
-    private fun createNotificationBuilder(context: Context,reciterName: String,surahName: String): NotificationCompat.Builder {
+    private fun createNotificationBuilder(
+        context: Context,
+        reciterName: String,
+        surahName: String
+    ): NotificationCompat.Builder {
         return NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ayah_end)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -226,7 +237,7 @@ class DownloadService : Service() {
         _queueState.value[url]?.let {
             Log.d("DownloadService", "completeDownload($url)")
             //downloadedFiles[url] = it
-            repository.saveAudioFile(it){ reciter, surahAudioModel ->
+            repository.saveAudioFile(it) { reciter, surahAudioModel ->
                 downloadedFiles[url] = it.copy(reciter = reciter, surahAudioModel = surahAudioModel)
             }
 
@@ -282,7 +293,7 @@ class DownloadService : Service() {
         val notificationBuilder: NotificationCompat.Builder? = null,
         val downloadJob: Job? = null,
         val inputStream: InputStream? = null,
-        val reciter:ReciterModel? = null,
+        val reciter: ReciterModel? = null,
         val surahAudioModel: SurahAudioModel? = null,
         val startDownloadTime: Long = Date().time,
     )
