@@ -3,6 +3,7 @@ package com.giraffe.quranpage.ui.screens.quran
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -100,6 +101,7 @@ fun QuranScreen(
     QuranContent(state, viewModel, navController)
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuranContent(
@@ -185,19 +187,17 @@ fun QuranContent(
 
     LaunchedEffect(state.lastPageIndex) {
         scope.launch {
-            if (args.searchResult == null) {
-                pagerState.scrollToPage(state.lastPageIndex - 1)
-            } else {
-                events.selectVerse(args.searchResult)
+            args.searchResult?.let { searchResult->
+                events.selectVerse(searchResult)
                 events.highlightVerse()
-                pagerState.scrollToPage(args.searchResult.pageIndex - 1)
+                pagerState.scrollToPage(searchResult.pageIndex - 1)
                 CoroutineScope(Dispatchers.IO).launch {
                     delay(2000L)
                     events.selectVerse(null)
                     events.highlightVerse()
                 }
                 args.clear()
-            }
+            } ?: pagerState.scrollToPage(state.lastPageIndex - 1)
         }
     }
     LaunchedEffect(pagerState, state.pages, state.reciters) {
