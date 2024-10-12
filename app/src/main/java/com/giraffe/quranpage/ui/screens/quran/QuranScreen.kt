@@ -82,6 +82,7 @@ import com.giraffe.quranpage.utils.Constants.Keys.SURAH_NAME
 import com.giraffe.quranpage.utils.Constants.Keys.URL
 import com.giraffe.quranpage.utils.ObserveLifecycleEvents
 import com.giraffe.quranpage.utils.ServiceConnection
+import com.giraffe.quranpage.utils.toThreeDigits
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
@@ -197,7 +198,6 @@ fun QuranContent(
             pagerState.scrollToPage(state.lastPageIndex - 1)
         }
     }
-
     LaunchedEffect(pagerState, state.pages, state.reciters) {
         snapshotFlow { pagerState.currentPage }.collect { page ->
             val firstVerse = state.pages.getOrNull(page)?.contents?.getOrNull(
@@ -211,8 +211,6 @@ fun QuranContent(
             }
         }
     }
-
-
     LaunchedEffect(Unit) {
         navController.currentBackStackEntry?.savedStateHandle?.get<VerseModel?>("verse")?.let {
             Log.d("QuranContent", "currentBackStackEntry(verse): ${it.content}")
@@ -259,18 +257,19 @@ fun QuranContent(
         }
     }
     LaunchedEffect(surahAudioData) {
-        //Log.d("QuranContent", "LaunchedEffect(state.selectedAudioData): ${state.selectedAudioData}")
+        Log.d(
+            "QuranContent",
+            "LaunchedEffect(state.selectedAudioData): ${surahAudioData?.audioPath}"
+        )
         surahAudioData?.let { surahAudioData ->
-            if (!isPlaying) {
-                audioPlayer.initializePlayer(
-                    context = context,
-                    surahAudioData = surahAudioData,
-                    currentVerse = state.selectedVerseToRead ?: state.firstVerse,
-                    surahName = state.surahesData[surahAudioData.surahId - 1].name,
-                    reciterName = reciter?.name ?: "",
-                )
-                isPlayerDialogVisible = true
-            }
+            audioPlayer.initializePlayer(
+                context = context,
+                surahAudioData = surahAudioData,
+                currentVerse = state.selectedVerseToRead ?: state.firstVerse,
+                surahName = state.surahesData[surahAudioData.surahId - 1].name,
+                reciterName = reciter?.name ?: "",
+            )
+            isPlayerDialogVisible = true
         }
     }
     LaunchedEffect(state.pageIndexToRead) {
@@ -377,35 +376,25 @@ fun QuranContent(
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        /*val tempVerse = state.selectedVerse
-                        events.selectVerse(null)
-                        events.highlightVerse()
-                        events.selectVerseToRead(tempVerse)
-                        val surahAudioData =
-                            reciter?.surahesAudioData?.firstOrNull { surah -> surah.surahId == (tempVerse?.surahNumber) }
-                        if (surahAudioData == null) {
-                            state.selectedReciter?.let {
-                                audioPlayer.release()
-                                val surahId = state.selectedVerse?.surahNumber?:state.firstVerse?.surahNumber?:0
-                                downloadSurahForReciter(context,queue,state.selectedReciter.id,state.selectedReciter.folderUrl,surahId,service)
+                        events.selectVerseToRead(state.selectedVerse)
+                        val reciterSurahAudioData =
+                            reciter?.surahesAudioData?.firstOrNull { surah -> surah.surahId == (state.firstVerse?.surahNumber) }
+                        if (reciterSurahAudioData == null) {
+                            reciter?.let { selectedReciter ->
+                                state.firstVerse?.let { firstVerse ->
+                                    downloadSurahForReciter(
+                                        firstVerse.surahNumber,
+                                        selectedReciter,
+                                        selectedReciter.folderUrl + firstVerse.surahNumber.toThreeDigits() + ".mp3",
+                                        selectedReciter.name,
+                                        surah.name
+                                    )
+                                }
                             }
                         } else {
-                            if (surahAudioData == state.selectedAudioData) {
-                                audioPlayer.seekTo(tempVerse?.verseNumber ?: 0)
-                            } else {
-                                audioPlayer.release()
-                                events.onReciterClick(state.selectedReciter, surahAudioData)
-                            }
+                            audioPlayer.setReciter(reciter)
+                            audioPlayer.setSurahAudioData(reciterSurahAudioData)
                         }
-                        isOptionsBottomSheetVisible = false*/
-
-
-                        /*if (isDownloaded) {
-                            setReciter(reciter)
-                            setSurahAudioData(surahAudioData!!)
-                        } else {
-                            downloadSurahForReciter(surah.id, reciter, url, reciter.name,surah.name)
-                        }*/
 
                     }) {
                     Text("Play from here")
@@ -421,7 +410,6 @@ fun QuranContent(
                     }) {
                     Text(if (state.selectedVerse?.qcfData == state.bookmarkedVerse?.qcfData) "Remove Bookmark" else "Bookmark")
                 }
-
             }
         }
         if (isPlayerDialogVisible) {
@@ -496,7 +484,8 @@ fun QuranContent(
                                 horizontalArrangement = Arrangement.Center
                             ) {
                                 Text(
-                                    text = state.surahesData[state.firstVerse?.surahNumber?.minus(1)
+                                    text = state.surahesData[surahAudioData?.surahId?.minus(1)
+                                        ?: state.firstVerse?.surahNumber?.minus(1)
                                         ?: 0].arabic,
                                     style = TextStyle(
                                         fontWeight = FontWeight.Bold,
@@ -508,7 +497,8 @@ fun QuranContent(
                         items(state.reciters) {
                             ReciterItem(
                                 reciter = it,
-                                surah = state.surahesData[state.firstVerse?.surahNumber?.minus(1)
+                                surah = state.surahesData[surahAudioData?.surahId?.minus(1)
+                                    ?: state.firstVerse?.surahNumber?.minus(1)
                                     ?: 0],
                                 queue = queue,
                                 setReciter = audioPlayer::setReciter,
