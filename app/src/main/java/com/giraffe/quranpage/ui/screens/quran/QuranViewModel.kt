@@ -34,16 +34,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.log
 
 @HiltViewModel
 class QuranViewModel @Inject constructor(
+    //private val savedStateHandle: SavedStateHandle,
     private val repository: Repository,
     private val bookmarkVerseUseCase: BookmarkVerseUseCase,
     private val getBookmarkedVerseUseCase: GetBookmarkedVerseUseCase,
 ) : ViewModel(),
     QuranEvents, DefaultLifecycleObserver {
-
+    //private val args = QuranArgs(savedStateHandle)
     private val _state = MutableStateFlow(QuranScreenState())
     val state = _state.asStateFlow()
 
@@ -394,7 +394,6 @@ class QuranViewModel @Inject constructor(
 
     override fun setRecent(url: String, recentSurahToDownload: SurahModel) {
         viewModelScope.launch(Dispatchers.IO) {
-            Log.d("QuranViewModel", "setRecentUrl($url)")
             _state.update {
                 it.copy(
                     recentUrl = url,
@@ -402,20 +401,17 @@ class QuranViewModel @Inject constructor(
                     isRecentDownloaded = false,
                 )
             }
-            Log.d("QuranViewModel", "setRecentUrl: ${_state.value.recentUrl}")
         }
     }
 
     override fun clearRecent() {
         viewModelScope.launch(Dispatchers.IO) {
-            Log.d("QuranViewModel", "clearRecent()")
             _state.update {
                 it.copy(
                     recentUrl = null,
                     recentSurahToDownload = null,
                 )
             }
-            Log.d("QuranViewModel", "clearRecent: ${_state.value.recentUrl}")
         }
     }
 
@@ -463,6 +459,7 @@ class QuranViewModel @Inject constructor(
 
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
+        //getSearchResult()
         Log.d("LifecycleOwnerVm", "onCreate")
     }
 
@@ -485,7 +482,8 @@ class QuranViewModel @Inject constructor(
         super.onStop(owner)
         viewModelScope.launch(Dispatchers.IO) {
             repository.saveLastPageIndex(_state.value.firstVerse?.pageIndex ?: 0)
-            Log.d("LifecycleOwnerVm", "repository.saveLastPageIndex(${_state.value.firstVerse?.pageIndex ?: 0})")
+            _state.update { it.copy(lastPageIndex = _state.value.firstVerse?.pageIndex ?: 0) }
+            Log.d("LifecycleOwnerVm", "onStop: repository.saveLastPageIndex(${_state.value.firstVerse?.pageIndex ?: 0})")
         }
         Log.d("LifecycleOwnerVm", "onStop: ${_state.value.firstVerse?.pageIndex ?: 0}")
     }

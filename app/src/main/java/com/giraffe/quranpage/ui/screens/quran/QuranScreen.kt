@@ -3,7 +3,6 @@ package com.giraffe.quranpage.ui.screens.quran
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -71,6 +70,7 @@ import com.giraffe.quranpage.ui.composables.AppBar
 import com.giraffe.quranpage.ui.composables.AudioPlayerDialog
 import com.giraffe.quranpage.ui.composables.Page
 import com.giraffe.quranpage.ui.composables.ReciterItem
+import com.giraffe.quranpage.ui.screens.quran.QuranArgs.Companion.SEARCH_RESULT
 import com.giraffe.quranpage.ui.theme.fontFamilies
 import com.giraffe.quranpage.utils.AudioPlayerManager
 import com.giraffe.quranpage.utils.Constants.Actions.CANCEL_DOWNLOAD
@@ -187,15 +187,31 @@ fun QuranContent(
         }
     }
 
-    LaunchedEffect(isPlayerDialogVisible) {
-        systemUiController.isStatusBarVisible = isPlayerDialogVisible
-    }
+
     LaunchedEffect(state.lastPageIndex) {
-        Log.d("QuranContent", "LaunchedEffect(state.lastPageIndex): ${state.lastPageIndex} ")
         scope.launch {
-            pagerState.scrollToPage(state.lastPageIndex - 1)
+            val searchResult =
+                navController.currentBackStackEntry?.savedStateHandle?.get<VerseModel?>(
+                    SEARCH_RESULT
+                )
+            if (searchResult == null) {
+                pagerState.scrollToPage(state.lastPageIndex - 1)
+            } else {
+                events.selectVerse(searchResult)
+                events.highlightVerse()
+                pagerState.scrollToPage(searchResult.pageIndex - 1)
+                CoroutineScope(Dispatchers.IO).launch {
+                    delay(2000L)
+                    events.selectVerse(null)
+                    events.highlightVerse()
+                }
+            }
         }
     }
+
+
+
+
     LaunchedEffect(pagerState, state.pages, state.reciters) {
         snapshotFlow { pagerState.currentPage }.collect { page ->
             val firstVerse = state.pages.getOrNull(page)?.contents?.getOrNull(
@@ -209,25 +225,16 @@ fun QuranContent(
             }
         }
     }
-    LaunchedEffect(Unit) {
-        navController.currentBackStackEntry?.savedStateHandle?.get<VerseModel?>("verse")?.let {
-            Log.d("QuranContent", "currentBackStackEntry(verse): ${it.content}")
-            events.selectVerse(it)
-            events.highlightVerse()
-            pagerState.scrollToPage(it.pageIndex - 1)
-            CoroutineScope(Dispatchers.IO).launch {
-                delay(1000L)
-                events.selectVerse(null)
-                events.highlightVerse()
-            }
-        }
-        /*searchedVerse?.let {
-            pagerState.scrollToPage(it.pageIndex)
-        }*/
+
+
+
+
+
+    LaunchedEffect(isPlayerDialogVisible) {
+        systemUiController.isStatusBarVisible = isPlayerDialogVisible
     }
     LaunchedEffect(playbackService) {
         playbackService?.let {
-            //Log.d("QuranContent", "LaunchedEffect(playbackService): $playbackService")
             if (audioPlayer.ayahs.value.isEmpty()) {
                 audioPlayer.setAyahs(state.ayahs)
             }
@@ -249,16 +256,11 @@ fun QuranContent(
         }
     }
     LaunchedEffect(isPrepared) {
-        //Log.d("QuranContent", "LaunchedEffect(isPrepared): isPrepared = ($isPrepared), isPlaying = ($isPlaying)")
         if (isPrepared && !isPlaying) {
             context.startForegroundService(playbackServiceIntent.setAction(PLAY))
         }
     }
     LaunchedEffect(surahAudioData) {
-        Log.d(
-            "QuranContent",
-            "LaunchedEffect(state.selectedAudioData): ${surahAudioData?.audioPath}"
-        )
         surahAudioData?.let { surahAudioData ->
             audioPlayer.initializePlayer(
                 context = context,
@@ -277,7 +279,6 @@ fun QuranContent(
     }
     DisposableEffect(Unit) {
         systemUiController.isStatusBarVisible = isPlayerDialogVisible
-        //Log.d("QuranContent", "DisposableEffect(Unit): Unit")
         context.bindService(
             downloadServiceIntent,
             downloadServiceConnection,
@@ -289,8 +290,6 @@ fun QuranContent(
             Context.BIND_AUTO_CREATE
         )
         onDispose {
-            //Log.d("QuranContent", "DisposableEffect(Unit): onDispose")
-
             context.unbindService(downloadServiceConnection)
             context.unbindService(playbackServiceConnection)
         }

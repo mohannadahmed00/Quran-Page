@@ -1,6 +1,5 @@
 package com.giraffe.quranpage.ui.screens.search
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.giraffe.quranpage.ui.composables.SearchBar
+import com.giraffe.quranpage.ui.screens.quran.QuranArgs.Companion.SEARCH_RESULT
 import com.giraffe.quranpage.ui.theme.fontFamilies
 
 @Composable
@@ -65,12 +65,10 @@ fun SearchContent(
             items(state.filteredVerses) {
                 Card(
                     modifier = Modifier.clickable {
-                        Log.d("SearchContent", "SearchContent(verse): ${it.content}")
                         navController.popBackStack()
                         navController.currentBackStackEntry
                             ?.savedStateHandle
-                            ?.set("verse", it)
-
+                            ?.set(SEARCH_RESULT, it)
                     },
                     colors = CardDefaults.cardColors()
                         .copy(containerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
