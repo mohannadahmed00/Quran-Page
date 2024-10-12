@@ -4,10 +4,14 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Rect
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
 import com.caverock.androidsvg.SVG
 import com.giraffe.quranpage.R
 import com.giraffe.quranpage.local.model.AyahModel
@@ -15,6 +19,18 @@ import com.giraffe.quranpage.local.model.ReciterModel
 import com.giraffe.quranpage.local.model.SurahAudioModel
 import com.giraffe.quranpage.utils.Constants.PageDimensions
 import java.io.IOException
+
+
+@Composable
+fun <viewModel : LifecycleObserver> viewModel.ObserveLifecycleEvents(lifecycle: Lifecycle) {
+    DisposableEffect(lifecycle) {
+        lifecycle.addObserver(this@ObserveLifecycleEvents)
+        onDispose {
+            lifecycle.removeObserver(this@ObserveLifecycleEvents)
+        }
+    }
+}
+
 
 fun MutableList<SurahAudioModel>.addOrUpdate(item: SurahAudioModel): MutableList<SurahAudioModel> {
     val index = indexOfFirst { it.surahId == item.surahId }

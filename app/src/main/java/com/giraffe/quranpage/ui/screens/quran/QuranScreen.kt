@@ -58,6 +58,7 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.giraffe.quranpage.local.model.ReciterModel
 import com.giraffe.quranpage.local.model.VerseModel
@@ -79,6 +80,7 @@ import com.giraffe.quranpage.utils.Constants.Keys.RECITER_NAME
 import com.giraffe.quranpage.utils.Constants.Keys.SURAH_ID
 import com.giraffe.quranpage.utils.Constants.Keys.SURAH_NAME
 import com.giraffe.quranpage.utils.Constants.Keys.URL
+import com.giraffe.quranpage.utils.ObserveLifecycleEvents
 import com.giraffe.quranpage.utils.ServiceConnection
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import ir.kaaveh.sdpcompose.sdp
@@ -94,6 +96,7 @@ fun QuranScreen(
     viewModel: QuranViewModel = hiltViewModel(),
     navController: NavController,
 ) {
+    viewModel.ObserveLifecycleEvents(LocalLifecycleOwner.current.lifecycle)
     val state by viewModel.state.collectAsState()
     QuranContent(state, viewModel, navController)
 }
@@ -185,6 +188,13 @@ fun QuranContent(
                     context.startForegroundService(intent)
                 }
             }
+        }
+    }
+
+    LaunchedEffect(state.lastPageIndex) {
+        Log.d("QuranContent", "LaunchedEffect(state.lastPageIndex): ${state.lastPageIndex} ")
+        scope.launch {
+            pagerState.scrollToPage(state.lastPageIndex - 1)
         }
     }
 

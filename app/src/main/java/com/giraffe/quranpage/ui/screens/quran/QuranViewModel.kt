@@ -8,6 +8,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.withStyle
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.giraffe.quranpage.local.model.ReciterModel
@@ -39,7 +41,8 @@ class QuranViewModel @Inject constructor(
     private val bookmarkVerseUseCase: BookmarkVerseUseCase,
     private val getBookmarkedVerseUseCase: GetBookmarkedVerseUseCase,
 ) : ViewModel(),
-    QuranEvents {
+    QuranEvents, DefaultLifecycleObserver {
+
     private val _state = MutableStateFlow(QuranScreenState())
     val state = _state.asStateFlow()
 
@@ -217,6 +220,7 @@ class QuranViewModel @Inject constructor(
                         ayahs = ayahs,
                         orgPages = pages,
                         pages = pages,
+                        lastPageIndex = repository.getLastPageIndex(),
                     )
                 }
             }
@@ -419,13 +423,6 @@ class QuranViewModel @Inject constructor(
         }
     }
 
-    private fun getLastPageIndex() {
-        viewModelScope.launch(Dispatchers.IO) {
-            Log.d("TAG", "getLastPageIndex: ${repository.getLastPageIndex()}")
-            _state.update { it.copy(lastPageIndex = repository.getLastPageIndex()) }
-        }
-    }
-
     override fun selectVerseToRead(verse: VerseModel?) {
         viewModelScope.launch(Dispatchers.IO) {
             _state.update {
@@ -452,5 +449,46 @@ class QuranViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             _state.update { it.copy(firstVerse = verse) }
         }
+    }
+
+    override fun setLastPageIndex(pageIndex: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.saveLastPageIndex(pageIndex)
+            _state.update { it.copy(lastPageIndex = pageIndex) }
+        }
+    }
+
+
+    override fun onCreate(owner: LifecycleOwner) {
+        super.onCreate(owner)
+        Log.d("LifecycleOwnerVm", "onCreate")
+    }
+
+    override fun onResume(owner: LifecycleOwner) {
+        super.onResume(owner)
+        Log.d("LifecycleOwnerVm", "onResume")
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        super.onStart(owner)
+        Log.d("LifecycleOwnerVm", "onStart")
+    }
+
+    override fun onPause(owner: LifecycleOwner) {
+        super.onPause(owner)
+        Log.d("LifecycleOwnerVm", "onPause")
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        super.onStop(owner)
+        Log.d("LifecycleOwnerVm", "onStop")
+    }
+
+    override fun onDestroy(owner: LifecycleOwner) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.saveLastPageIndex(_state.value.firstVerse?.pageIndex ?: 0)
+            Log.d("LifecycleOwnerVm", "onDestroy ${_state.value.firstVerse?.pageIndex ?: 0}")
+        }
+        super.onDestroy(owner)
     }
 }

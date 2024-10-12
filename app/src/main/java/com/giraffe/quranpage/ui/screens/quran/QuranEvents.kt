@@ -22,4 +22,5 @@ interface QuranEvents {
 
     fun bookmarkVerse(verseModel: VerseModel?)
     fun getBookmarkedVerse()
+    fun setLastPageIndex(pageIndex: Int)
 }
