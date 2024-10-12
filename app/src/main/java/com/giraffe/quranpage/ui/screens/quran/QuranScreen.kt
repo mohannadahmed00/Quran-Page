@@ -344,7 +344,6 @@ fun QuranContent(
         ) { page ->
             val pageData = remember { state.orgPages[page] }
             Page(
-                modifier = Modifier,
                 pageUI = state.pages[page],
                 pageData = pageData,
                 onVerseSelected = { verse ->

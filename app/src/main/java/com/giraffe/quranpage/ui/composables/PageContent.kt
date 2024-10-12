@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -62,13 +61,11 @@ fun PageContent(
                         }
                 }
             }
-            val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
+            var layoutResult = remember<TextLayoutResult?> { null }
             val gesture = Modifier.pointerInput(Unit) {
                 detectTapGestures(
                     onLongPress = { pos ->
-                        layoutResult.value?.let { layout ->
-                            onLongClick(layout.getOffsetForPosition(pos))
-                        }
+                        layoutResult?.let { layout -> onLongClick(layout.getOffsetForPosition(pos)) }
                     },
                     onTap = { onPageClick() }
                 )
@@ -79,7 +76,7 @@ fun PageContent(
                     .padding(horizontal = if (pageUI.pageIndex == 1 || pageUI.pageIndex == 2) 30.sdp else 0.sdp),
                 text = content.text,
                 onTextLayout = {
-                    layoutResult.value = it
+                    layoutResult = it
                 },
                 style = TextStyle(
                     fontSize = 20.ssp,

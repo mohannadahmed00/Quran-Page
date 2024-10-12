@@ -2,7 +2,6 @@ package com.giraffe.quranpage.ui.composables
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -11,14 +10,12 @@ import com.giraffe.quranpage.ui.screens.quran.PageUI
 
 @Composable
 fun Page(
-    modifier: Modifier,
     pageUI: PageUI,
     pageData: PageUI,
     onVerseSelected: (VerseModel) -> Unit,
     onPageClick: () -> Unit
 ) {
     Column(
-        modifier = modifier.statusBarsPadding(),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
