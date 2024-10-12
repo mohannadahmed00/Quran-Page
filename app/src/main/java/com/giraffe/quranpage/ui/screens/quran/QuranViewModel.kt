@@ -384,7 +384,7 @@ class QuranViewModel @Inject constructor(
         }
     }
 
-    override fun getBookmarkedVerse() {
+    private fun getBookmarkedVerse() {
         viewModelScope.launch(Dispatchers.IO) {
             _state.update {
                 it.copy(bookmarkedVerse = getBookmarkedVerseUseCase())

@@ -378,14 +378,14 @@ fun QuranContent(
                     onClick = {
                         events.selectVerseToRead(state.selectedVerse)
                         val reciterSurahAudioData =
-                            reciter?.surahesAudioData?.firstOrNull { surah -> surah.surahId == (state.firstVerse?.surahNumber) }
+                            reciter?.surahesAudioData?.firstOrNull { surah -> surah.surahId == (state.selectedVerseToRead?.surahNumber) }
                         if (reciterSurahAudioData == null) {
                             reciter?.let { selectedReciter ->
-                                state.firstVerse?.let { firstVerse ->
+                                state.selectedVerseToRead?.let { selectedVerseToRead ->
                                     downloadSurahForReciter(
-                                        firstVerse.surahNumber,
+                                        selectedVerseToRead.surahNumber,
                                         selectedReciter,
-                                        selectedReciter.folderUrl + firstVerse.surahNumber.toThreeDigits() + ".mp3",
+                                        selectedReciter.folderUrl + selectedVerseToRead.surahNumber.toThreeDigits() + ".mp3",
                                         selectedReciter.name,
                                         surah.name
                                     )
