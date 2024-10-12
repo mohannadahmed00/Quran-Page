@@ -29,6 +29,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -122,13 +124,6 @@ fun QuranContent(
     var isRecitersBottomSheetVisible by remember { mutableStateOf(false) }
     var isPlayerDialogVisible by remember { mutableStateOf(true) }
     val openDrawer = remember { { scope.launch { drawerState.open() } } }
-    val onPageClick = remember {
-        {
-            isPlayerDialogVisible = !isPlayerDialogVisible
-            systemUiController.isStatusBarVisible = isPlayerDialogVisible
-        }
-    }
-
 
     //=================================playback=================================
     val playbackServiceIntent = remember { Intent(context, PlaybackService::class.java) }
@@ -192,6 +187,9 @@ fun QuranContent(
         }
     }
 
+    LaunchedEffect(isPlayerDialogVisible) {
+        systemUiController.isStatusBarVisible = isPlayerDialogVisible
+    }
     LaunchedEffect(state.lastPageIndex) {
         Log.d("QuranContent", "LaunchedEffect(state.lastPageIndex): ${state.lastPageIndex} ")
         scope.launch {
@@ -338,12 +336,15 @@ fun QuranContent(
             modifier = Modifier.clickable(
                 interactionSource = interactionSource,
                 indication = null
-            ) { isPlayerDialogVisible = !isPlayerDialogVisible },
+            ) {
+                isPlayerDialogVisible = !isPlayerDialogVisible
+            },
             state = pagerState,
             reverseLayout = true,
         ) { page ->
             val pageData = remember { state.orgPages[page] }
             Page(
+                modifier = Modifier,
                 pageUI = state.pages[page],
                 pageData = pageData,
                 onVerseSelected = { verse ->
@@ -351,7 +352,7 @@ fun QuranContent(
                     events.highlightVerse()
                     isOptionsBottomSheetVisible = true
                 },
-                onPageClick = onPageClick
+                onPageClick = { isPlayerDialogVisible = !isPlayerDialogVisible }
             )
         }
         if (isOptionsBottomSheetVisible) {
@@ -494,6 +495,14 @@ fun QuranContent(
                                 )
                             }
                         }
+                        item {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(
+                                    horizontal = 8.dp,
+                                    vertical = 16.dp
+                                ), thickness = 1.dp
+                            )
+                        }
                         items(state.reciters) {
                             ReciterItem(
                                 reciter = it,
@@ -531,11 +540,11 @@ fun QuranContent(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
                     )
-                    Box(
-                        modifier = Modifier
-                            .padding(8.sdp)
-                            .fillMaxWidth()
-                            .height(1.sdp)
+                    HorizontalDivider(
+                        modifier = Modifier.padding(
+                            horizontal = 8.dp,
+                            vertical = 16.dp
+                        ), thickness = 1.dp
                     )
                     state.selectedVerseTafseer?.let {
                         Text(
@@ -554,7 +563,8 @@ fun QuranContent(
                             style = TextStyle(
                                 textAlign = TextAlign.Center,
                                 textDirection = TextDirection.ContentOrRtl,
-                                fontSize = 16.ssp
+                                fontSize = 16.ssp,
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()

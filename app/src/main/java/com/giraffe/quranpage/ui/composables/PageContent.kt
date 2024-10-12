@@ -70,9 +70,7 @@ fun PageContent(
                             onLongClick(layout.getOffsetForPosition(pos))
                         }
                     },
-                    onTap = {
-                        onPageClick()
-                    }
+                    onTap = { onPageClick() }
                 )
             }
             Text(

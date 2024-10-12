@@ -7,13 +7,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,9 +25,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun SearchBar(
+    onBackClick: () -> Unit,
     onValueChange: (String) -> Unit,
 ) {
     var value by remember {
@@ -46,7 +48,7 @@ fun SearchBar(
 
             OutlinedTextField(
                 modifier = Modifier.weight(1f),
-                textStyle = TextStyle(textDirection = TextDirection.Content),
+                textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content),
                 value = value,
                 colors = OutlinedTextFieldDefaults.colors().copy(
                     focusedContainerColor = MaterialTheme.colorScheme.background,
@@ -59,14 +61,25 @@ fun SearchBar(
                     onValueChange(value)
                 },
                 trailingIcon = {
-                    Icon(
+                    if (value.isNotEmpty()) Icon(
                         modifier = Modifier
-                            .size(30.dp)
+                            .size(20.dp)
                             .clickable {
                                 value = ""
                                 onValueChange(value)
                             },
-                        imageVector = Icons.Default.Clear, contentDescription = "Menu"
+                        imageVector = Icons.Default.Clear, contentDescription = "Clear"
+                    )
+                },
+                leadingIcon = {
+                    Icon(
+                        modifier = Modifier
+                            .size(25.dp)
+                            .clickable {
+                                onBackClick()
+                            },
+                        imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                        contentDescription = "ArrowBack"
                     )
                 }
             )

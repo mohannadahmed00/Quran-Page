@@ -24,7 +24,8 @@ class SearchViewModel @Inject constructor(
         getSurahesData()
         getAllVerses()
     }
-    private fun getSurahesData(){
+
+    private fun getSurahesData() {
         viewModelScope.launch(Dispatchers.IO) {
             _state.update { it.copy(surahesData = getSurahesDataUseCase()) }
         }
@@ -41,7 +42,11 @@ class SearchViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     value = value,
-                    filteredVerses = _state.value.verses.filter { verse -> verse.normalContent.contains(value) })
+                    filteredVerses = if (value.isEmpty()) emptyList() else _state.value.verses.filter { verse ->
+                        verse.normalContent.contains(
+                            value
+                        )
+                    })
             }
         }
     }
