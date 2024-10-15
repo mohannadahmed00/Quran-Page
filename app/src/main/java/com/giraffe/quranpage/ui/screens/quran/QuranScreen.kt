@@ -245,15 +245,17 @@ fun QuranContent(
         }
     }
     LaunchedEffect(surahAudioData) {
-        surahAudioData?.let { surahAudioData ->
-            audioPlayer.initializePlayer(
-                context = context,
-                surahAudioData = surahAudioData,
-                currentVerse = state.selectedVerseToRead ?: state.firstVerse,
-                surahName = state.surahesData[surahAudioData.surahId - 1].name,
-                reciterName = reciter?.name ?: "",
-            )
-            isPlayerDialogVisible = true
+        if (!isPlaying) {
+            surahAudioData?.let { surahAudioData ->
+                audioPlayer.initializePlayer(
+                    context = context,
+                    surahAudioData = surahAudioData,
+                    currentVerse = state.selectedVerseToRead ?: state.firstVerse,
+                    surahName = state.surahesData[surahAudioData.surahId - 1].name,
+                    reciterName = reciter?.name ?: "",
+                )
+                isPlayerDialogVisible = true
+            }
         }
     }
     LaunchedEffect(state.pageIndexToRead) {
