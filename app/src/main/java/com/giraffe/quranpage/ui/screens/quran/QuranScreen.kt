@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +25,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
@@ -34,6 +36,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -67,6 +70,7 @@ import com.giraffe.quranpage.service.DownloadService
 import com.giraffe.quranpage.service.PlaybackService
 import com.giraffe.quranpage.ui.composables.AppBar
 import com.giraffe.quranpage.ui.composables.AudioPlayerDialog
+import com.giraffe.quranpage.ui.composables.DrawerPartHeader
 import com.giraffe.quranpage.ui.composables.Page
 import com.giraffe.quranpage.ui.composables.ReciterItem
 import com.giraffe.quranpage.ui.theme.fontFamilies
@@ -82,6 +86,7 @@ import com.giraffe.quranpage.utils.Constants.Keys.SURAH_NAME
 import com.giraffe.quranpage.utils.Constants.Keys.URL
 import com.giraffe.quranpage.utils.ObserveLifecycleEvents
 import com.giraffe.quranpage.utils.ServiceConnection
+import com.giraffe.quranpage.utils.getJuz
 import com.giraffe.quranpage.utils.toThreeDigits
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import ir.kaaveh.sdpcompose.sdp
@@ -188,7 +193,7 @@ fun QuranContent(
 
     LaunchedEffect(state.lastPageIndex) {
         scope.launch {
-            args.searchResult?.let { searchResult->
+            args.searchResult?.let { searchResult ->
                 events.selectVerse(searchResult)
                 events.highlightVerse()
                 pagerState.scrollToPage(searchResult.pageIndex - 1)
@@ -286,7 +291,22 @@ fun QuranContent(
             ModalDrawerSheet {
                 Spacer(modifier = Modifier.height(16.dp))
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    var oldJuz  = remember { 0 }
                     state.surahesData.forEach {
+                        DrawerPartHeader(
+                            it.startPage,
+                            oldJuz,
+                            { newJuz -> oldJuz = newJuz }) { pageIndex ->
+                            scope.launch {
+                                pagerState.scrollToPage(pageIndex-1)
+                                drawerState.close()
+                            }
+                        }
+                        /*val isSelected =
+                            pagerState.currentPage >= it.startPage - 1 && pagerState.currentPage <= it.endPage - 1*/
+                        val isSelected = remember(pagerState.currentPage, it.startPage, it.endPage) {
+                            pagerState.currentPage >= it.startPage - 1 && pagerState.currentPage <= it.endPage - 1
+                        }
                         NavigationDrawerItem(
                             modifier = Modifier.padding(vertical = 3.dp),
                             label = {
@@ -295,14 +315,58 @@ fun QuranContent(
                                         contentAlignment = Alignment.Center,
                                         modifier = Modifier
                                             .size(44.dp)
+                                            .background(
+                                                //color = MaterialTheme.colorScheme.inverseOnSurface,
+                                                color = if (isSelected) MaterialTheme.colorScheme.inverseOnSurface else MaterialTheme.colorScheme.secondaryContainer.copy(
+                                                    alpha = 0.3f
+                                                ),
+                                                shape = CircleShape
+                                            )
                                     ) {
                                         Text(text = it.id.toString())
                                     }
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text(text = it.name)
+                                    Column {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                        ) {
+                                            Text(text = it.name)
+                                            Text(
+                                                text = " (${it.place})",
+                                                style = TextStyle(
+                                                    color = MaterialTheme.colorScheme.primary.copy(
+                                                        alpha = 0.4f
+                                                    )
+                                                )
+                                            )
+                                        }
+
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                        ) {
+                                            Text(
+                                                text = "Verses: ${it.aya} /",
+                                                style = TextStyle(
+                                                    color = MaterialTheme.colorScheme.primary.copy(
+                                                        alpha = 0.4f
+                                                    )
+                                                )
+                                            )
+                                            Text(
+                                                text = " Pages: ${it.startPage} - ${it.endPage}",
+                                                style = TextStyle(
+                                                    color = MaterialTheme.colorScheme.primary.copy(
+                                                        alpha = 0.4f
+                                                    )
+                                                )
+                                            )
+                                        }
+                                    }
+
                                 }
                             },
-                            selected = pagerState.currentPage >= it.startPage - 1 && pagerState.currentPage <= it.endPage - 1,
+                            selected = isSelected,
                             onClick = {
                                 scope.launch {
                                     drawerState.close()
@@ -313,7 +377,6 @@ fun QuranContent(
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-
             }
         }
     ) {

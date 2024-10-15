@@ -2,6 +2,8 @@ package com.giraffe.quranpage
 
 import androidx.compose.ui.geometry.Offset
 import com.giraffe.quranpage.remote.response.AyahResponse
+import com.giraffe.quranpage.utils.getJuz
+import com.giraffe.quranpage.utils.getPageIndexOfJuz
 import com.giraffe.quranpage.utils.isPointInsidePolygon
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -57,6 +59,23 @@ class ExampleUnitTest {
         val result = isPointInsidePolygon(pointToCheck, polygonVertices)
         assertEquals(false, result)
     }
+
+
+    @Test
+    fun `set the page index and get its right juz`() {
+        val juz = getJuz(604)
+        assertEquals(30, juz)
+    }
+
+    @Test
+    fun `set the juz index and get its right start page`() {
+        val pageIndex = getPageIndexOfJuz(1)
+        assertEquals(1, pageIndex)
+    }
+
+
+
+
 
 
 }
