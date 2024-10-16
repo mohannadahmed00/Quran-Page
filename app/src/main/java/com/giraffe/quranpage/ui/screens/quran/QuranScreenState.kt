@@ -16,6 +16,7 @@ data class QuranScreenState(
     val orgPages: List<PageUI> = listOf(),
     val pages: List<PageUI> = listOf(),
     val surahesData: List<SurahModel> = listOf(),
+    val surahesByJuz: Map<Int, List<SurahModel>> = mapOf(),
     val ayahs: List<VerseModel> = listOf(),
     val reciters: List<ReciterModel> = emptyList(),
     val selectedReciter: ReciterModel? = null,

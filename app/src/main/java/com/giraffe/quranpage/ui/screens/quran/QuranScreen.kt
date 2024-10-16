@@ -4,28 +4,21 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
@@ -35,8 +28,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -45,13 +36,13 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -73,6 +64,7 @@ import com.giraffe.quranpage.ui.composables.AudioPlayerDialog
 import com.giraffe.quranpage.ui.composables.DrawerPartHeader
 import com.giraffe.quranpage.ui.composables.Page
 import com.giraffe.quranpage.ui.composables.ReciterItem
+import com.giraffe.quranpage.ui.composables.SurahDrawerItem
 import com.giraffe.quranpage.ui.theme.fontFamilies
 import com.giraffe.quranpage.utils.AudioPlayerManager
 import com.giraffe.quranpage.utils.Constants.Actions.CANCEL_DOWNLOAD
@@ -86,7 +78,6 @@ import com.giraffe.quranpage.utils.Constants.Keys.SURAH_NAME
 import com.giraffe.quranpage.utils.Constants.Keys.URL
 import com.giraffe.quranpage.utils.ObserveLifecycleEvents
 import com.giraffe.quranpage.utils.ServiceConnection
-import com.giraffe.quranpage.utils.getJuz
 import com.giraffe.quranpage.utils.toThreeDigits
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import ir.kaaveh.sdpcompose.sdp
@@ -126,8 +117,16 @@ fun QuranContent(
     var isTafseerBottomSheetVisible by remember { mutableStateOf(false) }
     var isRecitersBottomSheetVisible by remember { mutableStateOf(false) }
     var isPlayerDialogVisible by remember { mutableStateOf(true) }
-    val openDrawer = remember { { scope.launch { drawerState.open() } } }
+    val openDrawer = remember {
+        {
+            scope.launch {
+                drawerState.open()
+                //drawerListState.scrollToItem(0)
+            }
+        }
+    }
     val args = remember { QuranArgs(navController.currentBackStackEntry?.savedStateHandle) }
+
 
     //=================================playback=================================
     val playbackServiceIntent = remember { Intent(context, PlaybackService::class.java) }
@@ -192,19 +191,17 @@ fun QuranContent(
 
 
     LaunchedEffect(state.lastPageIndex) {
-        scope.launch {
-            args.searchResult?.let { searchResult ->
-                events.selectVerse(searchResult)
+        args.searchResult?.let { searchResult ->
+            events.selectVerse(searchResult)
+            events.highlightVerse()
+            pagerState.scrollToPage(searchResult.pageIndex - 1)
+            CoroutineScope(Dispatchers.IO).launch {
+                delay(2000L)
+                events.selectVerse(null)
                 events.highlightVerse()
-                pagerState.scrollToPage(searchResult.pageIndex - 1)
-                CoroutineScope(Dispatchers.IO).launch {
-                    delay(2000L)
-                    events.selectVerse(null)
-                    events.highlightVerse()
-                }
-                args.clear()
-            } ?: pagerState.scrollToPage(state.lastPageIndex - 1)
-        }
+            }
+            args.clear()
+        } ?: pagerState.scrollToPage(state.lastPageIndex - 1)
     }
     LaunchedEffect(pagerState, state.pages, state.reciters) {
         snapshotFlow { pagerState.currentPage }.collect { page ->
@@ -212,6 +209,7 @@ fun QuranContent(
                 0
             )?.verses?.getOrNull(0)
             events.setFirstVerse(firstVerse)
+            //drawerListState.scrollToItem(getJuz(firstVerse?.pageIndex?:0))
             if (reciter == null) {
                 audioPlayer.setReciter(state.reciters.firstOrNull { reciter ->
                     reciter.surahesAudioData.firstOrNull { item -> item.surahId == firstVerse?.surahNumber } != null
@@ -289,94 +287,28 @@ fun QuranContent(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                Spacer(modifier = Modifier.height(16.dp))
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                    var oldJuz  = remember { 0 }
-                    state.surahesData.forEach {
+                    state.surahesByJuz.forEach { (juz, surahes) ->
                         DrawerPartHeader(
-                            it.startPage,
-                            oldJuz,
-                            { newJuz -> oldJuz = newJuz }) { pageIndex ->
+                            state.surahesByJuz.keys,
+                            juz
+                        ) {
                             scope.launch {
-                                pagerState.scrollToPage(pageIndex-1)
+                                pagerState.scrollToPage(it - 1)
                                 drawerState.close()
                             }
                         }
-                        /*val isSelected =
-                            pagerState.currentPage >= it.startPage - 1 && pagerState.currentPage <= it.endPage - 1*/
-                        val isSelected = remember(pagerState.currentPage, it.startPage, it.endPage) {
-                            pagerState.currentPage >= it.startPage - 1 && pagerState.currentPage <= it.endPage - 1
-                        }
-                        NavigationDrawerItem(
-                            modifier = Modifier.padding(vertical = 3.dp),
-                            label = {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Box(
-                                        contentAlignment = Alignment.Center,
-                                        modifier = Modifier
-                                            .size(44.dp)
-                                            .background(
-                                                //color = MaterialTheme.colorScheme.inverseOnSurface,
-                                                color = if (isSelected) MaterialTheme.colorScheme.inverseOnSurface else MaterialTheme.colorScheme.secondaryContainer.copy(
-                                                    alpha = 0.3f
-                                                ),
-                                                shape = CircleShape
-                                            )
-                                    ) {
-                                        Text(text = it.id.toString())
-                                    }
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Column {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                        ) {
-                                            Text(text = it.name)
-                                            Text(
-                                                text = " (${it.place})",
-                                                style = TextStyle(
-                                                    color = MaterialTheme.colorScheme.primary.copy(
-                                                        alpha = 0.4f
-                                                    )
-                                                )
-                                            )
-                                        }
-
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                        ) {
-                                            Text(
-                                                text = "Verses: ${it.aya} /",
-                                                style = TextStyle(
-                                                    color = MaterialTheme.colorScheme.primary.copy(
-                                                        alpha = 0.4f
-                                                    )
-                                                )
-                                            )
-                                            Text(
-                                                text = " Pages: ${it.startPage} - ${it.endPage}",
-                                                style = TextStyle(
-                                                    color = MaterialTheme.colorScheme.primary.copy(
-                                                        alpha = 0.4f
-                                                    )
-                                                )
-                                            )
-                                        }
-                                    }
-
-                                }
-                            },
-                            selected = isSelected,
-                            onClick = {
+                        surahes.forEach {
+                            val isSelected by remember { derivedStateOf { pagerState.currentPage >= it.startPage - 1 && pagerState.currentPage <= it.endPage - 1 } }
+                            SurahDrawerItem(it, isSelected) {
                                 scope.launch {
+                                    pagerState.scrollToPage(it - 1)
                                     drawerState.close()
-                                    pagerState.scrollToPage(it.startPage - 1)
                                 }
-                            },
-                        )
+                            }
+                        }
                     }
                 }
-                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     ) {
@@ -472,7 +404,6 @@ fun QuranContent(
                     onMenuClick = openDrawer,
                     onSearchClick = { navController.navigateToSearch() },
                     onBookmarkClick = {
-
                         state.bookmarkedVerse?.let {
                             scope.launch {
                                 events.selectVerse(it)
@@ -487,8 +418,6 @@ fun QuranContent(
                                 }
                             }
                         }
-
-
                     }
                 )
                 AudioPlayerDialog(

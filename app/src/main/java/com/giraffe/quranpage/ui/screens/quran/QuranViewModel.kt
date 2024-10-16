@@ -65,7 +65,13 @@ class QuranViewModel @Inject constructor(
 
     private fun getSurahesData() {
         viewModelScope.launch(Dispatchers.IO) {
-            _state.update { it.copy(surahesData = repository.getSurahesData()) }
+            repository.getSurahesData().let { surahesData->
+                _state.update { it.copy(
+                    surahesData = surahesData,
+                    surahesByJuz = surahesData.groupBy { getJuz(it.startPage) }
+                ) }
+            }
+
         }
     }
 
