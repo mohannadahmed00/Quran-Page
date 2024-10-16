@@ -11,18 +11,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.rounded.Pause
+import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.SkipNext
+import androidx.compose.material.icons.rounded.SkipPrevious
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import com.giraffe.quranpage.R
 import com.giraffe.quranpage.local.model.ReciterModel
 import com.giraffe.quranpage.local.model.SurahAudioModel
 import com.giraffe.quranpage.local.model.SurahModel
@@ -56,14 +61,43 @@ fun AudioPlayerDialog(
     seekTo: (verseIndex: Int) -> Unit,
     downloadSurahForReciter: (Int, ReciterModel, String, String, String) -> Unit,
 ) {
-    val reciterSurahAudioData =
-        selectedReciter?.surahesAudioData?.firstOrNull { surah -> surah.surahId == (firstVerse?.surahNumber) }
-    val isPlayerAudioDataExist = playerSurahAudioData != null
-    val isRecentUrlExist = recentUrl != null
-    val surah = surahesData.getOrNull(
-        playerSurahAudioData?.surahId?.minus(1) ?: firstVerse?.surahNumber?.minus(1)
-        ?: 0
-    )
+    val reciterSurahAudioData by remember(
+        selectedReciter,
+        firstVerse
+    ) { derivedStateOf { selectedReciter?.surahesAudioData?.firstOrNull { surah -> surah.surahId == (firstVerse?.surahNumber) } } }
+    val isPlayerAudioDataExist by remember(playerSurahAudioData) { derivedStateOf { playerSurahAudioData != null } }
+    val isRecentUrlExist by remember(recentUrl) { derivedStateOf { recentUrl != null } }
+    val surah by remember(surahesData, playerSurahAudioData, firstVerse) {
+        derivedStateOf {
+            surahesData.getOrNull(
+                playerSurahAudioData?.surahId?.minus(1) ?: firstVerse?.surahNumber?.minus(1)
+                ?: 0
+            )
+        }
+    }
+
+    val reciterNameModifier = remember { Modifier.clickable { showRecitersBottomSheet() } }
+    val playButtonModifier = remember(reciterSurahAudioData, firstVerse, selectedReciter, surah) {
+        Modifier
+            .clickable {
+                if (reciterSurahAudioData == null) {
+                    selectedReciter?.let { selectedReciter ->
+                        firstVerse?.let { firstVerse ->
+                            downloadSurahForReciter(
+                                firstVerse.surahNumber,
+                                selectedReciter,
+                                selectedReciter.folderUrl + firstVerse.surahNumber.toThreeDigits() + ".mp3",
+                                selectedReciter.name,
+                                surah?.name ?: ""
+                            )
+                        }
+                    }
+                } else {
+                    setReciter(selectedReciter)
+                    setSurahAudioData(reciterSurahAudioData)
+                }
+            }
+    }
     Card(
         modifier = Modifier.padding(vertical = 26.sdp, horizontal = 8.sdp),
     ) {
@@ -81,7 +115,7 @@ fun AudioPlayerDialog(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        modifier = Modifier.clickable { showRecitersBottomSheet() },
+                        modifier = reciterNameModifier,
                         text = selectedReciter?.name ?: "Loading...",
                         style = TextStyle(
                             textAlign = TextAlign.Center,
@@ -90,27 +124,8 @@ fun AudioPlayerDialog(
                     )
                     if (!isPlayerAudioDataExist && !isRecentUrlExist) {
                         Image(
-                            modifier = Modifier
-                                .size(35.sdp)
-                                .clickable {
-                                    if (reciterSurahAudioData == null) {
-                                        selectedReciter?.let { selectedReciter ->
-                                            firstVerse?.let { firstVerse ->
-                                                downloadSurahForReciter(
-                                                    firstVerse.surahNumber,
-                                                    selectedReciter,
-                                                    selectedReciter.folderUrl + firstVerse.surahNumber.toThreeDigits() + ".mp3",
-                                                    selectedReciter.name,
-                                                    surah?.name ?: ""
-                                                )
-                                            }
-                                        }
-                                    } else {
-                                        setReciter(selectedReciter)
-                                        setSurahAudioData(reciterSurahAudioData)
-                                    }
-                                },
-                            painter = painterResource(id = R.drawable.ic_play),
+                            modifier = playButtonModifier.size(35.sdp),
+                            imageVector = Icons.Rounded.PlayArrow,
                             contentDescription = "play",
                             colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.secondary)
 
@@ -155,7 +170,7 @@ fun AudioPlayerDialog(
                         modifier = Modifier
                             .size(35.sdp)
                             .clickable { seekTo(selectedVerseToRead?.verseNumber?.minus(1) ?: 0) },
-                        painter = painterResource(id = R.drawable.ic_previous),
+                        imageVector = Icons.Rounded.SkipPrevious,
                         contentDescription = "previous",
                         colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.secondary)
 
@@ -164,7 +179,7 @@ fun AudioPlayerDialog(
                         modifier = Modifier
                             .size(35.sdp)
                             .clickable { play() },
-                        painter = painterResource(id = R.drawable.ic_play),
+                        imageVector = Icons.Rounded.PlayArrow,
                         contentDescription = "play",
                         colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.secondary)
 
@@ -172,7 +187,7 @@ fun AudioPlayerDialog(
                         modifier = Modifier
                             .size(35.sdp)
                             .clickable { pause() },
-                        painter = painterResource(id = R.drawable.ic_pause),
+                        imageVector = Icons.Rounded.Pause,
                         contentDescription = "pause",
                         colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.secondary)
 
@@ -181,7 +196,7 @@ fun AudioPlayerDialog(
                         modifier = Modifier
                             .size(35.sdp)
                             .clickable { seekTo(selectedVerseToRead?.verseNumber?.plus(1) ?: 1) },
-                        painter = painterResource(id = R.drawable.ic_next),
+                        imageVector = Icons.Rounded.SkipNext,
                         contentDescription = "next",
                         colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.secondary)
                     )

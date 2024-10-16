@@ -97,6 +97,7 @@ dependencies {
     implementation (libs.accompanist.systemuicontroller)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.navigation.compose)
+    implementation(libs.material.icons.extended)
 
 
 }

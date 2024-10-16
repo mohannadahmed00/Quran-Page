@@ -126,6 +126,11 @@ fun QuranContent(
         }
     }
     val args = remember { QuranArgs(navController.currentBackStackEntry?.savedStateHandle) }
+    val selectedSurah by remember(state.surahesData, state.selectedVerse) {
+        derivedStateOf {
+            state.surahesData[(state.selectedVerse?.surahNumber?.minus(1)) ?: 0]
+        }
+    }
 
 
     //=================================playback=================================
@@ -344,11 +349,11 @@ fun QuranContent(
                     isOptionsBottomSheetVisible = false
                 }
             ) {
-                val surah = state.surahesData[(state.selectedVerse?.surahNumber?.minus(1)) ?: 0]
+
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        events.getTafseer(surah.id, state.selectedVerse?.verseNumber ?: 1)
+                        events.getTafseer(selectedSurah.id, state.selectedVerse?.verseNumber ?: 1)
                         isTafseerBottomSheetVisible = true
                     }) {
                     Text("Tafseer")
@@ -358,16 +363,16 @@ fun QuranContent(
                     onClick = {
                         events.selectVerseToRead(state.selectedVerse)
                         val reciterSurahAudioData =
-                            reciter?.surahesAudioData?.firstOrNull { surah -> surah.surahId == (state.selectedVerseToRead?.surahNumber) }
+                            reciter?.surahesAudioData?.firstOrNull { surah -> surah.surahId == (state.selectedVerse?.surahNumber) }
                         if (reciterSurahAudioData == null) {
                             reciter?.let { selectedReciter ->
-                                state.selectedVerseToRead?.let { selectedVerseToRead ->
+                                state.selectedVerse?.let { selectedVerseToRead ->
                                     downloadSurahForReciter(
                                         selectedVerseToRead.surahNumber,
                                         selectedReciter,
                                         selectedReciter.folderUrl + selectedVerseToRead.surahNumber.toThreeDigits() + ".mp3",
                                         selectedReciter.name,
-                                        surah.name
+                                        selectedSurah.name
                                     )
                                 }
                             }
