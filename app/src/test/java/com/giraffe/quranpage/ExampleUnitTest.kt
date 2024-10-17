@@ -1,10 +1,10 @@
 package com.giraffe.quranpage
 
 import androidx.compose.ui.geometry.Offset
-import com.giraffe.quranpage.remote.response.AyahResponse
-import com.giraffe.quranpage.utils.getJuz
-import com.giraffe.quranpage.utils.getPageIndexOfJuz
-import com.giraffe.quranpage.utils.isPointInsidePolygon
+import com.giraffe.quranpage.data.datasource.remote.responses.VerseTimingResponse
+import com.giraffe.quranpage.common.utils.getJuz
+import com.giraffe.quranpage.common.utils.getPageIndexOfJuz
+import com.giraffe.quranpage.common.utils.isPointInsidePolygon
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -15,7 +15,7 @@ import org.junit.Test
  */
 class ExampleUnitTest {
 
-    private val dummyAyahResponse = AyahResponse(
+    private val dummyVerseTimingResponse = VerseTimingResponse(
         ayahIndex = 1,
         endTime = 1000,
         pageUrl = "https://www.mp3quran.net/api/quran_pages_svg/075.svg",
@@ -44,7 +44,7 @@ class ExampleUnitTest {
 
     @Test
     fun `get page index from url`() {
-        assertEquals(75, dummyAyahResponse.getPageIndexFromUrl())
+        assertEquals(75, dummyVerseTimingResponse.getPageIndexFromUrl())
     }
 
     @Test

@@ -8,14 +8,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Scaffold
-import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.metrics.performance.JankStats
-import androidx.navigation.compose.rememberNavController
-import com.giraffe.quranpage.ui.screens.quran.QuranScreen
-import com.giraffe.quranpage.ui.theme.QuranPageTheme
+import com.giraffe.quranpage.presentation.ui.theme.QuranPageTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -25,7 +20,6 @@ class MainActivity : ComponentActivity() {
         if (frameData.isJank) {
             Log.v("JankStatsSample", frameData.toString())
         }
-
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
