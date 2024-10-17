@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.giraffe.quranpage.local.model.SurahModel
 import com.giraffe.quranpage.local.model.VerseModel
 import com.giraffe.quranpage.ui.screens.quran.PageUI
 
@@ -12,6 +13,7 @@ import com.giraffe.quranpage.ui.screens.quran.PageUI
 fun Page(
     pageUI: PageUI,
     pageData: PageUI,
+    surahesData: List<SurahModel>,
     onVerseSelected: (VerseModel) -> Unit,
     onPageClick: () -> Unit
 ) {
@@ -26,6 +28,7 @@ fun Page(
         PageContent(
             modifier = Modifier.weight(1f),
             pageUI = pageUI,
+            surahesData = surahesData,
             onVerseSelected = onVerseSelected,
             onPageClick = onPageClick
         )

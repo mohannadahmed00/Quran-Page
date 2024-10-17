@@ -326,11 +326,13 @@ fun QuranContent(
             },
             state = pagerState,
             reverseLayout = true,
+            beyondViewportPageCount = 1
         ) { page ->
             val pageData = remember { state.orgPages[page] }
             Page(
                 pageUI = state.pages[page],
                 pageData = pageData,
+                surahesData = state.surahesData,
                 onVerseSelected = { verse ->
                     events.selectVerse(verse)
                     events.highlightVerse()

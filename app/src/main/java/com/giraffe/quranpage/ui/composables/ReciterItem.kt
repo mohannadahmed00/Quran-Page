@@ -1,6 +1,5 @@
 package com.giraffe.quranpage.ui.composables
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -13,21 +12,21 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.DownloadForOffline
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import com.giraffe.quranpage.R
 import com.giraffe.quranpage.local.model.ReciterModel
 import com.giraffe.quranpage.local.model.SurahAudioModel
 import com.giraffe.quranpage.local.model.SurahModel
@@ -46,25 +45,33 @@ fun ReciterItem(
     downloadSurahForReciter: (Int, ReciterModel, String, String, String) -> Unit,
     cancelDownloadAudio: (String) -> Unit,
     clearRecent: () -> Unit,
+    completedColor: Color = MaterialTheme.colorScheme.secondary
 ) {
-    val surahAudioData =
-        reciter.surahesAudioData.firstOrNull { surahData -> surahData.surahId == surah.id }
-    val isDownloaded = surahAudioData != null
-    val url = reciter.folderUrl + surah.id.toThreeDigits() + ".mp3"
+    val surahAudioData by remember { derivedStateOf { reciter.surahesAudioData.firstOrNull { surahData -> surahData.surahId == surah.id } } }
+    val isDownloaded by remember { derivedStateOf { surahAudioData != null } }
+    val url by remember { derivedStateOf { reciter.folderUrl + surah.id.toThreeDigits() + ".mp3" } }
     val progress = queue[url]?.progress?.collectAsState()
-    val imgRes = remember { mutableIntStateOf(R.drawable.ic_download) }
-    val color = MaterialTheme.colorScheme.secondary.copy(
-        alpha = 0.4f
-    )
-    val rememberedColor = remember { mutableStateOf(color) }
-    if (progress?.value == 100 || isDownloaded) {
-        imgRes.intValue = R.drawable.ic_check
-        rememberedColor.value = MaterialTheme.colorScheme.secondary
+    val imgVector by remember {
+        derivedStateOf {
+            if (progress?.value == 100 || isDownloaded) {
+                Icons.Rounded.CheckCircle
+            } else {
+                Icons.Rounded.DownloadForOffline
+            }
+        }
     }
-    Row(
-        modifier = Modifier
+    val imgColor by remember {
+        derivedStateOf {
+            if (progress?.value == 100 || isDownloaded) {
+                completedColor
+            } else {
+                completedColor.copy(alpha = 0.4f)
+            }
+        }
+    }
+    val itemModifier = remember {
+        Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.sdp)
             .clickable {
                 if (isDownloaded) {
                     setReciter(reciter)
@@ -72,20 +79,29 @@ fun ReciterItem(
                 } else {
                     downloadSurahForReciter(surah.id, reciter, url, reciter.name, surah.name)
                 }
-            },
+            }
+    }
+    val cancelImgModifier = remember {
+        Modifier
+            .clickable {
+                cancelDownloadAudio(url)
+                clearRecent()
+            }
+    }
+    Row(
+        modifier = itemModifier.padding(horizontal = 16.sdp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
                 .size(25.sdp), contentAlignment = Alignment.Center
         ) {
-            Log.d("ReciterItem", "ReciterItem(id = ${reciter.name}): ${progress?.value}")
             if (progress?.value == 0 || progress?.value == 100 || progress == null) {
                 Image(
                     modifier = Modifier.fillMaxSize(),
-                    painter = painterResource(id = imgRes.intValue),
+                    imageVector = imgVector,
                     contentDescription = "download",
-                    colorFilter = ColorFilter.tint(color = rememberedColor.value)
+                    colorFilter = ColorFilter.tint(color = imgColor)
                 )
             } else {
                 CircularProgressIndicator(
@@ -93,15 +109,10 @@ fun ReciterItem(
                     trackColor = Color.Gray,
                 )
                 Image(
-                    modifier = Modifier
-                        .clickable {
-                            Log.d("messi", "cancel $url")
-                            cancelDownloadAudio(url)
-                            clearRecent()
-                        },
+                    modifier = cancelImgModifier,
                     imageVector = Icons.Default.Clear,
                     contentDescription = "cancel",
-                    colorFilter = ColorFilter.tint(color = rememberedColor.value)
+                    colorFilter = ColorFilter.tint(color = imgColor)
                 )
             }
         }
