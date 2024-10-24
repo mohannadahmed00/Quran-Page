@@ -22,14 +22,6 @@ fun VerseTimingResponse.toModel() =
         endTime = endTime
     )
 
-fun ReciterResponse.toModel() = ReciterModel(
-    id,
-    name,
-    folderUrl,
-    rewaya
-)
-
-
 fun VerseModel.toEntity() = VerseEntity(
     content = content,
     normalContent = normalContent,
@@ -58,6 +50,13 @@ fun ReciterModel.toEntity() = ReciterEntity(
     folderUrl = folderUrl,
     rewaya = rewaya,
     surahesAudioData = surahesAudioData.map { it.toEntity() }
+)
+
+fun ReciterResponse.toModel() = ReciterModel(
+    id = id,
+    name = name,
+    folderUrl = folderUrl,
+    rewaya = rewaya,
 )
 
 fun SurahAudioDataModel.toEntity() = SurahAudioDataEntity(

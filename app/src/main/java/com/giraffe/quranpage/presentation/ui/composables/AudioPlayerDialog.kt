@@ -48,7 +48,7 @@ fun AudioPlayerDialog(
     isRecentDownloaded: Boolean,
     recentUrl: String?,
     recentSurahToDownload: SurahDataEntity?,
-    highlightVerse: () -> Unit,
+    unhighlightVerse: () -> Unit,
     selectVerseToRead: (VerseEntity?) -> Unit,
     cancelDownload: (String) -> Unit,
     clearRecent: () -> Unit,
@@ -138,7 +138,7 @@ fun AudioPlayerDialog(
                             if (isPlayerAudioDataExist) {
                                 setSurahAudioData(null)
                                 selectVerseToRead(null)
-                                highlightVerse()
+                                unhighlightVerse()
                                 release()
                             } else {
                                 cancelDownload(recentUrl ?: "")

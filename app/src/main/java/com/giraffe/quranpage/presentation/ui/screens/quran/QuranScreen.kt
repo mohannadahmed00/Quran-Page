@@ -57,6 +57,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.giraffe.quranpage.common.service.DownloadService
 import com.giraffe.quranpage.common.service.PlaybackService
+import com.giraffe.quranpage.common.service.ServiceConnection
 import com.giraffe.quranpage.common.utils.AudioPlayerManager
 import com.giraffe.quranpage.common.utils.Constants.Actions.CANCEL_DOWNLOAD
 import com.giraffe.quranpage.common.utils.Constants.Actions.PLAY
@@ -68,7 +69,7 @@ import com.giraffe.quranpage.common.utils.Constants.Keys.SURAH_ID
 import com.giraffe.quranpage.common.utils.Constants.Keys.SURAH_NAME
 import com.giraffe.quranpage.common.utils.Constants.Keys.URL
 import com.giraffe.quranpage.common.utils.ObserveLifecycleEvents
-import com.giraffe.quranpage.common.service.ServiceConnection
+import com.giraffe.quranpage.common.utils.toString
 import com.giraffe.quranpage.common.utils.toThreeDigits
 import com.giraffe.quranpage.domain.entities.ReciterEntity
 import com.giraffe.quranpage.navigateToSearch
@@ -195,13 +196,11 @@ fun QuranContent(
 
     LaunchedEffect(state.lastPageIndex) {
         args.searchResult?.let { searchResult ->
-            events.selectVerse(searchResult)
-            events.highlightVerse()
+            events.onAction(QuranScreenActions.HighlightVerse(verse = searchResult))
             pagerState.scrollToPage(searchResult.pageIndex - 1)
             CoroutineScope(Dispatchers.IO).launch {
                 delay(1000L)
-                events.selectVerse(null)
-                events.highlightVerse()
+                events.onAction(QuranScreenActions.UnhighlightVerse())
             }
             args.clear()
         } ?: pagerState.scrollToPage(state.lastPageIndex - 1)
@@ -222,12 +221,16 @@ fun QuranContent(
     }
     LaunchedEffect(playbackService) {
         playbackService?.let {
-            if (audioPlayer.allVerses.value.isEmpty()) {
-                audioPlayer.setAllVerses(state.allVerses)
-            }
             it.setTracker { trackedVerse ->
-                events.selectVerseToRead(trackedVerse)
-                events.highlightVerse()
+                trackedVerse?.let { verse ->
+                    events.onAction(
+                        QuranScreenActions.HighlightVerse(
+                            verse = verse,
+                            isToRead = true
+                        )
+                    )
+                }
+
             }
         }
 
@@ -326,8 +329,7 @@ fun QuranContent(
                 pageUI = state.allPages[page],
                 surahesData = state.surahesData,
                 onVerseSelected = { verse ->
-                    events.selectVerse(verse)
-                    events.highlightVerse()
+                    events.onAction(QuranScreenActions.HighlightVerse(verse))
                     isOptionsBottomSheetVisible = true
                 },
                 onPageClick = { isPlayerDialogVisible = !isPlayerDialogVisible }
@@ -338,8 +340,7 @@ fun QuranContent(
                 modifier = Modifier.fillMaxHeight(),
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false),
                 onDismissRequest = {
-                    events.selectVerse(null)
-                    events.highlightVerse()
+                    events.onAction(QuranScreenActions.UnhighlightVerse())
                     isOptionsBottomSheetVisible = false
                 }
             ) {
@@ -403,17 +404,16 @@ fun QuranContent(
                     onMenuClick = openDrawer,
                     onSearchClick = { navController.navigateToSearch() },
                     onBookmarkClick = {
-                        state.bookmarkedVerse?.let {
+                        state.bookmarkedVerse?.let { verse ->
                             scope.launch {
-                                events.selectVerse(it)
-                                events.highlightVerse()
+
                                 pagerState.scrollToPage(
-                                    it.pageIndex - 1
+                                    verse.pageIndex - 1
                                 )
+                                events.onAction(QuranScreenActions.HighlightVerse(verse = verse))
                                 CoroutineScope(Dispatchers.IO).launch {
                                     delay(1000L)
-                                    events.selectVerse(null)
-                                    events.highlightVerse()
+                                    events.onAction(QuranScreenActions.UnhighlightVerse())
                                 }
                             }
                         }
@@ -428,7 +428,13 @@ fun QuranContent(
                     playerSurahAudioData = surahAudioData,
                     isPlaying = isPlaying,
                     isRecentDownloaded = state.isRecentDownloaded,
-                    highlightVerse = events::highlightVerse,
+                    unhighlightVerse = {
+                        events.onAction(
+                            QuranScreenActions.UnhighlightVerse(
+                                isToRead = true
+                            )
+                        )
+                    },
                     selectVerseToRead = events::selectVerseToRead,
                     firstVerse = state.firstVerse,
                     setSurahAudioData = audioPlayer::setSurahAudioData,
@@ -522,7 +528,19 @@ fun QuranContent(
                             vertical = 16.dp
                         ), thickness = 1.dp
                     )
-                    state.selectedVerseTafseer?.let {
+                    state.selectedVerseTafseerError?.let {
+                        Text(
+                            it.toString(context),
+                            style = TextStyle(
+                                textAlign = TextAlign.Center,
+                                textDirection = TextDirection.ContentOrRtl,
+                                fontSize = 16.ssp
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                        )
+                    } ?: state.selectedVerseTafseer?.let {
                         Text(
                             it.text,
                             style = TextStyle(

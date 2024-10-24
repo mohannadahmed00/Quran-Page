@@ -9,9 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
@@ -24,14 +22,14 @@ import androidx.compose.ui.text.style.TextDirection
 import com.giraffe.quranpage.R
 import com.giraffe.quranpage.domain.entities.SurahDataEntity
 import com.giraffe.quranpage.domain.entities.VerseEntity
-import com.giraffe.quranpage.presentation.ui.screens.quran.PageUI
+import com.giraffe.quranpage.presentation.ui.screens.quran.PageUi
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 
 @Composable
 fun PageContent(
     modifier: Modifier = Modifier,
-    pageUI: PageUI,
+    pageUI: PageUi,
     surahesData: List<SurahDataEntity>,
     onVerseSelected: (VerseEntity) -> Unit,
     onPageClick: () -> Unit
@@ -51,7 +49,7 @@ fun PageContent(
             }
             val isFirstVerseOfSurahExist by remember { derivedStateOf { content.verses[0].verseIndex == 1 } }
             val surahOfContentIndex by remember { derivedStateOf { content.verses[0].surahIndex } }
-            var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
+            var layoutResult = remember<TextLayoutResult?> { null }
             val contentModifier = remember {
                 Modifier.pointerInput(Unit) {
                     detectTapGestures(

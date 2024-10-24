@@ -1,12 +1,32 @@
 package com.giraffe.quranpage.common.utils
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
+import com.giraffe.quranpage.R
+import com.giraffe.quranpage.common.utils.domain.NetworkError
 import com.giraffe.quranpage.data.datasource.local.models.SurahAudioDataModel
 import com.giraffe.quranpage.domain.entities.ReciterEntity
 import java.io.IOException
+
+fun NetworkError.toString(context: Context): String {
+    val stringResId = when (this) {
+        NetworkError.REQUEST_TIMEOUT -> R.string.REQUEST_TIMEOUT
+        NetworkError.TOO_MANY_REQUESTS -> R.string.TOO_MANY_REQUESTS
+        NetworkError.NO_INTERNET -> R.string.NO_INTERNET
+        NetworkError.SERVER_ERROR -> R.string.UNKNOWN
+        NetworkError.SERIALIZATION -> R.string.SERIALIZATION
+        NetworkError.UNKNOWN -> R.string.UNKNOWN
+    }
+    return context.getString(stringResId)
+}
+
+fun NetworkError.showToast(context: Context) {
+    Toast.makeText(context, this.toString(context), Toast.LENGTH_SHORT).show()
+}
 
 
 @Composable

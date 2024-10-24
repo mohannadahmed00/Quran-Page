@@ -7,11 +7,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.giraffe.quranpage.domain.entities.SurahDataEntity
 import com.giraffe.quranpage.domain.entities.VerseEntity
-import com.giraffe.quranpage.presentation.ui.screens.quran.PageUI
+import com.giraffe.quranpage.presentation.ui.screens.quran.PageUi
 
 @Composable
 fun Page(
-    pageUI: PageUI,
+    pageUI: PageUi,
     surahesData: List<SurahDataEntity>,
     onVerseSelected: (VerseEntity) -> Unit,
     onPageClick: () -> Unit
@@ -21,7 +21,7 @@ fun Page(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         PageHeader(
-            surahName = pageUI.surahName,
+            surahName = pageUI.namesOfSurahes,
             juz = pageUI.juz
         )
         PageContent(

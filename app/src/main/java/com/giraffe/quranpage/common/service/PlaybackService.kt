@@ -23,14 +23,20 @@ import com.giraffe.quranpage.common.utils.Constants.Actions.PREVIOUS
 import com.giraffe.quranpage.common.utils.Constants.Actions.RELEASE
 import com.giraffe.quranpage.common.utils.Constants.Actions.STOP
 import com.giraffe.quranpage.domain.entities.VerseEntity
+import com.giraffe.quranpage.domain.usecases.GetAllVersesUseCase
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class PlaybackService : Service() {
 
+    @Inject
+    lateinit var getAllVersesUseCase: GetAllVersesUseCase
     private val notificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
     private val binder: LocalBinder by lazy { LocalBinder() }
     private lateinit var mediaSession: MediaSession
@@ -42,6 +48,7 @@ class PlaybackService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        _audioPlayer.value.setAllVerses(getAllVersesUseCase())
         initNotificationChannel()
         initMediaSession()
         CoroutineScope(Dispatchers.IO).launch {

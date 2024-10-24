@@ -1,6 +1,8 @@
 package com.giraffe.quranpage.domain.repository
 
 import com.giraffe.quranpage.common.service.DownloadService
+import com.giraffe.quranpage.common.utils.domain.NetworkError
+import com.giraffe.quranpage.common.utils.domain.Resource
 import com.giraffe.quranpage.domain.entities.ReciterEntity
 import com.giraffe.quranpage.domain.entities.SurahDataEntity
 import com.giraffe.quranpage.domain.entities.TafseerEntity
@@ -17,7 +19,7 @@ interface Repository {
     suspend fun getTafseer(
         surahIndex: Int,
         verseIndex: Int
-    ): TafseerEntity?
+    ): Resource<TafseerEntity, NetworkError>
 
     suspend fun getReciters(): List<ReciterEntity>
     suspend fun saveAudioData(

@@ -6,13 +6,15 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.giraffe.quranpage.common.utils.addOrUpdate
+import com.giraffe.quranpage.common.utils.domain.onError
+import com.giraffe.quranpage.common.utils.domain.onSuccess
 import com.giraffe.quranpage.common.utils.getJuzOfPageIndex
+import com.giraffe.quranpage.common.utils.presentation.highlightVerse
 import com.giraffe.quranpage.domain.entities.ReciterEntity
 import com.giraffe.quranpage.domain.entities.SurahDataEntity
 import com.giraffe.quranpage.domain.entities.VerseEntity
 import com.giraffe.quranpage.domain.usecases.BookmarkVerseUseCase
 import com.giraffe.quranpage.domain.usecases.GetAllPagesUseCase
-import com.giraffe.quranpage.domain.usecases.GetAllVersesUseCase
 import com.giraffe.quranpage.domain.usecases.GetBookmarkedVerseUseCase
 import com.giraffe.quranpage.domain.usecases.GetLastPageUseCase
 import com.giraffe.quranpage.domain.usecases.GetRecitersUseCase
@@ -32,7 +34,6 @@ import javax.inject.Inject
 class QuranViewModel @Inject constructor(
     private val getRecitersUseCase: GetRecitersUseCase,
     private val getSurahesDataUseCase: GetSurahesDataUseCase,
-    private val getAllVersesUseCase: GetAllVersesUseCase,
     private val getAllPagesUseCase: GetAllPagesUseCase,
     private val bookmarkVerseUseCase: BookmarkVerseUseCase,
     private val getBookmarkedVerseUseCase: GetBookmarkedVerseUseCase,
@@ -47,9 +48,42 @@ class QuranViewModel @Inject constructor(
 
     init {
         getReciters()
-        getSurahesData()
         getAllVerses()
         getBookmarkedVerse()
+    }
+
+    override fun onAction(action: QuranScreenActions) {
+        when (action) {
+            is QuranScreenActions.HighlightVerse -> {
+                if (action.isToRead) {
+                    _state.update { it.copy(selectedVerseToRead = action.verse) }
+                } else {
+                    _state.update { it.copy(selectedVerse = action.verse) }
+                }
+                highlightVerse(
+                    originalPages = _state.value.allOriginalPages,
+                    selectedVerse = _state.value.selectedVerse,
+                    selectedVerseToRead = _state.value.selectedVerseToRead,
+                ).let { pages ->
+                    _state.update { it.copy(allPages = pages) }
+                }
+            }
+
+            is QuranScreenActions.UnhighlightVerse -> {
+                if (action.isToRead) {
+                    _state.update { it.copy(selectedVerseToRead = null) }
+                } else {
+                    _state.update { it.copy(selectedVerse = null) }
+                }
+                highlightVerse(
+                    originalPages = _state.value.allOriginalPages,
+                    selectedVerse = _state.value.selectedVerse,
+                    selectedVerseToRead = _state.value.selectedVerseToRead,
+                ).let { pages ->
+                    _state.update { it.copy(allPages = pages) }
+                }
+            }
+        }
     }
 
     private fun getReciters() {
@@ -62,51 +96,33 @@ class QuranViewModel @Inject constructor(
                     )
                 }
             }
-
-        }
-    }
-
-    private fun getSurahesData() {
-        viewModelScope.launch(Dispatchers.IO) {
-            getSurahesDataUseCase().let { surahesData ->
-                _state.update {
-                    it.copy(
-                        surahesData = surahesData,
-                        surahesByJuz = surahesData.groupBy { surah -> getJuzOfPageIndex(surah.startPageIndex) }
-                    )
-                }
-            }
         }
     }
 
     private fun getAllVerses() {
         viewModelScope.launch(Dispatchers.IO) {
-            getAllVersesUseCase().let { verses ->
-                getAllPagesUseCase(verses, _state.value.surahesData).let { pages ->
+            getSurahesDataUseCase().let { surahesData ->
+                getAllPagesUseCase(surahesData).let { pages ->
                     getLastPageUseCase().let { lastPageIndex ->
                         _state.update { state ->
-                            state.copy(
-                                allVerses = verses,
-                                allOriginalPages = pages,
-                                allPages = pages,
-                                lastPageIndex = lastPageIndex,
-                            )
+                            pages.map { it.toUi() }.let { pagesUi ->
+                                state.copy(
+                                    allOriginalPages = pagesUi,
+                                    allPages = pagesUi,
+                                    lastPageIndex = lastPageIndex,
+                                    surahesData = surahesData,
+                                    surahesByJuz = surahesData.groupBy { surah ->
+                                        getJuzOfPageIndex(
+                                            surah.startPageIndex
+                                        )
+                                    }
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
-    }
 
-    override fun highlightVerse() {
-        viewModelScope.launch(Dispatchers.IO) {
-            getAllPagesUseCase.highlightVerse(
-                originalPages = _state.value.allOriginalPages,
-                selectedVerse = _state.value.selectedVerse,
-                selectedVerseToRead = _state.value.selectedVerseToRead,
-            ).let { pages ->
-                _state.update { it.copy(allPages = pages) }
-            }
         }
     }
 
@@ -143,11 +159,16 @@ class QuranViewModel @Inject constructor(
             getTafseerUseCase(
                 surahIndex,
                 verseIndex
-            ).let { tafseer ->
-                _state.update {
-                    it.copy(
-                        selectedVerseTafseer = tafseer
-                    )
+            ).let { result ->
+                result.onSuccess { tafseer ->
+                    _state.update {
+                        it.copy(
+                            selectedVerseTafseer = tafseer,
+                            selectedVerseTafseerError = null
+                        )
+                    }
+                }.onError { error ->
+                    _state.update { it.copy(selectedVerseTafseerError = error) }
                 }
             }
 

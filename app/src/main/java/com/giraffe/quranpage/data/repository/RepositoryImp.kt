@@ -3,7 +3,8 @@ package com.giraffe.quranpage.data.repository
 import androidx.compose.runtime.toMutableStateList
 import com.giraffe.quranpage.common.service.DownloadService
 import com.giraffe.quranpage.common.utils.addOrUpdate
-import com.giraffe.quranpage.common.utils.isNetworkAvailable
+import com.giraffe.quranpage.common.utils.domain.Resource
+import com.giraffe.quranpage.common.utils.domain.map
 import com.giraffe.quranpage.data.datasource.local.LocalDataSource
 import com.giraffe.quranpage.data.datasource.local.models.SurahAudioDataModel
 import com.giraffe.quranpage.data.datasource.remote.RemoteDataSource
@@ -32,49 +33,59 @@ class RepositoryImp @Inject constructor(
     override suspend fun getTafseer(
         surahIndex: Int,
         verseIndex: Int,
-    ) = remoteDataSource.getTafseer(surahIndex = surahIndex, ayahIndex = verseIndex).let {
-        if (it.isSuccessful) it.body()?.toEntity() else null
+    ) = remoteDataSource.getTafseer(surahIndex = surahIndex, ayahIndex = verseIndex).map {
+        it.toEntity()
     }
 
     override suspend fun getReciters(): List<ReciterEntity> {
-        if (isNetworkAvailable()) {
-            remoteDataSource.getReciters().let {
-                if (it.isSuccessful) {
-                    val remoteRecitersCount = it.body()?.count() ?: 0
-                    val localRecitersCount = localDataSource.getRecitersCount()
-                    if (remoteRecitersCount > localRecitersCount) {
-                        it.body()?.forEach { reciterResponse ->
-                            localDataSource.storeReciter(reciterResponse.toModel())
-                        }
+        return when (val result = remoteDataSource.getReciters()) {
+            is Resource.Error -> {
+
+                val reciters = localDataSource.getAllReciters()
+                    .map { reciterModel -> reciterModel.toEntity() }
+                reciters
+            }
+
+            is Resource.Success -> {
+                val localRecitersCount = localDataSource.getRecitersCount()
+                if (result.data.size > localRecitersCount) {
+                    val oldReciters = localDataSource.getAllReciters()
+                    val newReciters =
+                        result.data.filter { newReciter -> oldReciters.firstOrNull { it.id == newReciter.id } == null }
+                    newReciters.forEach { reciterResponse ->
+                        localDataSource.storeReciter(reciterResponse.toModel())
                     }
                 }
+                val reciters = localDataSource.getAllReciters()
+                    .map { reciterModel -> reciterModel.toEntity() }
+                reciters
             }
         }
-        return localDataSource.getAllReciters().map { it.toEntity() }
     }
 
     override suspend fun saveAudioData(
         downloadedAudio: DownloadService.DownloadedAudio,
     ): ReciterEntity {
-        remoteDataSource.getVersesTimingOfSurah(
+        return when (val result = remoteDataSource.getVersesTimingOfSurah(
             downloadedAudio.surahId,
             downloadedAudio.reciterId
-        ).let { surahAudioDataResponse ->
-            val responseBody = surahAudioDataResponse.body()
-            if (surahAudioDataResponse.isSuccessful && responseBody != null) {
+        )) {
+            is Resource.Success -> {
                 val surahAudioDataModel = SurahAudioDataModel(
                     surahIndex = downloadedAudio.surahId,
                     audioPath = downloadedAudio.filePath,
-                    verseTiming = responseBody.map { it.toModel() }
+                    verseTiming = result.data.map { it.toModel() }
                 )
-                val reciter = localDataSource.getReciter(downloadedAudio.reciterId)
-                val newReciter = reciter.copy(
+                var reciter = localDataSource.getReciter(downloadedAudio.reciterId)
+                reciter = reciter.copy(
                     surahesAudioData = reciter.surahesAudioData.toMutableStateList()
                         .addOrUpdate(surahAudioDataModel)
                 )
-                localDataSource.storeReciter(newReciter)
+                localDataSource.storeReciter(reciter)
+                reciter.toEntity()
             }
+
+            is Resource.Error -> localDataSource.getReciter(downloadedAudio.reciterId).toEntity()
         }
-        return localDataSource.getReciter(downloadedAudio.reciterId).toEntity()
     }
 }

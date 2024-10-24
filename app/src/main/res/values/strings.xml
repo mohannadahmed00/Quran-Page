@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Quran Page</string>
+    <string name="REQUEST_TIMEOUT">The request timed out.</string>
+    <string name="TOO_MANY_REQUESTS">Oops, it seems like your quota is exeed.</string>
+    <string name="NO_INTERNET">Please check your internet connection.</string>
+    <string name="UNKNOWN">Something went wrong. Please try again later.</string>
+    <string name="SERIALIZATION">"Couldn't serialize or deserialize data. "</string>
 </resources>
