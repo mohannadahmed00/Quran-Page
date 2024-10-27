@@ -52,40 +52,6 @@ class QuranViewModel @Inject constructor(
         getBookmarkedVerse()
     }
 
-    override fun onAction(action: QuranScreenActions) {
-        when (action) {
-            is QuranScreenActions.HighlightVerse -> {
-                if (action.isToRead) {
-                    _state.update { it.copy(selectedVerseToRead = action.verse) }
-                } else {
-                    _state.update { it.copy(selectedVerse = action.verse) }
-                }
-                highlightVerse(
-                    originalPages = _state.value.allOriginalPages,
-                    selectedVerse = _state.value.selectedVerse,
-                    selectedVerseToRead = _state.value.selectedVerseToRead,
-                ).let { pages ->
-                    _state.update { it.copy(allPages = pages) }
-                }
-            }
-
-            is QuranScreenActions.UnhighlightVerse -> {
-                if (action.isToRead) {
-                    _state.update { it.copy(selectedVerseToRead = null) }
-                } else {
-                    _state.update { it.copy(selectedVerse = null) }
-                }
-                highlightVerse(
-                    originalPages = _state.value.allOriginalPages,
-                    selectedVerse = _state.value.selectedVerse,
-                    selectedVerseToRead = _state.value.selectedVerseToRead,
-                ).let { pages ->
-                    _state.update { it.copy(allPages = pages) }
-                }
-            }
-        }
-    }
-
     private fun getReciters() {
         viewModelScope.launch(Dispatchers.IO) {
             getRecitersUseCase().let { reciters ->
@@ -140,6 +106,40 @@ class QuranViewModel @Inject constructor(
             removeBookmarkedVerseUseCase()
             _state.update {
                 it.copy(bookmarkedVerse = null)
+            }
+        }
+    }
+
+    override fun highlightVerse(verse: VerseEntity, isToRead: Boolean) {
+        viewModelScope.launch(Dispatchers.IO){
+            if (isToRead) {
+                _state.update { it.copy(selectedVerseToRead = verse) }
+            } else {
+                _state.update { it.copy(selectedVerse = verse) }
+            }
+            highlightVerse(
+                originalPages = _state.value.allOriginalPages,
+                selectedVerse = _state.value.selectedVerse,
+                selectedVerseToRead = _state.value.selectedVerseToRead,
+            ).let { pages ->
+                _state.update { it.copy(allPages = pages) }
+            }
+        }
+    }
+
+    override fun unhighlightVerse(isToRead: Boolean) {
+        viewModelScope.launch(Dispatchers.IO){
+            if (isToRead) {
+                _state.update { it.copy(selectedVerseToRead = null) }
+            } else {
+                _state.update { it.copy(selectedVerse = null) }
+            }
+            highlightVerse(
+                originalPages = _state.value.allOriginalPages,
+                selectedVerse = _state.value.selectedVerse,
+                selectedVerseToRead = _state.value.selectedVerseToRead,
+            ).let { pages ->
+                _state.update { it.copy(allPages = pages) }
             }
         }
     }

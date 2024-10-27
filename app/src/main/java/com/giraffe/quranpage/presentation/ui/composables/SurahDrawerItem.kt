@@ -41,7 +41,11 @@ fun SurahDrawerItem(
             .clickable { scrollTo(surah.startPageIndex) }
     }
     Row(
-        modifier = modifier,
+        modifier = modifier.background(
+            color = if (isSelected) selectedColor else unSelectedColor,
+        )
+            .padding(horizontal = 8.dp, vertical = 10.dp)
+            .clickable { scrollTo(surah.startPageIndex) },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(

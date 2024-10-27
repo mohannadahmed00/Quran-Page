@@ -196,11 +196,11 @@ fun QuranContent(
 
     LaunchedEffect(state.lastPageIndex) {
         args.searchResult?.let { searchResult ->
-            events.onAction(QuranScreenActions.HighlightVerse(verse = searchResult))
+            events.highlightVerse(verse = searchResult)
             pagerState.scrollToPage(searchResult.pageIndex - 1)
             CoroutineScope(Dispatchers.IO).launch {
                 delay(1000L)
-                events.onAction(QuranScreenActions.UnhighlightVerse())
+                events.unhighlightVerse()
             }
             args.clear()
         } ?: pagerState.scrollToPage(state.lastPageIndex - 1)
@@ -223,12 +223,7 @@ fun QuranContent(
         playbackService?.let {
             it.setTracker { trackedVerse ->
                 trackedVerse?.let { verse ->
-                    events.onAction(
-                        QuranScreenActions.HighlightVerse(
-                            verse = verse,
-                            isToRead = true
-                        )
-                    )
+                    events.highlightVerse(verse = verse, isToRead = true)
                 }
 
             }
@@ -329,7 +324,7 @@ fun QuranContent(
                 pageUI = state.allPages[page],
                 surahesData = state.surahesData,
                 onVerseSelected = { verse ->
-                    events.onAction(QuranScreenActions.HighlightVerse(verse))
+                    events.highlightVerse(verse)
                     isOptionsBottomSheetVisible = true
                 },
                 onPageClick = { isPlayerDialogVisible = !isPlayerDialogVisible }
@@ -340,7 +335,7 @@ fun QuranContent(
                 modifier = Modifier.fillMaxHeight(),
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false),
                 onDismissRequest = {
-                    events.onAction(QuranScreenActions.UnhighlightVerse())
+                    events.unhighlightVerse()
                     isOptionsBottomSheetVisible = false
                 }
             ) {
@@ -410,10 +405,10 @@ fun QuranContent(
                                 pagerState.scrollToPage(
                                     verse.pageIndex - 1
                                 )
-                                events.onAction(QuranScreenActions.HighlightVerse(verse = verse))
+                                events.highlightVerse(verse = verse)
                                 CoroutineScope(Dispatchers.IO).launch {
                                     delay(1000L)
-                                    events.onAction(QuranScreenActions.UnhighlightVerse())
+                                    events.unhighlightVerse()
                                 }
                             }
                         }
@@ -428,13 +423,7 @@ fun QuranContent(
                     playerSurahAudioData = surahAudioData,
                     isPlaying = isPlaying,
                     isRecentDownloaded = state.isRecentDownloaded,
-                    unhighlightVerse = {
-                        events.onAction(
-                            QuranScreenActions.UnhighlightVerse(
-                                isToRead = true
-                            )
-                        )
-                    },
+                    unhighlightVerse = events::unhighlightVerse,
                     selectVerseToRead = events::selectVerseToRead,
                     firstVerse = state.firstVerse,
                     setSurahAudioData = audioPlayer::setSurahAudioData,

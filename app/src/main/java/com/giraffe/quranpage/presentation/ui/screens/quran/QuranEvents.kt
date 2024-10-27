@@ -5,7 +5,7 @@ import com.giraffe.quranpage.domain.entities.SurahDataEntity
 import com.giraffe.quranpage.domain.entities.VerseEntity
 
 interface QuranEvents {
-    fun onAction(action: QuranScreenActions)
+    //fun onAction(action: QuranScreenActions)
     fun getTafseer(
         surahIndex: Int,
         verseIndex: Int
@@ -19,4 +19,6 @@ interface QuranEvents {
     fun clearRecentDownload()
     fun bookmarkVerse(verse: VerseEntity)
     fun removeBookmarkedVerse()
+    fun highlightVerse(verse: VerseEntity,isToRead: Boolean = false)
+    fun unhighlightVerse(isToRead: Boolean = false)
 }
