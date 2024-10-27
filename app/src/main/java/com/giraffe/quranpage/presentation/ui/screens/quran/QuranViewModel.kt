@@ -1,8 +1,6 @@
 package com.giraffe.quranpage.presentation.ui.screens.quran
 
 
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.giraffe.quranpage.common.utils.addOrUpdate
@@ -41,8 +39,7 @@ class QuranViewModel @Inject constructor(
     private val saveLastPageUseCase: SaveLastPageUseCase,
     private val getLastPageUseCase: GetLastPageUseCase,
     private val removeBookmarkedVerseUseCase: RemoveBookmarkedVerseUseCase
-) : ViewModel(),
-    QuranEvents, DefaultLifecycleObserver {
+) : ViewModel(), QuranEvents {
     private val _state = MutableStateFlow(QuranScreenState())
     val state = _state.asStateFlow()
 
@@ -111,7 +108,7 @@ class QuranViewModel @Inject constructor(
     }
 
     override fun highlightVerse(verse: VerseEntity, isToRead: Boolean) {
-        viewModelScope.launch(Dispatchers.IO){
+        viewModelScope.launch(Dispatchers.IO) {
             if (isToRead) {
                 _state.update { it.copy(selectedVerseToRead = verse) }
             } else {
@@ -128,7 +125,7 @@ class QuranViewModel @Inject constructor(
     }
 
     override fun unhighlightVerse(isToRead: Boolean) {
-        viewModelScope.launch(Dispatchers.IO){
+        viewModelScope.launch(Dispatchers.IO) {
             if (isToRead) {
                 _state.update { it.copy(selectedVerseToRead = null) }
             } else {
@@ -141,6 +138,12 @@ class QuranViewModel @Inject constructor(
             ).let { pages ->
                 _state.update { it.copy(allPages = pages) }
             }
+        }
+    }
+
+    override fun saveLastPageIndex() {
+        viewModelScope.launch(Dispatchers.IO) {
+            saveLastPageUseCase(_state.value.firstVerse?.pageIndex ?: 0)
         }
     }
 
@@ -238,13 +241,6 @@ class QuranViewModel @Inject constructor(
                     isRecentDownloaded = false,
                 )
             }
-        }
-    }
-
-    override fun onStop(owner: LifecycleOwner) {
-        super.onStop(owner)
-        viewModelScope.launch(Dispatchers.IO) {
-            saveLastPageUseCase(_state.value.firstVerse?.pageIndex ?: 0)
         }
     }
 }

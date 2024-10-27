@@ -21,4 +21,5 @@ interface QuranEvents {
     fun removeBookmarkedVerse()
     fun highlightVerse(verse: VerseEntity,isToRead: Boolean = false)
     fun unhighlightVerse(isToRead: Boolean = false)
+    fun saveLastPageIndex()
 }

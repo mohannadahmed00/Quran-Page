@@ -53,6 +53,8 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.giraffe.quranpage.common.service.DownloadService
@@ -68,7 +70,6 @@ import com.giraffe.quranpage.common.utils.Constants.Keys.RECITER_NAME
 import com.giraffe.quranpage.common.utils.Constants.Keys.SURAH_ID
 import com.giraffe.quranpage.common.utils.Constants.Keys.SURAH_NAME
 import com.giraffe.quranpage.common.utils.Constants.Keys.URL
-import com.giraffe.quranpage.common.utils.ObserveLifecycleEvents
 import com.giraffe.quranpage.common.utils.toString
 import com.giraffe.quranpage.common.utils.toThreeDigits
 import com.giraffe.quranpage.domain.entities.ReciterEntity
@@ -93,9 +94,9 @@ fun QuranScreen(
     viewModel: QuranViewModel = hiltViewModel(),
     navController: NavController,
 ) {
-    viewModel.ObserveLifecycleEvents(LocalLifecycleOwner.current.lifecycle)
     val state by viewModel.state.collectAsState()
     QuranContent(state, viewModel, navController)
+
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -108,6 +109,7 @@ fun QuranContent(
 ) {
     //=================================controllers=================================
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val pagerState = rememberPagerState(pageCount = { state.allPages.size })
     val scope = rememberCoroutineScope()
     val systemUiController = rememberSystemUiController()
@@ -279,6 +281,17 @@ fun QuranContent(
         onDispose {
             context.unbindService(downloadServiceConnection)
             context.unbindService(playbackServiceConnection)
+        }
+    }
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP) {
+                events.saveLastPageIndex()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
     ModalNavigationDrawer(
