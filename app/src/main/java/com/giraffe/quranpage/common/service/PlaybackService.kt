@@ -119,7 +119,6 @@ class PlaybackService : Service() {
     }
 
     fun play() {
-        //trackAudio?.let { this.trackAudio = it }
         audioPlayer.value.play {
             this.trackAudio(it)
         }

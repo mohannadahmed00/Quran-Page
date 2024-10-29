@@ -15,7 +15,14 @@ import com.giraffe.quranpage.domain.entities.TafseerEntity
 import com.giraffe.quranpage.domain.entities.VerseEntity
 import com.giraffe.quranpage.domain.entities.VerseTimingEntity
 
-fun VerseTimingResponse.toModel() =
+fun VerseTimingResponse.toEntity() =
+    VerseTimingEntity(
+        verseIndex = verseIndex,
+        startTime = startTime,
+        endTime = endTime
+    )
+
+fun VerseTimingEntity.toModel() =
     VerseTimingModel(
         verseIndex = verseIndex,
         startTime = startTime,
@@ -65,6 +72,12 @@ fun SurahAudioDataModel.toEntity() = SurahAudioDataEntity(
     verseTiming = verseTiming.map { it.toEntity() }
 )
 
+fun SurahAudioDataEntity.toModel() = SurahAudioDataModel(
+    surahIndex = surahIndex,
+    audioPath = audioPath,
+    verseTiming = verseTiming.map { it.toModel() }
+)
+
 fun VerseTimingModel.toEntity() = VerseTimingEntity(
     verseIndex = verseIndex,
     startTime = startTime,
@@ -87,4 +100,13 @@ fun SurahDataModel.toEntity() = SurahDataEntity(
     startPageIndex = startPage,
     endPageIndex = endPage,
     place = place
+)
+
+
+fun ReciterEntity.toModel() = ReciterModel(
+    id = id,
+    name = name,
+    folderUrl = folderUrl,
+    rewaya = rewaya,
+    surahesAudioData = surahesAudioData.map { it.toModel() }
 )

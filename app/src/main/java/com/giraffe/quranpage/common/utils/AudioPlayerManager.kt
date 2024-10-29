@@ -5,7 +5,6 @@ import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
 import androidx.core.net.toUri
-import com.giraffe.quranpage.domain.entities.ReciterEntity
 import com.giraffe.quranpage.domain.entities.SurahAudioDataEntity
 import com.giraffe.quranpage.domain.entities.VerseEntity
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,11 +16,8 @@ object AudioPlayerManager {
     private var mediaPlayer: MediaPlayer? = null
     private var currentPosition = 0
     private val _allVerses = MutableStateFlow<List<VerseEntity>>(emptyList())
-    val allVerses = _allVerses.asStateFlow()
     private val _surahAudioData = MutableStateFlow<SurahAudioDataEntity?>(null)
     val surahAudioData = _surahAudioData.asStateFlow()
-    private val _reciter = MutableStateFlow<ReciterEntity?>(null)
-    val reciter = _reciter.asStateFlow()
     private val _currentVerse = MutableStateFlow<VerseEntity?>(null)
     val currentVerse = _currentVerse.asStateFlow()
     private val _isPlaying = MutableStateFlow(false)
@@ -131,9 +127,6 @@ object AudioPlayerManager {
         _surahAudioData.value = surahAudioData
     }
 
-    fun setReciter(reciter: ReciterEntity?) {
-        _reciter.value = reciter
-    }
 
     fun isPlaying(): Boolean {
         return mediaPlayer?.isPlaying ?: false

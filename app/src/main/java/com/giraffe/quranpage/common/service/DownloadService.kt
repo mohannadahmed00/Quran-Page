@@ -18,11 +18,13 @@ import com.giraffe.quranpage.common.utils.Constants.Keys.RECITER_NAME
 import com.giraffe.quranpage.common.utils.Constants.Keys.SURAH_ID
 import com.giraffe.quranpage.common.utils.Constants.Keys.SURAH_NAME
 import com.giraffe.quranpage.common.utils.Constants.Keys.URL
+import com.giraffe.quranpage.common.utils.domain.Resource
 import com.giraffe.quranpage.data.datasource.remote.api.AudioApiService
 import com.giraffe.quranpage.data.datasource.remote.downloader.AudioDownloader
-import com.giraffe.quranpage.data.repository.RepositoryImp
 import com.giraffe.quranpage.domain.entities.ReciterEntity
 import com.giraffe.quranpage.domain.entities.SurahAudioDataEntity
+import com.giraffe.quranpage.domain.usecases.AddSurahAudioDataToReciterUseCase
+import com.giraffe.quranpage.domain.usecases.GetVersesTimingUseCase
 import com.google.gson.GsonBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -48,7 +50,10 @@ class DownloadService : Service() {
     val downloadedFiles = mutableStateMapOf<String, DownloadedAudio>()
 
     @Inject
-    lateinit var repositoryImp: RepositoryImp
+    lateinit var getVersesTimingUseCase: GetVersesTimingUseCase
+
+    @Inject
+    lateinit var addSurahAudioDataToReciterUseCase: AddSurahAudioDataToReciterUseCase
 
 
     override fun onCreate() {
@@ -70,12 +75,12 @@ class DownloadService : Service() {
         val notificationId = intent?.getIntExtra(NOTIFICATION_ID, -1) ?: -1
         val reciterId = intent?.getIntExtra(RECITER_ID, -1) ?: -1
         val reciterName = intent?.getStringExtra(RECITER_NAME) ?: ""
-        val surahId = intent?.getIntExtra(SURAH_ID, -1) ?: -1
+        val surahIndex = intent?.getIntExtra(SURAH_ID, -1) ?: -1
         val surahName = intent?.getStringExtra(SURAH_NAME) ?: ""
         val url = intent?.getStringExtra(URL) ?: ""
         val action = intent?.action
         if (action == START_DOWNLOAD && notificationId != -1) {
-            startDownload(notificationId, url, reciterId, reciterName, surahId, surahName)
+            startDownload(notificationId, url, reciterId, reciterName, surahIndex, surahName)
         } else if (action == CANCEL_DOWNLOAD && url.isNotEmpty()) {
             cancelDownload(url)
         }
@@ -87,7 +92,7 @@ class DownloadService : Service() {
         url: String,
         reciterId: Int,
         reciterName: String,
-        surahId: Int,
+        surahIndex: Int,
         surahName: String
     ) {
         if (!queueState.value.containsKey(url)) {
@@ -96,7 +101,7 @@ class DownloadService : Service() {
                 url = url,
                 progress = MutableStateFlow(0),
                 reciterId = reciterId,
-                surahId = surahId,
+                surahIndex = surahIndex,
                 notificationBuilder = createNotificationBuilder(this, reciterName, surahName)
             )
             lastNotificationId = downloadedFile.id
@@ -223,12 +228,30 @@ class DownloadService : Service() {
     private fun completeDownload(url: String) {
         CoroutineScope(Dispatchers.IO).launch {
             _queueState.value[url]?.let {
-                repositoryImp.saveAudioData(it).let { reciter ->
-                    val surahAudioDataModel =
-                        reciter.surahesAudioData.firstOrNull { data -> data.surahIndex == it.surahId }
-                    downloadedFiles[url] =
-                        it.copy(reciter = reciter, surahAudioDataModel = surahAudioDataModel)
+                val verseTimingResult = getVersesTimingUseCase(
+                    surahIndex = it.surahIndex,
+                    reciterId = it.reciterId,
+                )
+                var surahAudioDataEntity = SurahAudioDataEntity(
+                    surahIndex = it.surahIndex,
+                    audioPath = it.filePath,
+                    verseTiming = emptyList()
+                )
+
+                when (verseTimingResult) {
+                    is Resource.Error -> {}
+                    is Resource.Success -> {
+                        surahAudioDataEntity = surahAudioDataEntity.copy(
+                            verseTiming = verseTimingResult.data
+                        )
+                    }
                 }
+                val reciter = addSurahAudioDataToReciterUseCase(
+                    reciterId = it.reciterId,
+                    surahAudioDataEntity = surahAudioDataEntity,
+                )
+                downloadedFiles[url] =
+                    it.copy(reciter = reciter, surahAudioDataModel = surahAudioDataEntity)
                 if (it.id == lastNotificationId) {
                     stopForeground(STOP_FOREGROUND_REMOVE)
                     if (_queueState.value.size > 1) {
@@ -264,7 +287,7 @@ class DownloadService : Service() {
         val url: String = "",
         val progress: MutableStateFlow<Int> = MutableStateFlow(0),
         val reciterId: Int = 0,
-        val surahId: Int = 0,
+        val surahIndex: Int = 0,
         val filePath: String = "",
         val notificationBuilder: NotificationCompat.Builder? = null,
         val downloadJob: Job? = null,

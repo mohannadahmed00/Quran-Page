@@ -44,22 +44,8 @@ class QuranViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     init {
-        getReciters()
         getAllVerses()
         getBookmarkedVerse()
-    }
-
-    private fun getReciters() {
-        viewModelScope.launch(Dispatchers.IO) {
-            getRecitersUseCase().let { reciters ->
-                _state.update {
-                    it.copy(
-                        reciters = reciters,
-                        selectedReciter = if (reciters.isNotEmpty()) reciters[0] else null
-                    )
-                }
-            }
-        }
     }
 
     private fun getAllVerses() {
@@ -67,21 +53,32 @@ class QuranViewModel @Inject constructor(
             getSurahesDataUseCase().let { surahesData ->
                 getAllPagesUseCase(surahesData).let { pages ->
                     getLastPageUseCase().let { lastPageIndex ->
-                        _state.update { state ->
-                            pages.map { it.toUi() }.let { pagesUi ->
-                                state.copy(
-                                    allOriginalPages = pagesUi,
-                                    allPages = pagesUi,
-                                    lastPageIndex = lastPageIndex,
-                                    surahesData = surahesData,
-                                    surahesByJuz = surahesData.groupBy { surah ->
-                                        getJuzOfPageIndex(
-                                            surah.startPageIndex
-                                        )
-                                    }
-                                )
+                        getRecitersUseCase().let { reciters ->
+                            _state.update { state ->
+                                pages.map { it.toUi() }.let { pagesUi ->
+                                    val firstVerse =
+                                        pagesUi[lastPageIndex - 1].contents[0].verses[0]
+                                    val selectedReciter =
+                                        reciters.firstOrNull { it.surahesAudioData.firstOrNull { s -> s.surahIndex == firstVerse.surahIndex } != null }
+                                            ?: reciters[0]
+                                    state.copy(
+                                        allOriginalPages = pagesUi,
+                                        allPages = pagesUi,
+                                        lastPageIndex = lastPageIndex,
+                                        firstVerse = firstVerse,
+                                        surahesData = surahesData,
+                                        surahesByJuz = surahesData.groupBy { surah ->
+                                            getJuzOfPageIndex(
+                                                surah.startPageIndex
+                                            )
+                                        },
+                                        reciters = reciters,
+                                        selectedReciter = selectedReciter
+                                    )
+                                }
                             }
                         }
+
                     }
                 }
             }
@@ -110,7 +107,12 @@ class QuranViewModel @Inject constructor(
     override fun highlightVerse(verse: VerseEntity, isToRead: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             if (isToRead) {
-                _state.update { it.copy(selectedVerseToRead = verse) }
+                _state.update {
+                    it.copy(
+                        selectedVerseToRead = verse,
+                        pageIndexToRead = verse.pageIndex
+                    )
+                }
             } else {
                 _state.update { it.copy(selectedVerse = verse) }
             }
@@ -127,7 +129,7 @@ class QuranViewModel @Inject constructor(
     override fun unhighlightVerse(isToRead: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             if (isToRead) {
-                _state.update { it.copy(selectedVerseToRead = null) }
+                _state.update { it.copy(selectedVerseToRead = null, pageIndexToRead = null) }
             } else {
                 _state.update { it.copy(selectedVerse = null) }
             }
@@ -147,6 +149,17 @@ class QuranViewModel @Inject constructor(
         }
     }
 
+    override fun clearTafseer() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update {
+                it.copy(
+                    selectedVerseTafseer = null,
+                    selectedVerseTafseerError = null
+                )
+            }
+        }
+    }
+
     private fun getBookmarkedVerse() {
         viewModelScope.launch(Dispatchers.IO) {
             getBookmarkedVerseUseCase().let { bookmarkedVerse ->
@@ -157,12 +170,9 @@ class QuranViewModel @Inject constructor(
         }
     }
 
-    override fun getTafseer(surahIndex: Int, verseIndex: Int) {
+    override fun getTafseer(verse: VerseEntity) {
         viewModelScope.launch(Dispatchers.IO) {
-            getTafseerUseCase(
-                surahIndex,
-                verseIndex
-            ).let { result ->
+            getTafseerUseCase(verse = verse).let { result ->
                 result.onSuccess { tafseer ->
                     _state.update {
                         it.copy(
@@ -215,6 +225,16 @@ class QuranViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     reciters = it.reciters.toMutableList().addOrUpdate(reciter)
+                )
+            }
+        }
+    }
+
+    override fun selectReciter(reciter: ReciterEntity?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update {
+                it.copy(
+                    selectedReciter = reciter
                 )
             }
         }

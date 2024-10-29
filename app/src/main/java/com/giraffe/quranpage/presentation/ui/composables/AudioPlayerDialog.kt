@@ -39,43 +39,42 @@ import ir.kaaveh.sdpcompose.ssp
 
 @Composable
 fun AudioPlayerDialog(
+    audioPlayerSurahAudioData: SurahAudioDataEntity?,
+    isPlaying: Boolean,
     selectedReciter: ReciterEntity?,
     surahesData: List<SurahDataEntity>,
-    playerSurahAudioData: SurahAudioDataEntity?,
-    selectedVerseToRead: VerseEntity?,
-    isPlaying: Boolean,
     firstVerse: VerseEntity?,
+    selectedVerseToRead: VerseEntity?,
     isRecentDownloaded: Boolean,
     recentUrl: String?,
     recentSurahToDownload: SurahDataEntity?,
-    unhighlightVerse: (Boolean) -> Unit,
     selectVerseToRead: (VerseEntity?) -> Unit,
-    cancelDownload: (String) -> Unit,
-    clearRecent: () -> Unit,
+    unhighlightVerse: (Boolean) -> Unit,
+    selectReciter: (ReciterEntity?) -> Unit,
+    clearRecentDownload: () -> Unit,
     setSurahAudioData: (SurahAudioDataEntity?) -> Unit,
-    setReciter: (ReciterEntity?) -> Unit,
-    showRecitersBottomSheet: () -> Unit,
-    pause: () -> Unit,
-    play: () -> Unit,
-    release: () -> Unit,
-    seekTo: (verseIndex: Int) -> Unit,
     downloadSurahForReciter: (Int, ReciterEntity, String, String, String) -> Unit,
+    cancelDownloadAudio: (String) -> Unit,
+    showRecitersBottomSheet: () -> Unit,
+    play: () -> Unit,
+    pause: () -> Unit,
+    seekTo: (verseIndex: Int) -> Unit,
+    release: () -> Unit,
 ) {
     val reciterSurahAudioData by remember(
         selectedReciter,
         firstVerse
     ) { derivedStateOf { selectedReciter?.surahesAudioData?.firstOrNull { surah -> surah.surahIndex == (firstVerse?.surahIndex) } } }
-    val isPlayerAudioDataExist by remember(playerSurahAudioData) { derivedStateOf { playerSurahAudioData != null } }
+    val isPlayerAudioDataExist by remember(audioPlayerSurahAudioData) { derivedStateOf { audioPlayerSurahAudioData != null } }
     val isRecentUrlExist by remember(recentUrl) { derivedStateOf { recentUrl != null } }
-    val surah by remember(surahesData, playerSurahAudioData, firstVerse) {
+    val surah by remember(surahesData, audioPlayerSurahAudioData, firstVerse) {
         derivedStateOf {
             surahesData.getOrNull(
-                playerSurahAudioData?.surahIndex?.minus(1) ?: firstVerse?.surahIndex?.minus(1)
+                audioPlayerSurahAudioData?.surahIndex?.minus(1) ?: firstVerse?.surahIndex?.minus(1)
                 ?: 0
             )
         }
     }
-
     val reciterNameModifier = remember { Modifier.clickable { showRecitersBottomSheet() } }
     val playButtonModifier = remember(reciterSurahAudioData, firstVerse, selectedReciter, surah) {
         Modifier
@@ -93,7 +92,7 @@ fun AudioPlayerDialog(
                         }
                     }
                 } else {
-                    setReciter(selectedReciter)
+                    selectReciter(selectedReciter)
                     setSurahAudioData(reciterSurahAudioData)
                 }
             }
@@ -141,8 +140,8 @@ fun AudioPlayerDialog(
                                 unhighlightVerse(true)
                                 release()
                             } else {
-                                cancelDownload(recentUrl ?: "")
-                                clearRecent()
+                                cancelDownloadAudio(recentUrl ?: "")
+                                clearRecentDownload()
                             }
                         },
                         imageVector = Icons.Default.Close, contentDescription = "close"

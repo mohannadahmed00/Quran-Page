@@ -21,14 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import com.giraffe.quranpage.domain.entities.VerseEntity
-import kotlinx.coroutines.Job
 
 @Composable
 fun AppBar(
     bookmarkedVerse: VerseEntity? = null,
-    onMenuClick: () -> Job,
+    onMenuClick: () -> Unit,
     onSearchClick: () -> Unit,
-    onBookmarkClick: () -> Unit = {},
+    onBookmarkClick: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Row(
@@ -46,7 +45,7 @@ fun AppBar(
         Image(
             modifier = Modifier
                 .size(30.dp)
-                .clickable { onMenuClick() },
+                .clickable(onClick = onMenuClick),
             imageVector = Icons.Rounded.Menu, contentDescription = "Menu",
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)),
 
@@ -54,7 +53,7 @@ fun AppBar(
         Image(
             modifier = Modifier
                 .size(30.dp)
-                .clickable { onBookmarkClick() },
+                .clickable(onClick = onBookmarkClick),
             imageVector = Icons.Rounded.Bookmark,
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = if (bookmarkedVerse != null) 0.7f else 0.2f)),
             contentDescription = "ic_bookmark"
@@ -62,7 +61,7 @@ fun AppBar(
         Image(
             modifier = Modifier
                 .size(30.dp)
-                .clickable { onSearchClick() },
+                .clickable(onClick = onSearchClick),
             imageVector = Icons.Rounded.Search, contentDescription = "Search",
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)),
         )

@@ -42,11 +42,11 @@ fun ReciterItem(
     reciter: ReciterEntity,
     surah: SurahDataEntity,
     queue: Map<String, DownloadedAudio>,
-    setSurahAudioData: (SurahAudioDataEntity) -> Unit,
     setReciter: (ReciterEntity) -> Unit,
+    clearRecentDownload: () -> Unit,
+    setSurahAudioData: (SurahAudioDataEntity) -> Unit,
     downloadSurahForReciter: (Int, ReciterEntity, String, String, String) -> Unit,
     cancelDownloadAudio: (String) -> Unit,
-    clearRecent: () -> Unit,
     completedColor: Color = MaterialTheme.colorScheme.secondary
 ) {
     val surahAudioData by remember(reciter) { derivedStateOf { reciter.surahesAudioData.firstOrNull { surahData -> surahData.surahIndex == surah.id } } }
@@ -88,7 +88,7 @@ fun ReciterItem(
         Modifier
             .clickable {
                 cancelDownloadAudio(url)
-                clearRecent()
+                clearRecentDownload()
             }
     }
     Row(

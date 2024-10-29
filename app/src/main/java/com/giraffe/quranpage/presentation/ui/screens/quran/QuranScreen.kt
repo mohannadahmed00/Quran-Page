@@ -110,7 +110,9 @@ fun QuranContent(
     //=================================controllers=================================
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val pagerState = rememberPagerState(pageCount = { state.allPages.size })
+    val pagerState = rememberPagerState(
+        initialPage = state.lastPageIndex - 1,
+        pageCount = { state.allPages.size })
     val scope = rememberCoroutineScope()
     val systemUiController = rememberSystemUiController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -119,23 +121,10 @@ fun QuranContent(
     var isTafseerBottomSheetVisible by remember { mutableStateOf(false) }
     var isRecitersBottomSheetVisible by remember { mutableStateOf(false) }
     var isPlayerDialogVisible by remember { mutableStateOf(true) }
-    val openDrawer = remember {
-        {
-            scope.launch {
-                drawerState.open()
-            }
-        }
-    }
     val args = remember { QuranArgs(navController.currentBackStackEntry?.savedStateHandle) }
-    val selectedSurah by remember(state.surahesData, state.selectedVerse) {
-        derivedStateOf {
-            state.surahesData[(state.selectedVerse?.surahIndex?.minus(1)) ?: 0]
-        }
-    }
 
 
     //=================================playback=================================
-    val playbackServiceIntent = remember { Intent(context, PlaybackService::class.java) }
     val playbackServiceConnection =
         remember { ServiceConnection { (it as PlaybackService.LocalBinder).getService() } }
     val playbackService by playbackServiceConnection.service.collectAsState()
@@ -144,12 +133,10 @@ fun QuranContent(
     }
     val isPlaying by audioPlayer.isPlaying.collectAsState()
     val isPrepared by audioPlayer.isPrepared.collectAsState()
-    val surahAudioData by audioPlayer.surahAudioData.collectAsState()
-    val reciter by audioPlayer.reciter.collectAsState()
+    val audioPlayerSurahAudioData by audioPlayer.surahAudioData.collectAsState()
 
 
     //=================================download=================================
-    val downloadServiceIntent = remember { Intent(context, DownloadService::class.java) }
     val downloadServiceConnection =
         remember { ServiceConnection { (it as DownloadService.LocalBinder).getService() } }
     val downloadService by downloadServiceConnection.service.collectAsState()
@@ -164,7 +151,7 @@ fun QuranContent(
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     if (!queue.containsKey(url)) {
                         events.setRecentDownload(url, state.surahesData[surahId - 1])
-                        audioPlayer.setReciter(reciter)
+                        events.selectReciter(reciter)
                         val intent = Intent(context, DownloadService::class.java).apply {
                             action = START_DOWNLOAD
                             putExtra(NOTIFICATION_ID, url.hashCode())
@@ -207,15 +194,9 @@ fun QuranContent(
             args.clear()
         } ?: pagerState.scrollToPage(state.lastPageIndex - 1)
     }
-    LaunchedEffect(pagerState, state.allPages, state.reciters) {
+    LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }.collect { pageIndex ->
             events.setFirstVerseOfPage(pageIndex)
-            //drawerListState.scrollToItem(getJuz(firstVerse?.pageIndex?:0))
-            if (reciter == null) {
-                audioPlayer.setReciter(state.reciters.firstOrNull { reciter ->
-                    reciter.surahesAudioData.firstOrNull { item -> item.surahIndex == state.firstVerse?.surahIndex } != null
-                } ?: state.reciters.getOrNull(0))
-            }
         }
     }
     LaunchedEffect(isPlayerDialogVisible) {
@@ -227,35 +208,37 @@ fun QuranContent(
                 trackedVerse?.let { verse ->
                     events.highlightVerse(verse = verse, isToRead = true)
                 }
-
             }
         }
-
     }
     LaunchedEffect(downloadedFiles.size) {
         downloadedFiles.forEach { downloadedAudio ->
             events.updateReciter(downloadedAudio.value.reciter)
             if (downloadedAudio.value.url == state.recentUrl) {
                 events.clearRecentDownload()
-                audioPlayer.setReciter(downloadedAudio.value.reciter)
+                events.selectReciter(downloadedAudio.value.reciter)
                 audioPlayer.setSurahAudioData(downloadedAudio.value.surahAudioDataModel)
             }
         }
     }
     LaunchedEffect(isPrepared) {
         if (isPrepared && !isPlaying) {
-            context.startForegroundService(playbackServiceIntent.setAction(PLAY))
+            context.startForegroundService(
+                Intent(context, PlaybackService::class.java).setAction(
+                    PLAY
+                )
+            )
         }
     }
-    LaunchedEffect(surahAudioData) {
+    LaunchedEffect(audioPlayerSurahAudioData) {
         if (!isPlaying) {
-            surahAudioData?.let { surahAudioData ->
+            audioPlayerSurahAudioData?.let { surahAudioData ->
                 audioPlayer.initializePlayer(
                     context = context,
                     surahAudioData = surahAudioData,
                     currentVerse = state.selectedVerseToRead ?: state.firstVerse,
                     surahName = state.surahesData[surahAudioData.surahIndex - 1].englishName,
-                    reciterName = reciter?.name ?: "",
+                    reciterName = state.selectedReciter?.name ?: "",
                 )
                 isPlayerDialogVisible = true
             }
@@ -266,23 +249,6 @@ fun QuranContent(
             pagerState.scrollToPage(it - 1)
         }
     }
-    DisposableEffect(Unit) {
-        systemUiController.isStatusBarVisible = isPlayerDialogVisible
-        context.bindService(
-            downloadServiceIntent,
-            downloadServiceConnection,
-            Context.BIND_AUTO_CREATE
-        )
-        context.bindService(
-            playbackServiceIntent,
-            playbackServiceConnection,
-            Context.BIND_AUTO_CREATE
-        )
-        onDispose {
-            context.unbindService(downloadServiceConnection)
-            context.unbindService(playbackServiceConnection)
-        }
-    }
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_STOP) {
@@ -290,8 +256,21 @@ fun QuranContent(
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
+        systemUiController.isStatusBarVisible = isPlayerDialogVisible
+        context.bindService(
+            Intent(context, DownloadService::class.java),
+            downloadServiceConnection,
+            Context.BIND_AUTO_CREATE
+        )
+        context.bindService(
+            Intent(context, PlaybackService::class.java),
+            playbackServiceConnection,
+            Context.BIND_AUTO_CREATE
+        )
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
+            context.unbindService(downloadServiceConnection)
+            context.unbindService(playbackServiceConnection)
         }
     }
     ModalNavigationDrawer(
@@ -356,8 +335,10 @@ fun QuranContent(
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        events.getTafseer(selectedSurah.id, state.selectedVerse?.verseIndex ?: 1)
-                        isTafseerBottomSheetVisible = true
+                        state.selectedVerse?.let { selectedVerse ->
+                            events.getTafseer(verse = selectedVerse)
+                            isTafseerBottomSheetVisible = true
+                        }
                     }) {
                     Text("Tafseer")
                 }
@@ -366,24 +347,25 @@ fun QuranContent(
                     onClick = {
                         events.selectVerseToRead(state.selectedVerse)
                         val reciterSurahAudioData =
-                            reciter?.surahesAudioData?.firstOrNull { surah -> surah.surahIndex == (state.selectedVerse?.surahIndex) }
+                            state.selectedReciter?.surahesAudioData?.firstOrNull { surah -> surah.surahIndex == (state.selectedVerse?.surahIndex) }
                         if (reciterSurahAudioData == null) {
-                            reciter?.let { selectedReciter ->
+                            state.selectedReciter?.let { selectedReciter ->
                                 state.selectedVerse?.let { selectedVerseToRead ->
                                     downloadSurahForReciter(
                                         selectedVerseToRead.surahIndex,
                                         selectedReciter,
                                         selectedReciter.folderUrl + selectedVerseToRead.surahIndex.toThreeDigits() + ".mp3",
                                         selectedReciter.name,
-                                        selectedSurah.englishName
+                                        state.surahesData[selectedVerseToRead.surahIndex - 1].englishName
                                     )
                                 }
                             }
                         } else {
-                            audioPlayer.setReciter(reciter)
+                            //audioPlayer.setReciter(reciter)
                             audioPlayer.setSurahAudioData(reciterSurahAudioData)
                         }
-
+                        events.unhighlightVerse()
+                        isOptionsBottomSheetVisible = false
                     }) {
                     Text("Play from here")
                 }
@@ -409,7 +391,11 @@ fun QuranContent(
             ) {
                 AppBar(
                     bookmarkedVerse = state.bookmarkedVerse,
-                    onMenuClick = openDrawer,
+                    onMenuClick = {
+                        scope.launch {
+                            drawerState.open()
+                        }
+                    },
                     onSearchClick = { navController.navigateToSearch() },
                     onBookmarkClick = {
                         state.bookmarkedVerse?.let { verse ->
@@ -428,33 +414,35 @@ fun QuranContent(
                     }
                 )
                 AudioPlayerDialog(
-                    selectedReciter = reciter,
+                    audioPlayerSurahAudioData = audioPlayerSurahAudioData,
+                    isPlaying = isPlaying,
+                    selectedReciter = state.selectedReciter,
+                    surahesData = state.surahesData,
+                    firstVerse = state.firstVerse,
                     selectedVerseToRead = state.selectedVerseToRead,
+                    isRecentDownloaded = state.isRecentDownloaded,
                     recentUrl = state.recentUrl,
                     recentSurahToDownload = state.recentSurahToDownload,
-                    surahesData = state.surahesData,
-                    playerSurahAudioData = surahAudioData,
-                    isPlaying = isPlaying,
-                    isRecentDownloaded = state.isRecentDownloaded,
-                    unhighlightVerse = events::unhighlightVerse,
                     selectVerseToRead = events::selectVerseToRead,
-                    firstVerse = state.firstVerse,
+                    unhighlightVerse = events::unhighlightVerse,
+                    selectReciter = events::selectReciter,
+                    clearRecentDownload = events::clearRecentDownload,
                     setSurahAudioData = audioPlayer::setSurahAudioData,
-                    setReciter = audioPlayer::setReciter,
-                    clearRecent = events::clearRecentDownload,
-                    showRecitersBottomSheet = { isRecitersBottomSheetVisible = true },
-                    pause = { playbackService?.pause() },
-                    play = { playbackService?.play() },
-                    release = { playbackService?.release() },
-                    seekTo = { playbackService?.seekTo(it) },
                     downloadSurahForReciter = downloadSurahForReciter,
-                    cancelDownload = cancelDownloadAudio,
+                    cancelDownloadAudio = cancelDownloadAudio,
+                    showRecitersBottomSheet = { isRecitersBottomSheetVisible = true },
+                    play = { playbackService?.play() },
+                    pause = { playbackService?.pause() },
+                    seekTo = { playbackService?.seekTo(it) },
+                    release = { playbackService?.release() },
                 )
             }
         }
         if (isRecitersBottomSheetVisible) {
             ModalBottomSheet(
-                modifier = Modifier.fillMaxHeight(),
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .statusBarsPadding(),
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
                 onDismissRequest = { isRecitersBottomSheetVisible = false }
             ) {
@@ -468,7 +456,9 @@ fun QuranContent(
                                 horizontalArrangement = Arrangement.Center
                             ) {
                                 Text(
-                                    text = state.surahesData[surahAudioData?.surahIndex?.minus(1)
+                                    text = state.surahesData[audioPlayerSurahAudioData?.surahIndex?.minus(
+                                        1
+                                    )
                                         ?: state.firstVerse?.surahIndex?.minus(1)
                                         ?: 0].arabicName,
                                     style = TextStyle(
@@ -489,15 +479,17 @@ fun QuranContent(
                         items(state.reciters) {
                             ReciterItem(
                                 reciter = it,
-                                surah = state.surahesData[surahAudioData?.surahIndex?.minus(1)
+                                surah = state.surahesData[audioPlayerSurahAudioData?.surahIndex?.minus(
+                                    1
+                                )
                                     ?: state.firstVerse?.surahIndex?.minus(1)
                                     ?: 0],
                                 queue = queue,
-                                setReciter = audioPlayer::setReciter,
+                                setReciter = events::selectReciter,
+                                clearRecentDownload = events::clearRecentDownload,
                                 setSurahAudioData = audioPlayer::setSurahAudioData,
                                 downloadSurahForReciter = downloadSurahForReciter,
                                 cancelDownloadAudio = cancelDownloadAudio,
-                                clearRecent = events::clearRecentDownload,
                             )
                         }
                     }
@@ -506,9 +498,14 @@ fun QuranContent(
         }
         if (isTafseerBottomSheetVisible) {
             ModalBottomSheet(
-                modifier = Modifier.fillMaxHeight(),
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .statusBarsPadding(),
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                onDismissRequest = { isTafseerBottomSheetVisible = false }
+                onDismissRequest = {
+                    events.clearTafseer()
+                    isTafseerBottomSheetVisible = false
+                }
             ) {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                     Text(
