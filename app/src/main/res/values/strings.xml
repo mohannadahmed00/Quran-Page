@@ -5,4 +5,5 @@
     <string name="NO_INTERNET">Please check your internet connection.</string>
     <string name="UNKNOWN">Something went wrong. Please try again later.</string>
     <string name="SERIALIZATION">"Couldn't serialize or deserialize data. "</string>
+    <string name="dismiss">"Dismiss"</string>
 </resources>
