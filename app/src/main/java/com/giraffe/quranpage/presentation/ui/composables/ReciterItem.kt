@@ -29,7 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.TextStyle
-import com.giraffe.quranpage.common.service.DownloadService.DownloadedAudio
+import com.giraffe.quranpage.common.service.DownloadService.DownloadedProcessData
 import com.giraffe.quranpage.common.utils.toThreeDigits
 import com.giraffe.quranpage.domain.entities.ReciterEntity
 import com.giraffe.quranpage.domain.entities.SurahAudioDataEntity
@@ -41,7 +41,8 @@ import ir.kaaveh.sdpcompose.ssp
 fun ReciterItem(
     reciter: ReciterEntity,
     surah: SurahDataEntity,
-    queue: Map<String, DownloadedAudio>,
+    queue: Map<String, DownloadedProcessData>,
+    recentUrl: String?,
     setReciter: (ReciterEntity) -> Unit,
     clearRecentDownload: () -> Unit,
     setSurahAudioData: (SurahAudioDataEntity) -> Unit,
@@ -84,11 +85,13 @@ fun ReciterItem(
                 }
             }
     }
-    val cancelImgModifier = remember {
+    val cancelImgModifier = remember(recentUrl) {
         Modifier
             .clickable {
                 cancelDownloadAudio(url)
-                clearRecentDownload()
+                if (url == recentUrl) {
+                    clearRecentDownload()
+                }
             }
     }
     Row(

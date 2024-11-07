@@ -46,6 +46,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -56,7 +57,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
+import com.giraffe.quranpage.R
 import com.giraffe.quranpage.common.service.DownloadService
 import com.giraffe.quranpage.common.service.PlaybackService
 import com.giraffe.quranpage.common.service.ServiceConnection
@@ -77,6 +80,7 @@ import com.giraffe.quranpage.navigateToSearch
 import com.giraffe.quranpage.presentation.ui.composables.AppBar
 import com.giraffe.quranpage.presentation.ui.composables.AudioPlayerDialog
 import com.giraffe.quranpage.presentation.ui.composables.DrawerPartHeader
+import com.giraffe.quranpage.presentation.ui.composables.ErrorAlertDialog
 import com.giraffe.quranpage.presentation.ui.composables.Page
 import com.giraffe.quranpage.presentation.ui.composables.ReciterItem
 import com.giraffe.quranpage.presentation.ui.composables.SurahDrawerItem
@@ -87,6 +91,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -121,6 +126,8 @@ fun QuranContent(
     var isTafseerBottomSheetVisible by remember { mutableStateOf(false) }
     var isRecitersBottomSheetVisible by remember { mutableStateOf(false) }
     var isPlayerDialogVisible by remember { mutableStateOf(true) }
+    var isErrorAlertDialogVisible by remember { mutableStateOf(false) }
+    var networkErrorMsg by remember { mutableStateOf<String?>(null) }
     val args = remember { QuranArgs(navController.currentBackStackEntry?.savedStateHandle) }
 
 
@@ -137,16 +144,13 @@ fun QuranContent(
 
 
     //=================================download=================================
-    val downloadServiceConnection =
-        remember { ServiceConnection { (it as DownloadService.LocalBinder).getService() } }
+    val downloadServiceConnection = remember { ServiceConnection { (it as DownloadService.LocalBinder).getService() } }
     val downloadService by downloadServiceConnection.service.collectAsState()
-    val downloadedFiles =
-        remember(downloadService?.downloadedFiles) { downloadService?.downloadedFiles ?: mapOf() }
+    val downloadedFiles = remember(downloadService?.downloadedFiles) { downloadService?.downloadedFiles ?: mapOf() }
     val queue by downloadService?.queueState?.collectAsState() ?: remember {
         mutableStateOf(emptyMap())
     }
-    val downloadSurahForReciter =
-        remember<(Int, ReciterEntity, String, String, String) -> Unit>(state.surahesData) {
+    val downloadSurahForReciter = remember<(Int, ReciterEntity, String, String, String) -> Unit>(state.surahesData) {
             { surahId, reciter, url, reciterName, surahName ->
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     if (!queue.containsKey(url)) {
@@ -183,6 +187,21 @@ fun QuranContent(
     }
 
 
+    LaunchedEffect(downloadService?.networkError) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            withContext(Dispatchers.IO) {
+                downloadService?.networkError?.collect {
+                    isOptionsBottomSheetVisible = false
+                    isTafseerBottomSheetVisible = false
+                    isRecitersBottomSheetVisible = false
+                    isPlayerDialogVisible = false
+                    isErrorAlertDialogVisible = true
+                    networkErrorMsg = it?.second?.toString(context)
+                    events.clearRecentDownload()
+                }
+            }
+        }
+    }
     LaunchedEffect(state.lastPageIndex) {
         args.searchResult?.let { searchResult ->
             events.highlightVerse(verse = searchResult)
@@ -302,6 +321,14 @@ fun QuranContent(
             }
         }
     ) {
+        if (isErrorAlertDialogVisible) {
+            ErrorAlertDialog(
+                onDismissRequest = {
+                    isErrorAlertDialogVisible = false
+                },
+                dialogTitle = networkErrorMsg ?: stringResource(R.string.UNKNOWN),
+            )
+        }
         HorizontalPager(
             modifier = Modifier.clickable(
                 interactionSource = interactionSource,
@@ -438,6 +465,7 @@ fun QuranContent(
                 )
             }
         }
+
         if (isRecitersBottomSheetVisible) {
             ModalBottomSheet(
                 modifier = Modifier
@@ -476,7 +504,7 @@ fun QuranContent(
                                 ), thickness = 1.dp
                             )
                         }
-                        items(state.reciters) {
+                        items(state.reciters, key = { it.id }) {
                             ReciterItem(
                                 reciter = it,
                                 surah = state.surahesData[audioPlayerSurahAudioData?.surahIndex?.minus(
@@ -485,6 +513,7 @@ fun QuranContent(
                                     ?: state.firstVerse?.surahIndex?.minus(1)
                                     ?: 0],
                                 queue = queue,
+                                recentUrl = state.recentUrl,
                                 setReciter = events::selectReciter,
                                 clearRecentDownload = events::clearRecentDownload,
                                 setSurahAudioData = audioPlayer::setSurahAudioData,
