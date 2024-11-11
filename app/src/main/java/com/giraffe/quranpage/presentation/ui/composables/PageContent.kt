@@ -21,6 +21,7 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.unit.sp
 import com.giraffe.quranpage.R
 import com.giraffe.quranpage.domain.entities.SurahDataEntity
 import com.giraffe.quranpage.domain.entities.VerseEntity
@@ -93,7 +94,7 @@ fun PageContent(
                     layoutResult = it
                 },
                 style = TextStyle(
-                    fontSize = 20.ssp,
+                    fontSize = if (content.verses.first().surahIndex == 74) 25.sp else 20.ssp,
                     textDirection = TextDirection.Rtl,
                     lineHeight = 39.ssp,
                     localeList = LocaleList(Locale("ar")),

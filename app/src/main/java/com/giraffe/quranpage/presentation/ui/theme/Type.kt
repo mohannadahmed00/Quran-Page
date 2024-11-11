@@ -35,7 +35,7 @@ val Typography = Typography(
     */
 )
 val uthmanicHafs = FontFamily(Font(R.font.uthmanic_hafs))
-
+val hafsSmart = FontFamily(Font(R.font.hafs_smart))
 val fontFamilies = listOf(
     FontFamily(Font(R.font.qcf2001)),
     FontFamily(Font(R.font.qcf2002)),

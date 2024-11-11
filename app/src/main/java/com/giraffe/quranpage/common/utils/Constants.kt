@@ -3,7 +3,10 @@ package com.giraffe.quranpage.common.utils
 object Constants {
     const val TAFSEER_BASE_URL = "http://api.quran-tafseer.com/"
     const val RECITERS_BASE_URL = "https://mp3quran.net/api/v3/"
-    const val VERSES_DATA_JSON = "quran_text.json"
+    const val VERSES_DATA_JSON = "quran_verses_v8.json"
+
+    //const val VERSES_DATA_JSON = "quran_text.json"
+    //const val VERSES_DATA_JSON = "combined_verses.json"
     const val SURAHES_DATA_JSON = "surahes_data.json"
 
     object ResponseAttributes {

@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import com.giraffe.quranpage.R
+import com.giraffe.quranpage.presentation.ui.theme.hafsSmart
 import com.giraffe.quranpage.presentation.ui.theme.uthmanicHafs
 import ir.kaaveh.sdpcompose.ssp
 
@@ -26,7 +27,7 @@ fun SurahHeader(modifier: Modifier = Modifier, surahName: String) {
             text = surahName,
             style = TextStyle(
                 fontSize = 20.ssp,
-                fontFamily = uthmanicHafs,
+                fontFamily = hafsSmart,
                 color = MaterialTheme.colorScheme.primary
             )
         )
