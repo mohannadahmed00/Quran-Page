@@ -1,9 +1,11 @@
 package com.giraffe.quranpage.presentation.ui.composables
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,35 +21,29 @@ fun Page(
     onVerseSelected: (VerseEntity) -> Unit,
     onPageClick: () -> Unit
 ) {
-    LazyColumn (
-        modifier = Modifier.fillMaxSize(),
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        item {
-            PageHeader(
-                surahName = pageUI.namesOfSurahes,
-                juz = pageUI.juz
-            )
-        }
-        item{
-            PageContent(
-                modifier = Modifier.width(415.dp),
-                pageUI = pageUI,
-                surahesData = surahesData,
-                onVerseSelected = onVerseSelected,
-                onPageClick = onPageClick
-            )
-        }
-
-        item {
-            PageFooter(
-                pageIndex = pageUI.pageIndex,
-                hezb = pageUI.hezbStr,
-                hasSajdah = pageUI.hasSajdah
-            )
-        }
-
+        PageHeader(
+            surahName = pageUI.namesOfSurahes,
+            juz = pageUI.juz
+        )
+        PageContent(
+            modifier = Modifier.width(415.dp),
+            pageUI = pageUI,
+            surahesData = surahesData,
+            onVerseSelected = onVerseSelected,
+            onPageClick = onPageClick
+        )
+        PageFooter(
+            pageIndex = pageUI.pageIndex,
+            hezb = pageUI.hezbStr,
+            hasSajdah = pageUI.hasSajdah
+        )
     }
 
 }
