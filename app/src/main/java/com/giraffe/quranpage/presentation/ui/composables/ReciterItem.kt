@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -29,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import com.giraffe.quranpage.common.service.DownloadService.DownloadedProcessData
 import com.giraffe.quranpage.common.utils.toThreeDigits
 import com.giraffe.quranpage.domain.entities.ReciterEntity
@@ -104,18 +104,20 @@ fun ReciterItem(
         ) {
             if (progress?.value == 0 || progress?.value == 100 || progress == null) {
                 Image(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.size(30.sdp),
                     imageVector = imgVector,
                     contentDescription = "download",
                     colorFilter = ColorFilter.tint(color = imgColor)
                 )
             } else {
                 CircularProgressIndicator(
+                    modifier = Modifier.size(25.sdp),
+                    strokeWidth = 3.sdp,
                     progress = { progress.value.toFloat() / 100 },
                     trackColor = Color.Gray,
                 )
                 Image(
-                    modifier = cancelImgModifier,
+                    modifier = cancelImgModifier.size(15.sdp),
                     imageVector = Icons.Default.Clear,
                     contentDescription = "cancel",
                     colorFilter = ColorFilter.tint(color = imgColor)
@@ -126,14 +128,16 @@ fun ReciterItem(
         Text(
             text = reciter.name,
             style = TextStyle(
-                fontSize = 18.ssp,
+                fontSize = 16.ssp,
             ),
         )
         Spacer(modifier = Modifier.width(4.sdp))
         if (reciter.rewaya != "حفص عن عاصم") Text(
             text = "(${reciter.rewaya})",
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             style = TextStyle(
-                fontSize = 16.ssp,
+                fontSize = 14.ssp,
             ),
         )
     }

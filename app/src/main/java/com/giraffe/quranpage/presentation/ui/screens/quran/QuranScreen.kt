@@ -390,7 +390,9 @@ fun QuranContent(
             ) {
 
                 Button(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.sdp),
                     onClick = {
                         state.selectedVerse?.let { selectedVerse ->
                             events.getTafseer(verse = selectedVerse)
@@ -400,7 +402,9 @@ fun QuranContent(
                     Text("Tafseer")
                 }
                 Button(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.sdp),
                     onClick = {
                         events.selectVerseToRead(state.selectedVerse)
                         val reciterSurahAudioData =
@@ -427,7 +431,9 @@ fun QuranContent(
                     Text("Play from here")
                 }
                 Button(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.sdp),
                     onClick = {
                         if (state.selectedVerse?.qcfContent == state.bookmarkedVerse?.qcfContent) {
                             state.selectedVerse?.let { events.removeBookmarkedVerse() }
@@ -531,6 +537,7 @@ fun QuranContent(
                             modifier = Modifier.padding(horizontal = 8.sdp), thickness = 1.sdp
                         )
                         LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(2.sdp),
                             contentPadding = PaddingValues(vertical = 8.sdp),
                         ) {
                             items(state.reciters, key = { it.id }) {
@@ -552,7 +559,6 @@ fun QuranContent(
                             }
                         }
                     }
-
                 }
             }
         }

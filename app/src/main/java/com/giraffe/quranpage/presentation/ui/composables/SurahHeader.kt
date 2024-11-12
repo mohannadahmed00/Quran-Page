@@ -18,6 +18,7 @@ import ir.kaaveh.sdpcompose.ssp
 fun SurahHeader(modifier: Modifier = Modifier, surahName: String) {
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         Image(
+
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
             painter = painterResource(id = R.drawable.surah_header),
             contentDescription = ""

@@ -34,7 +34,7 @@ fun PageFooter(modifier: Modifier = Modifier, pageIndex: Int, hezb: String?) {
                 Text(
                     modifier = Modifier
                         .background(
-                            color = MaterialTheme.colorScheme.secondary,
+                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
                             shape = RoundedCornerShape(5.sdp)
                         )
                         .padding(horizontal = 4.sdp, vertical = 2.sdp),

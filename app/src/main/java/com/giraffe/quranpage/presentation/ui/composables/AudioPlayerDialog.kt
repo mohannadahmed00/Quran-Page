@@ -118,12 +118,12 @@ fun AudioPlayerDialog(
                         text = selectedReciter?.name ?: "Loading...",
                         style = TextStyle(
                             textAlign = TextAlign.Center,
-                            fontSize = 16.ssp
+                            fontSize = if (selectedReciter?.name != null) 16.ssp else 14.ssp
                         ),
                     )
                     if (!isPlayerAudioDataExist && !isRecentUrlExist) {
                         Image(
-                            modifier = playButtonModifier.size(35.sdp),
+                            modifier = playButtonModifier.size(30.sdp),
                             imageVector = Icons.Rounded.PlayArrow,
                             contentDescription = "play",
                             colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.secondary)
@@ -133,17 +133,19 @@ fun AudioPlayerDialog(
                 }
                 Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.TopEnd) {
                     if (isPlayerAudioDataExist || isRecentUrlExist) Icon(
-                        modifier = Modifier.clickable {
-                            if (isPlayerAudioDataExist) {
-                                setSurahAudioData(null)
-                                selectVerseToRead(null)
-                                unhighlightVerse(true)
-                                release()
-                            } else {
-                                cancelDownloadAudio(recentUrl ?: "")
-                                clearRecentDownload()
-                            }
-                        },
+                        modifier = Modifier
+                            .size(20.sdp)
+                            .clickable {
+                                if (isPlayerAudioDataExist) {
+                                    setSurahAudioData(null)
+                                    selectVerseToRead(null)
+                                    unhighlightVerse(true)
+                                    release()
+                                } else {
+                                    cancelDownloadAudio(recentUrl ?: "")
+                                    clearRecentDownload()
+                                }
+                            },
                         imageVector = Icons.Default.Close, contentDescription = "close"
                     )
                 }
@@ -154,11 +156,14 @@ fun AudioPlayerDialog(
                         ?: "" else surah?.arabicName ?: "",
                     style = TextStyle(
                         textAlign = TextAlign.Center,
-                        fontSize = 14.ssp
+                        fontSize = 16.ssp
                     ),
                 )
             }
-            if (isRecentUrlExist && !isRecentDownloaded) Text(text = "Downloading...")
+            if (isRecentUrlExist && !isRecentDownloaded) Text(
+                text = "Downloading...",
+                fontSize = 14.ssp
+            )
             if (isPlayerAudioDataExist) {
                 Row(
                     modifier = Modifier
@@ -167,7 +172,7 @@ fun AudioPlayerDialog(
                 ) {
                     Image(
                         modifier = Modifier
-                            .size(35.sdp)
+                            .size(30.sdp)
                             .clickable { seekTo(selectedVerseToRead?.verseIndex?.minus(1) ?: 0) },
                         imageVector = Icons.Rounded.SkipPrevious,
                         contentDescription = "previous",
@@ -176,7 +181,7 @@ fun AudioPlayerDialog(
                     )
                     if (!isPlaying) Image(
                         modifier = Modifier
-                            .size(35.sdp)
+                            .size(30.sdp)
                             .clickable { play() },
                         imageVector = Icons.Rounded.PlayArrow,
                         contentDescription = "play",
@@ -184,7 +189,7 @@ fun AudioPlayerDialog(
 
                     ) else Image(
                         modifier = Modifier
-                            .size(35.sdp)
+                            .size(30.sdp)
                             .clickable { pause() },
                         imageVector = Icons.Rounded.Pause,
                         contentDescription = "pause",
@@ -193,7 +198,7 @@ fun AudioPlayerDialog(
                     )
                     Image(
                         modifier = Modifier
-                            .size(35.sdp)
+                            .size(30.sdp)
                             .clickable { seekTo(selectedVerseToRead?.verseIndex?.plus(1) ?: 1) },
                         imageVector = Icons.Rounded.SkipNext,
                         contentDescription = "next",

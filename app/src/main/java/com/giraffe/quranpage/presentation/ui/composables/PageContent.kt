@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
@@ -37,7 +38,11 @@ fun PageContent(
     onVerseSelected: (VerseEntity) -> Unit,
     onPageClick: () -> Unit
 ) {
-    Column(modifier = modifier, Arrangement.Center) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         pageUI.contents.forEach { content ->
             val onLongClick = remember<(offset: Int) -> Unit> {
                 {
@@ -52,7 +57,7 @@ fun PageContent(
             }
             val isFirstVerseOfSurahExist by remember { derivedStateOf { content.verses.first().verseIndex == 1 } }
             val surahOfContentIndex by remember { derivedStateOf { content.verses.first().surahIndex } }
-            var layoutResult by remember { mutableStateOf<TextLayoutResult?>( null) }
+            var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
             val contentModifier = remember {
                 Modifier.pointerInput(Unit) {
                     detectTapGestures(
@@ -81,7 +86,7 @@ fun PageContent(
                 }
                 if (surahOfContentIndex != 1 && surahOfContentIndex != 9) Image(
                     modifier = Modifier.padding(
-                        horizontal = 65.sdp
+                        horizontal = 60.sdp
                     ),
                     painter = painterResource(id = R.drawable.basmala),
                     contentDescription = ""
