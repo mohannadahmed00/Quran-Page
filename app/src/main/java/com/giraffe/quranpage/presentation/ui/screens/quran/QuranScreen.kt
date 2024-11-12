@@ -123,7 +123,7 @@ fun QuranContent(
     val scope = rememberCoroutineScope()
     val systemUiController = rememberSystemUiController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val drawerScrollState =  rememberLazyListState()
+    val drawerScrollState = rememberLazyListState()
     val interactionSource = remember { MutableInteractionSource() }
     var isOptionsBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
     var isTafseerBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
@@ -131,7 +131,7 @@ fun QuranContent(
     var isPlayerDialogVisible by rememberSaveable { mutableStateOf(true) }
     var isErrorAlertDialogVisible by rememberSaveable { mutableStateOf(false) }
     var networkErrorMsg by rememberSaveable { mutableStateOf<String?>(null) }
-    val currentSurahIndex by remember (pagerState.currentPage){
+    val currentSurahIndex by remember(pagerState.currentPage) {
         derivedStateOf {
             var index = 0
             state.surahesByJuz.forEach { (_, surahes) ->
@@ -321,7 +321,7 @@ fun QuranContent(
                     .requiredWidth(250.sdp)
                     .fillMaxHeight()
             ) {
-                LazyColumn (
+                LazyColumn(
                     state = drawerScrollState
                 ) {
                     state.surahesByJuz.forEach { (juz, surahes) ->
@@ -336,7 +336,7 @@ fun QuranContent(
                                 }
                             }
                         }
-                        items(surahes){
+                        items(surahes, key = { it.id }) {
                             val isSelected by remember { derivedStateOf { pagerState.currentPage >= it.startPageIndex - 1 && pagerState.currentPage <= it.endPageIndex - 1 } }
                             SurahDrawerItem(it, isSelected) {
                                 scope.launch {
@@ -451,7 +451,8 @@ fun QuranContent(
                     onMenuClick = {
                         scope.launch {
                             val calculatedPosition = currentSurahIndex - 4
-                            val scrollPosition = if (calculatedPosition < 0) 0 else calculatedPosition
+                            val scrollPosition =
+                                if (calculatedPosition < 0) 0 else calculatedPosition
                             drawerScrollState.scrollToItem(scrollPosition)
                             drawerState.open()
                         }
@@ -507,53 +508,51 @@ fun QuranContent(
                 onDismissRequest = { isRecitersBottomSheetVisible = false }
             ) {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    LazyColumn(
-                        contentPadding = PaddingValues(vertical = 4.sdp)
-                    ) {
-                        item {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                Text(
-                                    text = state.surahesData[audioPlayerSurahAudioData?.surahIndex?.minus(
-                                        1
-                                    )
-                                        ?: state.firstVerse?.surahIndex?.minus(1)
-                                        ?: 0].arabicName,
-                                    style = TextStyle(
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 18.ssp
-                                    )
-                                )
-                            }
-                        }
-                        item {
-                            HorizontalDivider(
-                                modifier = Modifier.padding(
-                                    horizontal = 8.sdp,
-                                    vertical = 16.sdp
-                                ), thickness = 1.sdp
-                            )
-                        }
-                        items(state.reciters, key = { it.id }) {
-                            ReciterItem(
-                                reciter = it,
-                                surah = state.surahesData[audioPlayerSurahAudioData?.surahIndex?.minus(
+                    Column {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.sdp),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = state.surahesData[audioPlayerSurahAudioData?.surahIndex?.minus(
                                     1
                                 )
                                     ?: state.firstVerse?.surahIndex?.minus(1)
-                                    ?: 0],
-                                queue = queue,
-                                recentUrl = state.recentUrl,
-                                setReciter = events::selectReciter,
-                                clearRecentDownload = events::clearRecentDownload,
-                                setSurahAudioData = audioPlayer::setSurahAudioData,
-                                downloadSurahForReciter = downloadSurahForReciter,
-                                cancelDownloadAudio = cancelDownloadAudio,
+                                    ?: 0].arabicName,
+                                style = TextStyle(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.ssp
+                                )
                             )
                         }
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 8.sdp), thickness = 1.sdp
+                        )
+                        LazyColumn(
+                            contentPadding = PaddingValues(vertical = 8.sdp),
+                        ) {
+                            items(state.reciters, key = { it.id }) {
+                                ReciterItem(
+                                    reciter = it,
+                                    surah = state.surahesData[audioPlayerSurahAudioData?.surahIndex?.minus(
+                                        1
+                                    )
+                                        ?: state.firstVerse?.surahIndex?.minus(1)
+                                        ?: 0],
+                                    queue = queue,
+                                    recentUrl = state.recentUrl,
+                                    setReciter = events::selectReciter,
+                                    clearRecentDownload = events::clearRecentDownload,
+                                    setSurahAudioData = audioPlayer::setSurahAudioData,
+                                    downloadSurahForReciter = downloadSurahForReciter,
+                                    cancelDownloadAudio = cancelDownloadAudio,
+                                )
+                            }
+                        }
                     }
+
                 }
             }
         }

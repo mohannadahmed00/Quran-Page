@@ -34,11 +34,12 @@ fun SurahDrawerItem(
 ) {
 
     val lightPrimary = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-    val selectionColor  = remember (isSelected){
+    val selectionColor = remember(isSelected) {
         if (isSelected) inverseOnSurface else primary.copy(alpha = 0.4f)
     }
     Row(
-        modifier = Modifier.background(color = if (isSelected) primary else inverseOnSurface)
+        modifier = Modifier
+            .background(color = if (isSelected) primary else inverseOnSurface)
             .padding(horizontal = 8.sdp, vertical = 10.sdp)
             .clickable { scrollTo(surah.startPageIndex) },
         verticalAlignment = Alignment.CenterVertically
@@ -48,7 +49,7 @@ fun SurahDrawerItem(
             modifier = Modifier
                 .size(35.sdp)
                 .background(
-                    color = if(isSelected) inverseOnSurface else lightPrimary,
+                    color = if (isSelected) inverseOnSurface else lightPrimary,
                     shape = CircleShape
                 )
         ) {
