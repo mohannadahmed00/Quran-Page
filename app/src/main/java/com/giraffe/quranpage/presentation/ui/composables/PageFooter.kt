@@ -1,34 +1,27 @@
 package com.giraffe.quranpage.presentation.ui.composables
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import com.giraffe.quranpage.R
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 
 @Composable
-fun PageFooter(modifier: Modifier = Modifier, hasSajdah: Boolean, pageIndex: Int, hezb: String?) {
+fun PageFooter(modifier: Modifier = Modifier, pageIndex: Int, hezb: String?) {
     Row(
-        modifier = modifier.padding(horizontal = 16.sdp, vertical = 8.sdp),
+        modifier = modifier.padding(horizontal = 10.sdp, vertical = 8.sdp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(modifier = Modifier.weight(1f)) {
-            if (hasSajdah) Image(
-                modifier = Modifier.size(20.sdp),
-                painter = painterResource(id = R.drawable.sajdah),
-                contentDescription = ""
-            )
-        }
+        Box(modifier = Modifier.weight(1f))
         Text(
             text = (pageIndex).toString(),
             style = TextStyle(
@@ -39,10 +32,17 @@ fun PageFooter(modifier: Modifier = Modifier, hasSajdah: Boolean, pageIndex: Int
         Box(modifier = Modifier.weight(1f), Alignment.CenterEnd) {
             hezb?.let {
                 Text(
+                    modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.secondary,
+                            shape = RoundedCornerShape(5.sdp)
+                        )
+                        .padding(horizontal = 4.sdp, vertical = 2.sdp),
                     text = it,
                     style = TextStyle(
                         fontSize = 10.ssp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.background
                     )
                 )
             }

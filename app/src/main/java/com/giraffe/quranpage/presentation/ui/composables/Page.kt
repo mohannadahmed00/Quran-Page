@@ -42,7 +42,6 @@ fun Page(
         PageFooter(
             pageIndex = pageUI.pageIndex,
             hezb = pageUI.hezbStr,
-            hasSajdah = pageUI.hasSajdah
         )
     }
 

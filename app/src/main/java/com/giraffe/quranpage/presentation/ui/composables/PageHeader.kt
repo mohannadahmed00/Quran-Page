@@ -21,7 +21,7 @@ fun PageHeader(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.sdp), Arrangement.SpaceBetween
+            .padding(horizontal = 10.sdp, vertical = 14.sdp), Arrangement.SpaceBetween
     ) {
         Text(
             text = surahName,
