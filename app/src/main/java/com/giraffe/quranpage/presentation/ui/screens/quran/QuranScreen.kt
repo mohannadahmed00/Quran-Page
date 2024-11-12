@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -121,6 +123,7 @@ fun QuranContent(
     val scope = rememberCoroutineScope()
     val systemUiController = rememberSystemUiController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val drawerScrollState =  rememberLazyListState()
     val interactionSource = remember { MutableInteractionSource() }
     var isOptionsBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
     var isTafseerBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
@@ -128,6 +131,21 @@ fun QuranContent(
     var isPlayerDialogVisible by rememberSaveable { mutableStateOf(true) }
     var isErrorAlertDialogVisible by rememberSaveable { mutableStateOf(false) }
     var networkErrorMsg by rememberSaveable { mutableStateOf<String?>(null) }
+    val currentSurahIndex by remember (pagerState.currentPage){
+        derivedStateOf {
+            var index = 0
+            state.surahesByJuz.forEach { (_, surahes) ->
+                index++
+                surahes.forEach { surah ->
+                    if (pagerState.currentPage >= surah.startPageIndex - 1 && pagerState.currentPage <= surah.endPageIndex - 1) {
+                        return@derivedStateOf index
+                    }
+                    index++
+                }
+            }
+            index
+        }
+    }
     val args = remember { QuranArgs(navController.currentBackStackEntry?.savedStateHandle) }
 
 
@@ -298,19 +316,27 @@ fun QuranContent(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
-                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+            ModalDrawerSheet(
+                modifier = Modifier
+                    .requiredWidth(250.sdp)
+                    .fillMaxHeight()
+            ) {
+                LazyColumn (
+                    state = drawerScrollState
+                ) {
                     state.surahesByJuz.forEach { (juz, surahes) ->
-                        DrawerPartHeader(
-                            state.surahesByJuz.keys,
-                            juz
-                        ) {
-                            scope.launch {
-                                pagerState.scrollToPage(it - 1)
-                                drawerState.close()
+                        item {
+                            DrawerPartHeader(
+                                state.surahesByJuz.keys,
+                                juz
+                            ) {
+                                scope.launch {
+                                    pagerState.scrollToPage(it - 1)
+                                    drawerState.close()
+                                }
                             }
                         }
-                        surahes.forEach {
+                        items(surahes){
                             val isSelected by remember { derivedStateOf { pagerState.currentPage >= it.startPageIndex - 1 && pagerState.currentPage <= it.endPageIndex - 1 } }
                             SurahDrawerItem(it, isSelected) {
                                 scope.launch {
@@ -319,6 +345,7 @@ fun QuranContent(
                                 }
                             }
                         }
+
                     }
                 }
             }
@@ -423,6 +450,9 @@ fun QuranContent(
                     bookmarkedVerse = state.bookmarkedVerse,
                     onMenuClick = {
                         scope.launch {
+                            val calculatedPosition = currentSurahIndex - 4
+                            val scrollPosition = if (calculatedPosition < 0) 0 else calculatedPosition
+                            drawerScrollState.scrollToItem(scrollPosition)
                             drawerState.open()
                         }
                     },

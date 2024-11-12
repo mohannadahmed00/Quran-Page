@@ -2,7 +2,6 @@ package com.giraffe.quranpage.presentation.ui.composables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,7 +20,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -57,53 +55,47 @@ fun SearchBar(
     Surface(
         shadowElevation = 10.sdp,
     ) {
-        Row(
+        OutlinedTextField(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.surfaceVariant)
+                .padding(16.sdp)
                 .fillMaxWidth()
-                .padding(16.sdp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            OutlinedTextField(
-                modifier = Modifier.weight(1f).focusRequester(focusRequester),
-                textStyle = TextStyle(fontSize = 14.ssp, textDirection = TextDirection.Content),
-                value = value,
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors().copy(
-                    focusedContainerColor = MaterialTheme.colorScheme.background,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.background,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                ),
-                onValueChange = {
-                    value = it
-                    onValueChange(value)
-                },
-                trailingIcon = {
-                    if (value.isNotEmpty()) Icon(
-                        modifier = Modifier
-                            .size(15.sdp)
-                            .clickable {
-                                value = ""
-                                onValueChange(value)
-                            },
-                        imageVector = Icons.Default.Clear, contentDescription = "Clear"
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        modifier = Modifier
-                            .size(20.sdp)
-                            .clickable {
-                                onBackClick()
-                            },
-                        imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                        contentDescription = "ArrowBack"
-                    )
-                }
-            )
-
-        }
+                .focusRequester(focusRequester),
+            textStyle = TextStyle(fontSize = 14.ssp, textDirection = TextDirection.Content),
+            value = value,
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors().copy(
+                focusedContainerColor = MaterialTheme.colorScheme.background,
+                unfocusedContainerColor = MaterialTheme.colorScheme.background,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+            ),
+            onValueChange = {
+                value = it
+                onValueChange(value)
+            },
+            trailingIcon = {
+                if (value.isNotEmpty()) Icon(
+                    modifier = Modifier
+                        .size(15.sdp)
+                        .clickable {
+                            value = ""
+                            onValueChange(value)
+                        },
+                    imageVector = Icons.Default.Clear, contentDescription = "Clear"
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    modifier = Modifier
+                        .size(20.sdp)
+                        .clickable {
+                            onBackClick()
+                        },
+                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                    contentDescription = "ArrowBack"
+                )
+            }
+        )
     }
 }

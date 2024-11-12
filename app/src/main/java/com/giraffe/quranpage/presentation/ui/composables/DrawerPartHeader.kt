@@ -49,7 +49,7 @@ fun DrawerPartHeader(
                 text = "$juz juz'",
                 style = TextStyle(
                     fontSize = 14.ssp,
-                    color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f)
+                    color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
                 )
             )
         }

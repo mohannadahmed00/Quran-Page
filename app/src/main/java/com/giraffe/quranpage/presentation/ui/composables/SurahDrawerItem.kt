@@ -14,25 +14,31 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import com.giraffe.quranpage.domain.entities.SurahDataEntity
 import ir.kaaveh.sdpcompose.sdp
+import ir.kaaveh.sdpcompose.ssp
 
 @Composable
 fun SurahDrawerItem(
     surah: SurahDataEntity,
     isSelected: Boolean = false,
-    selectedColor: Color = MaterialTheme.colorScheme.secondaryContainer.copy(
-        alpha = 0.5f
-    ),
-    unSelectedColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
+    primary: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+    inverseOnSurface: Color = MaterialTheme.colorScheme.inverseOnSurface,
     scrollTo: (Int) -> Unit
 ) {
+
+    val lightPrimary = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+    val selectionColor  = remember (isSelected){
+        if (isSelected) inverseOnSurface else primary.copy(alpha = 0.4f)
+    }
     Row(
-        modifier = Modifier.background(color = if (isSelected) selectedColor else unSelectedColor)
+        modifier = Modifier.background(color = if (isSelected) primary else inverseOnSurface)
             .padding(horizontal = 8.sdp, vertical = 10.sdp)
             .clickable { scrollTo(surah.startPageIndex) },
         verticalAlignment = Alignment.CenterVertically
@@ -40,28 +46,25 @@ fun SurahDrawerItem(
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(44.sdp)
+                .size(35.sdp)
                 .background(
-                    color = if (isSelected) MaterialTheme.colorScheme.inverseOnSurface else MaterialTheme.colorScheme.secondaryContainer.copy(
-                        alpha = 0.3f
-                    ),
+                    color = if(isSelected) inverseOnSurface else lightPrimary,
                     shape = CircleShape
                 )
         ) {
-            Text(text = surah.id.toString())
+            Text(text = surah.id.toString(), fontSize = 14.ssp)
         }
         Spacer(modifier = Modifier.width(8.sdp))
         Column {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(text = surah.englishName)
+                Text(text = surah.englishName, fontSize = 14.ssp, fontWeight = FontWeight.Medium)
                 Text(
                     text = " (${surah.place})",
                     style = TextStyle(
-                        color = MaterialTheme.colorScheme.primary.copy(
-                            alpha = 0.4f
-                        )
+                        fontSize = 14.ssp,
+                        color = selectionColor
                     )
                 )
             }
@@ -73,17 +76,15 @@ fun SurahDrawerItem(
                 Text(
                     text = "Verses: ${surah.countOfVerses} /",
                     style = TextStyle(
-                        color = MaterialTheme.colorScheme.primary.copy(
-                            alpha = 0.4f
-                        )
+                        fontSize = 12.ssp,
+                        color = selectionColor
                     )
                 )
                 Text(
                     text = " Pages: ${surah.startPageIndex} - ${surah.endPageIndex}",
                     style = TextStyle(
-                        color = MaterialTheme.colorScheme.primary.copy(
-                            alpha = 0.4f
-                        )
+                        fontSize = 12.ssp,
+                        color = selectionColor
                     )
                 )
             }
