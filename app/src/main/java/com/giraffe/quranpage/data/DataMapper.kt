@@ -37,7 +37,12 @@ fun VerseModel.toEntity() = VerseEntity(
     verseIndex = verseNumber,
     pageIndex = pageIndex,
     quarterHezbIndex = quarterHezbIndex,
-    hasSajda = sajda
+    hasSajda = sajda,
+    juz = juz,
+    surahNameAr = surahNameAr,
+    surahNameEn = surahNameEn,
+    lineStart = lineStart,
+    lineEnd = lineEnd,
 )
 
 fun VerseEntity.toModel() = VerseModel(
@@ -48,7 +53,12 @@ fun VerseEntity.toModel() = VerseModel(
     verseNumber = verseIndex,
     pageIndex = pageIndex,
     quarterHezbIndex = quarterHezbIndex,
-    sajda = hasSajda
+    sajda = hasSajda,
+    juz = juz,
+    surahNameAr = surahNameAr,
+    surahNameEn = surahNameEn,
+    lineStart = lineStart,
+    lineEnd = lineEnd
 )
 
 fun ReciterModel.toEntity() = ReciterEntity(

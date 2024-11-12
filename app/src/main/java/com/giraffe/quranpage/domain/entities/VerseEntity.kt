@@ -13,4 +13,9 @@ data class VerseEntity(
     val pageIndex: Int,
     val quarterHezbIndex: Int,
     val hasSajda: Boolean = false,
+    val juz:Int,
+    val surahNameAr:String,
+    val surahNameEn:String,
+    val lineStart:Int,
+    val lineEnd:Int
 ) : Parcelable

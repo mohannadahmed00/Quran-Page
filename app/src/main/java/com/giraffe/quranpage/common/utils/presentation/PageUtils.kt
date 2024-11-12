@@ -230,3 +230,12 @@ fun getNamesOfSurahes(surahesData: List<SurahDataEntity>, pageIndex: Int): Strin
         }
     return str.toString().trim()
 }
+
+fun getNamesOfSurahes(contents:List<ContentEntity>): String {
+    val str = StringBuilder()
+    contents.forEach { content->
+        str.append(content.verses.first().surahNameEn)
+        str.append("    ")
+    }
+    return str.toString().trim()
+}

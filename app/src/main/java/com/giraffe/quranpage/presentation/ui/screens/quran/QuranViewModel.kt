@@ -51,16 +51,16 @@ class QuranViewModel @Inject constructor(
     private fun getAllVerses() {
         viewModelScope.launch(Dispatchers.IO) {
             getSurahesDataUseCase().let { surahesData ->
-                getAllPagesUseCase(surahesData).let { pages ->
+                getAllPagesUseCase().let { pages ->
                     getLastPageUseCase().let { lastPageIndex ->
                         getRecitersUseCase().let { reciters ->
                             _state.update { state ->
                                 pages.map { it.toUi() }.let { pagesUi ->
                                     val firstVerse =
-                                        pagesUi[lastPageIndex - 1].contents[0].verses[0]
+                                        pagesUi[lastPageIndex - 1].contents.firstOrNull()?.verses?.firstOrNull()
                                     val selectedReciter =
-                                        reciters.firstOrNull { it.surahesAudioData.firstOrNull { s -> s.surahIndex == firstVerse.surahIndex } != null }
-                                            ?: reciters[0]
+                                        reciters.firstOrNull { it.surahesAudioData.firstOrNull { s -> s.surahIndex == firstVerse?.surahIndex } != null }
+                                            ?: if (reciters.isNotEmpty()) reciters[0] else null
                                     state.copy(
                                         allOriginalPages = pagesUi,
                                         allPages = pagesUi,

@@ -13,4 +13,9 @@ data class VerseModel(
     val pageIndex: Int,
     val sajda: Boolean = false,
     val quarterHezbIndex: Int,
+    val juz:Int,
+    val surahNameAr:String,
+    val surahNameEn:String,
+    val lineStart:Int,
+    val lineEnd:Int
 ) : Parcelable
