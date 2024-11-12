@@ -15,17 +15,25 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDirection
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun SearchBar(
@@ -35,6 +43,17 @@ fun SearchBar(
     var value by remember {
         mutableStateOf("")
     }
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val coroutineScope = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        coroutineScope.launch(Dispatchers.Main) {
+            delay(100)
+            focusRequester.requestFocus()
+            keyboardController?.show()
+        }
+    }
+
     Surface(
         shadowElevation = 10.sdp,
     ) {
@@ -47,9 +66,10 @@ fun SearchBar(
         ) {
 
             OutlinedTextField(
-                modifier = Modifier.weight(1f),
-                textStyle = TextStyle(fontSize = 16.ssp, textDirection = TextDirection.Content),
+                modifier = Modifier.weight(1f).focusRequester(focusRequester),
+                textStyle = TextStyle(fontSize = 14.ssp, textDirection = TextDirection.Content),
                 value = value,
+                singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors().copy(
                     focusedContainerColor = MaterialTheme.colorScheme.background,
                     unfocusedContainerColor = MaterialTheme.colorScheme.background,
