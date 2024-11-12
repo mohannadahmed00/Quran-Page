@@ -145,7 +145,11 @@ class QuranViewModel @Inject constructor(
 
     override fun saveLastPageIndex() {
         viewModelScope.launch(Dispatchers.IO) {
-            saveLastPageUseCase(_state.value.firstVerse?.pageIndex ?: 0)
+            (_state.value.firstVerse?.pageIndex ?: 0).let { lastPageIndex->
+                _state.update { it.copy(lastPageIndex = lastPageIndex) }
+                saveLastPageUseCase(lastPageIndex)
+            }
+
         }
     }
 
