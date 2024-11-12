@@ -50,8 +50,8 @@ fun PageContent(
                     }
                 }
             }
-            val isFirstVerseOfSurahExist by remember { derivedStateOf { content.verses[0].verseIndex == 1 } }
-            val surahOfContentIndex by remember { derivedStateOf { content.verses[0].surahIndex } }
+            val isFirstVerseOfSurahExist by remember { derivedStateOf { content.verses.first().verseIndex == 1 } }
+            val surahOfContentIndex by remember { derivedStateOf { content.verses.first().surahIndex } }
             var layoutResult by remember { mutableStateOf<TextLayoutResult?>( null) }
             val contentModifier = remember {
                 Modifier.pointerInput(Unit) {
@@ -107,7 +107,7 @@ fun PageContent(
                         bottom = 4.sdp,
                         top = 4.sdp
                     ),
-                    surahName = surahesData.getOrNull(content.verses[0].surahIndex)?.arabicName
+                    surahName = surahesData.getOrNull(content.verses.first().surahIndex)?.arabicName
                         ?: ""
                 )
             }

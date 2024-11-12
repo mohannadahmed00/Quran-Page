@@ -22,12 +22,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.giraffe.quranpage.presentation.ui.composables.SearchBar
 import com.giraffe.quranpage.presentation.ui.screens.quran.QuranArgs.Companion.SEARCH_RESULT
+import ir.kaaveh.sdpcompose.sdp
+import ir.kaaveh.sdpcompose.ssp
 
 @Composable
 fun SearchScreen(
@@ -57,8 +57,8 @@ fun SearchContent(
             onValueChange = { events.onValueChange(it) },
         )
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.sdp),
+            contentPadding = PaddingValues(horizontal = 8.sdp, vertical = 16.sdp),
             horizontalAlignment = AbsoluteAlignment.Right
         ) {
             items(state.filteredVerses) {
@@ -74,15 +74,14 @@ fun SearchContent(
                         .copy(containerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                 ) {
                     Column(
-                        modifier = Modifier.padding(8.dp),
+                        modifier = Modifier.padding(8.sdp),
                     ) {
                         Text(
-
                             text = it.qcfContent,
                             style = TextStyle(
                                 fontFamily = com.giraffe.quranpage.presentation.ui.theme.fontFamilies[(it.pageIndex) - 1],
                                 textDirection = TextDirection.ContentOrRtl,
-                                fontSize = 24.sp,
+                                fontSize = 24.ssp,
                             )
                         )
                         Text(

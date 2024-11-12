@@ -14,9 +14,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.giraffe.quranpage.common.utils.getPageIndexOfJuz
+import ir.kaaveh.sdpcompose.sdp
+import ir.kaaveh.sdpcompose.ssp
 
 @Composable
 fun DrawerPartHeader(
@@ -37,7 +37,7 @@ fun DrawerPartHeader(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
-            .padding(8.dp),
+            .padding(8.sdp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         for (juz in (previousPart?.plus(1) ?: 1)..juzIndex) {
@@ -48,7 +48,7 @@ fun DrawerPartHeader(
                 modifier = modifier,
                 text = "$juz juz'",
                 style = TextStyle(
-                    fontSize = 18.sp,
+                    fontSize = 14.ssp,
                     color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f)
                 )
             )

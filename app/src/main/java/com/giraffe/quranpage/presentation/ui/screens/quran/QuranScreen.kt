@@ -41,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -52,7 +53,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -122,12 +122,12 @@ fun QuranContent(
     val systemUiController = rememberSystemUiController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val interactionSource = remember { MutableInteractionSource() }
-    var isOptionsBottomSheetVisible by remember { mutableStateOf(false) }
-    var isTafseerBottomSheetVisible by remember { mutableStateOf(false) }
-    var isRecitersBottomSheetVisible by remember { mutableStateOf(false) }
-    var isPlayerDialogVisible by remember { mutableStateOf(true) }
-    var isErrorAlertDialogVisible by remember { mutableStateOf(false) }
-    var networkErrorMsg by remember { mutableStateOf<String?>(null) }
+    var isOptionsBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
+    var isTafseerBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
+    var isRecitersBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
+    var isPlayerDialogVisible by rememberSaveable { mutableStateOf(true) }
+    var isErrorAlertDialogVisible by rememberSaveable { mutableStateOf(false) }
+    var networkErrorMsg by rememberSaveable { mutableStateOf<String?>(null) }
     val args = remember { QuranArgs(navController.currentBackStackEntry?.savedStateHandle) }
 
 
@@ -144,13 +144,16 @@ fun QuranContent(
 
 
     //=================================download=================================
-    val downloadServiceConnection = remember { ServiceConnection { (it as DownloadService.LocalBinder).getService() } }
+    val downloadServiceConnection =
+        remember { ServiceConnection { (it as DownloadService.LocalBinder).getService() } }
     val downloadService by downloadServiceConnection.service.collectAsState()
-    val downloadedFiles = remember(downloadService?.downloadedFiles) { downloadService?.downloadedFiles ?: mapOf() }
+    val downloadedFiles =
+        remember(downloadService?.downloadedFiles) { downloadService?.downloadedFiles ?: mapOf() }
     val queue by downloadService?.queueState?.collectAsState() ?: remember {
         mutableStateOf(emptyMap())
     }
-    val downloadSurahForReciter = remember<(Int, ReciterEntity, String, String, String) -> Unit>(state.surahesData) {
+    val downloadSurahForReciter =
+        remember<(Int, ReciterEntity, String, String, String) -> Unit>(state.surahesData) {
             { surahId, reciter, url, reciterName, surahName ->
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     if (!queue.containsKey(url)) {
@@ -465,7 +468,6 @@ fun QuranContent(
                 )
             }
         }
-
         if (isRecitersBottomSheetVisible) {
             ModalBottomSheet(
                 modifier = Modifier
@@ -499,9 +501,9 @@ fun QuranContent(
                         item {
                             HorizontalDivider(
                                 modifier = Modifier.padding(
-                                    horizontal = 8.dp,
-                                    vertical = 16.dp
-                                ), thickness = 1.dp
+                                    horizontal = 8.sdp,
+                                    vertical = 16.sdp
+                                ), thickness = 1.sdp
                             )
                         }
                         items(state.reciters, key = { it.id }) {
@@ -548,13 +550,13 @@ fun QuranContent(
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
+                            .padding(horizontal = 16.sdp)
                     )
                     HorizontalDivider(
                         modifier = Modifier.padding(
-                            horizontal = 8.dp,
-                            vertical = 16.dp
-                        ), thickness = 1.dp
+                            horizontal = 8.sdp,
+                            vertical = 16.sdp
+                        ), thickness = 1.sdp
                     )
                     state.selectedVerseTafseerError?.let {
                         Text(
@@ -566,7 +568,7 @@ fun QuranContent(
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
+                                .padding(horizontal = 16.sdp)
                         )
                     } ?: state.selectedVerseTafseer?.let {
                         Text(
@@ -578,7 +580,7 @@ fun QuranContent(
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
+                                .padding(horizontal = 16.sdp)
                         )
                         Text(
                             "[ ${it.name} ]",
@@ -590,7 +592,7 @@ fun QuranContent(
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
+                                .padding(horizontal = 16.sdp)
                         )
                     }
                 }

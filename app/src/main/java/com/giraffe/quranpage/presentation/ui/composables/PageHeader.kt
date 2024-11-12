@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 
 @Composable
@@ -21,7 +21,7 @@ fun PageHeader(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp), Arrangement.SpaceBetween
+            .padding(16.sdp), Arrangement.SpaceBetween
     ) {
         Text(
             text = surahName,

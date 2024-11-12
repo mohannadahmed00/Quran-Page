@@ -14,13 +14,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.dp
 import com.giraffe.quranpage.domain.entities.SurahDataEntity
+import ir.kaaveh.sdpcompose.sdp
 
 @Composable
 fun SurahDrawerItem(
@@ -32,26 +31,16 @@ fun SurahDrawerItem(
     unSelectedColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
     scrollTo: (Int) -> Unit
 ) {
-    val modifier = remember(isSelected) {
-        Modifier
-            .background(
-                color = if (isSelected) selectedColor else unSelectedColor,
-            )
-            .padding(horizontal = 8.dp, vertical = 10.dp)
-            .clickable { scrollTo(surah.startPageIndex) }
-    }
     Row(
-        modifier = modifier.background(
-            color = if (isSelected) selectedColor else unSelectedColor,
-        )
-            .padding(horizontal = 8.dp, vertical = 10.dp)
+        modifier = Modifier.background(color = if (isSelected) selectedColor else unSelectedColor)
+            .padding(horizontal = 8.sdp, vertical = 10.sdp)
             .clickable { scrollTo(surah.startPageIndex) },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(44.dp)
+                .size(44.sdp)
                 .background(
                     color = if (isSelected) MaterialTheme.colorScheme.inverseOnSurface else MaterialTheme.colorScheme.secondaryContainer.copy(
                         alpha = 0.3f
@@ -61,7 +50,7 @@ fun SurahDrawerItem(
         ) {
             Text(text = surah.id.toString())
         }
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(8.sdp))
         Column {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

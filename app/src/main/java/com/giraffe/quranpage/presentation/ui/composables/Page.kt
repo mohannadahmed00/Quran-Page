@@ -9,10 +9,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.giraffe.quranpage.domain.entities.SurahDataEntity
 import com.giraffe.quranpage.domain.entities.VerseEntity
 import com.giraffe.quranpage.presentation.ui.screens.quran.PageUi
+import ir.kaaveh.sdpcompose.sdp
 
 @Composable
 fun Page(
@@ -33,7 +33,7 @@ fun Page(
             juz = pageUI.juz
         )
         PageContent(
-            modifier = Modifier.width(415.dp),
+            modifier = Modifier.width(316.sdp),
             pageUI = pageUI,
             surahesData = surahesData,
             onVerseSelected = onVerseSelected,

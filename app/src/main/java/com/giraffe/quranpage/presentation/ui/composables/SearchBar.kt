@@ -24,8 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import ir.kaaveh.sdpcompose.sdp
+import ir.kaaveh.sdpcompose.ssp
 
 @Composable
 fun SearchBar(
@@ -36,19 +36,19 @@ fun SearchBar(
         mutableStateOf("")
     }
     Surface(
-        shadowElevation = 10.dp,
+        shadowElevation = 10.sdp,
     ) {
         Row(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(16.sdp),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
             OutlinedTextField(
                 modifier = Modifier.weight(1f),
-                textStyle = TextStyle(fontSize = 16.sp, textDirection = TextDirection.Content),
+                textStyle = TextStyle(fontSize = 16.ssp, textDirection = TextDirection.Content),
                 value = value,
                 colors = OutlinedTextFieldDefaults.colors().copy(
                     focusedContainerColor = MaterialTheme.colorScheme.background,
@@ -63,7 +63,7 @@ fun SearchBar(
                 trailingIcon = {
                     if (value.isNotEmpty()) Icon(
                         modifier = Modifier
-                            .size(20.dp)
+                            .size(15.sdp)
                             .clickable {
                                 value = ""
                                 onValueChange(value)
@@ -74,7 +74,7 @@ fun SearchBar(
                 leadingIcon = {
                     Icon(
                         modifier = Modifier
-                            .size(25.dp)
+                            .size(20.sdp)
                             .clickable {
                                 onBackClick()
                             },

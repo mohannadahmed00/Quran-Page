@@ -12,19 +12,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.giraffe.quranpage.R
+import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 
 @Composable
 fun PageFooter(modifier: Modifier = Modifier, hasSajdah: Boolean, pageIndex: Int, hezb: String?) {
     Row(
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier = modifier.padding(horizontal = 16.sdp, vertical = 8.sdp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(modifier = Modifier.weight(1f)) {
             if (hasSajdah) Image(
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(20.sdp),
                 painter = painterResource(id = R.drawable.sajdah),
                 contentDescription = ""
             )

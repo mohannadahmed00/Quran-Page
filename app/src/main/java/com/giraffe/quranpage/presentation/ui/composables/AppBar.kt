@@ -19,8 +19,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.unit.dp
 import com.giraffe.quranpage.domain.entities.VerseEntity
+import ir.kaaveh.sdpcompose.sdp
 
 @Composable
 fun AppBar(
@@ -38,13 +38,13 @@ fun AppBar(
                 interactionSource = interactionSource,
                 indication = null
             ) {}
-            .padding(16.dp),
+            .padding(16.sdp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
             modifier = Modifier
-                .size(30.dp)
+                .size(25.sdp)
                 .clickable(onClick = onMenuClick),
             imageVector = Icons.Rounded.Menu, contentDescription = "Menu",
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)),
@@ -52,7 +52,7 @@ fun AppBar(
             )
         Image(
             modifier = Modifier
-                .size(30.dp)
+                .size(25.sdp)
                 .clickable(onClick = onBookmarkClick),
             imageVector = Icons.Rounded.Bookmark,
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = if (bookmarkedVerse != null) 0.7f else 0.2f)),
@@ -60,7 +60,7 @@ fun AppBar(
         )
         Image(
             modifier = Modifier
-                .size(30.dp)
+                .size(25.sdp)
                 .clickable(onClick = onSearchClick),
             imageVector = Icons.Rounded.Search, contentDescription = "Search",
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)),
