@@ -33,7 +33,7 @@ fun Page(
             juz = pageUI.juz
         )
         PageContent(
-            modifier = Modifier.width(316.sdp),
+            modifier = Modifier.width(319.sdp),
             pageUI = pageUI,
             surahesData = surahesData,
             onVerseSelected = onVerseSelected,

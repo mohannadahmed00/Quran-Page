@@ -1,6 +1,5 @@
 package com.giraffe.quranpage.presentation.ui.composables
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,7 +14,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.intl.Locale
@@ -23,10 +21,10 @@ import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.sp
-import com.giraffe.quranpage.R
 import com.giraffe.quranpage.domain.entities.SurahDataEntity
 import com.giraffe.quranpage.domain.entities.VerseEntity
 import com.giraffe.quranpage.presentation.ui.screens.quran.PageUi
+import com.giraffe.quranpage.presentation.ui.theme.fontFamilies
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 
@@ -56,7 +54,6 @@ fun PageContent(
                 }
             }
             val isFirstVerseOfSurahExist by remember { derivedStateOf { content.verses.first().verseIndex == 1 } }
-            val surahOfContentIndex by remember { derivedStateOf { content.verses.first().surahIndex } }
             var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
             val contentModifier = remember {
                 Modifier.pointerInput(Unit) {
@@ -75,25 +72,21 @@ fun PageContent(
                 }
             }
             if (isFirstVerseOfSurahExist) {
-                if (layoutResult?.lineCount != 14 || surahOfContentIndex == 9) {
-                    SurahHeader(
-                        modifier = Modifier.padding(
-                            bottom = if (pageUI.pageIndex == 1 || pageUI.pageIndex == 2) 8.sdp else 4.sdp,
-                            top = 4.sdp
-                        ),
-                        surahName = content.surahNameAr
-                    )
+                if (layoutResult?.lineCount != 14 || pageUI.pageIndex == 187) {
+                    SurahHeader(surahName = content.surahNameAr)
                 }
-                if (surahOfContentIndex != 1 && surahOfContentIndex != 9) Image(
-                    modifier = Modifier.padding(
-                        horizontal = 60.sdp
-                    ),
-                    painter = painterResource(id = R.drawable.basmala),
-                    contentDescription = ""
+                if (pageUI.pageIndex != 1 && pageUI.pageIndex != 187) Text(
+                    modifier = Modifier.padding(top = 4.sdp),
+                    text = "ﱁ‏ﱂﱃﱄ",
+                    fontFamily = fontFamilies[0],
+                    fontSize = 20.ssp
                 )
             }
             Text(
-                modifier = contentModifier.padding(horizontal = if (pageUI.pageIndex == 1 || pageUI.pageIndex == 2) 30.sdp else 0.sdp),
+                modifier = contentModifier.padding(
+                    horizontal = if (pageUI.pageIndex == 1 || pageUI.pageIndex == 2) 30.sdp else 0.sdp,
+                    vertical = 4.sdp
+                ),
                 text = content.text,
                 onTextLayout = {
                     layoutResult = it
@@ -108,10 +101,6 @@ fun PageContent(
             )
             if (!isFirstVerseOfSurahExist && layoutResult?.lineCount == 14) {
                 SurahHeader(
-                    modifier = Modifier.padding(
-                        bottom = 4.sdp,
-                        top = 4.sdp
-                    ),
                     surahName = surahesData.getOrNull(content.verses.first().surahIndex)?.arabicName
                         ?: ""
                 )
