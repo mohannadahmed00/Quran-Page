@@ -73,7 +73,7 @@ fun PageContent(
             }
             if (isFirstVerseOfSurahExist) {
                 if (layoutResult?.lineCount != 14 || pageUI.pageIndex == 187) {
-                    SurahHeader(surahName = content.surahNameAr)
+                    SurahHeader(surahData = surahesData[content.verses.first().surahIndex - 1])
                 }
                 if (pageUI.pageIndex != 1 && pageUI.pageIndex != 187) Text(
                     modifier = Modifier.padding(top = 4.sdp),
@@ -101,8 +101,8 @@ fun PageContent(
             )
             if (!isFirstVerseOfSurahExist && layoutResult?.lineCount == 14) {
                 SurahHeader(
-                    surahName = surahesData.getOrNull(content.verses.first().surahIndex)?.arabicName
-                        ?: ""
+                    surahData = surahesData.getOrNull(content.verses.first().surahIndex)
+                        ?: surahesData.first()
                 )
             }
         }

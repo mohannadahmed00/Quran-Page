@@ -4,38 +4,15 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.giraffe.quranpage.R
 
-// Set of Material typography styles to start with
-val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
-    ),
-    labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    )
-    */
-)
 val uthmanicHafs = FontFamily(Font(R.font.uthmanic_hafs))
-val hafsSmart = FontFamily(Font(R.font.hafs_smart))
+val mcs0 = FontFamily(Font(R.font.mcs_0))
+val mcs1 = FontFamily(Font(R.font.mcs_1))
+val mcs2 = FontFamily(Font(R.font.mcs_2))
+val mcs3 = FontFamily(Font(R.font.mcs_3))
+val mcs4 = FontFamily(Font(R.font.mcs_4))
 val fontFamilies = listOf(
     FontFamily(Font(R.font.qcf2001)),
     FontFamily(Font(R.font.qcf2002)),
@@ -643,3 +620,17 @@ val fontFamilies = listOf(
     FontFamily(Font(R.font.qcf2604))
 )
 
+val Typography = Typography(
+    titleMedium = TextStyle(
+        fontFamily = uthmanicHafs,
+        fontSize = 22.sp,
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = uthmanicHafs,
+        fontSize = 16.sp,
+    ),
+    labelMedium = TextStyle(
+        fontFamily = uthmanicHafs,
+        fontSize = 11.sp,
+    )
+)

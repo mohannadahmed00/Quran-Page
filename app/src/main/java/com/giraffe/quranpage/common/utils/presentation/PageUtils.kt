@@ -10,6 +10,11 @@ import com.giraffe.quranpage.domain.entities.SurahDataEntity
 import com.giraffe.quranpage.domain.entities.VerseEntity
 import com.giraffe.quranpage.presentation.ui.screens.quran.PageUi
 import com.giraffe.quranpage.presentation.ui.theme.fontFamilies
+import com.giraffe.quranpage.presentation.ui.theme.mcs0
+import com.giraffe.quranpage.presentation.ui.theme.mcs1
+import com.giraffe.quranpage.presentation.ui.theme.mcs2
+import com.giraffe.quranpage.presentation.ui.theme.mcs3
+import com.giraffe.quranpage.presentation.ui.theme.mcs4
 import com.giraffe.quranpage.presentation.ui.theme.onPrimaryContainerLight
 import com.giraffe.quranpage.presentation.ui.theme.primaryLight
 
@@ -214,28 +219,19 @@ fun getHezbStr(quarterIndex: Int): String {
     return str.toString()
 }
 
-fun getNamesOfSurahes(surahesData: List<SurahDataEntity>, pageIndex: Int): String {
+fun getNamesOfSurahes(contents: List<ContentEntity>): String {
     val str = StringBuilder()
-    var surahNumber = 0
-    surahesData.filter { pageIndex in it.startPageIndex..it.endPageIndex }
-        .forEach {
-            if (it.id != surahNumber) {
-                surahNumber = it.id
-                str.append(
-                    surahesData.firstOrNull { surah -> surah.id == surahNumber }?.englishName
-                        ?: ""
-                )
-                str.append("    ")
-            }
-        }
-    return str.toString().trim()
-}
-
-fun getNamesOfSurahes(contents:List<ContentEntity>): String {
-    val str = StringBuilder()
-    contents.forEach { content->
+    contents.forEach { content ->
         str.append(content.verses.first().surahNameEn)
         str.append("    ")
     }
     return str.toString().trim()
+}
+
+fun getSurahNameFontFamily(id: Int) = when (id) {
+    1 -> mcs1
+    2 -> mcs2
+    3 -> mcs3
+    4 -> mcs4
+    else -> mcs0
 }

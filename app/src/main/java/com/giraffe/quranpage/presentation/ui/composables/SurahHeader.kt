@@ -1,36 +1,55 @@
 package com.giraffe.quranpage.presentation.ui.composables
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import com.giraffe.quranpage.R
-import com.giraffe.quranpage.presentation.ui.theme.hafsSmart
+import com.giraffe.quranpage.common.utils.presentation.getSurahNameFontFamily
+import com.giraffe.quranpage.domain.entities.SurahDataEntity
+import com.giraffe.quranpage.presentation.ui.theme.mcs0
+import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 
 @Composable
-fun SurahHeader(modifier: Modifier = Modifier, surahName: String) {
-    Box(modifier = modifier, contentAlignment = Alignment.Center) {
-        Image(
-
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
-            painter = painterResource(id = R.drawable.surah_header),
-            contentDescription = ""
-        )
-        Text(
-            text = surahName,
-            style = TextStyle(
-                fontSize = 20.ssp,
-                fontFamily = hafsSmart,
-                color = MaterialTheme.colorScheme.primary
+fun SurahHeader(modifier: Modifier = Modifier, surahData: SurahDataEntity) {
+    val title = buildAnnotatedString {
+        withStyle(
+            style = SpanStyle(
+                fontSize = 27.ssp,
+                fontFamily = getSurahNameFontFamily(surahData.mcsFile),
+                color = MaterialTheme.colorScheme.primary,
+                letterSpacing = if (surahData.id == 101) (-90).ssp else (-10).ssp
             )
-        )
+        ) {
+            append(surahData.mcs)
+            withStyle(
+                style = SpanStyle(fontFamily = mcs0)
+            ) {
+                append("S")
+            }
+        }
     }
-
+    Box(
+        modifier = modifier
+            .height(44.sdp)
+            .paint(
+                painter = painterResource(id = R.drawable.surah_header),
+                contentScale = ContentScale.FillBounds,
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = title)
+    }
 }

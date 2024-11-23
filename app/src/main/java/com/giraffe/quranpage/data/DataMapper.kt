@@ -109,7 +109,7 @@ fun SurahDataModel.toEntity() = SurahDataEntity(
     countOfVerses = aya,
     startPageIndex = startPage,
     endPageIndex = endPage,
-    place = place
+    place = place,
 )
 
 

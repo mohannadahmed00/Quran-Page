@@ -9,4 +9,6 @@ data class SurahDataEntity(
     val place: String,
     val startPageIndex: Int,
     val turkishName: String,
+    val mcs: String = "",
+    val mcsFile: Int = -1,
 )
