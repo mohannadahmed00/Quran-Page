@@ -33,6 +33,7 @@ richtext-ui-material = "1.0.0-alpha01"
 accompanist-systemuicontroller = "0.32.0"
 navigation-compose = "2.8.3"
 material-icons-extended = "1.7.4"
+uiTextGoogleFonts = "1.7.5"
 
 [libraries]
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
@@ -73,6 +74,7 @@ accompanist-systemuicontroller = { group = "com.google.accompanist", name = "acc
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation-compose" }
 material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "material-icons-extended" }
+androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 
 
 

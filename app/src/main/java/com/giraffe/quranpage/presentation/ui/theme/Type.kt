@@ -1,13 +1,24 @@
 package com.giraffe.quranpage.presentation.ui.theme
 
 import androidx.compose.material3.Typography
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.googlefonts.GoogleFont
 import com.giraffe.quranpage.R
 
-val uthmanicHafs = FontFamily(Font(R.font.uthmanic_hafs))
+
+val provider = GoogleFont.Provider(
+    providerAuthority = "com.google.android.gms.fonts",
+    providerPackage = "com.google.android.gms",
+    certificates = R.array.com_google_android_gms_fonts_certs
+)
+val mainFontFamily = FontFamily(
+    Font(
+        googleFont = GoogleFont("Roboto"),
+        fontProvider = provider,
+    )
+)
 val mcs0 = FontFamily(Font(R.font.mcs_0))
 val mcs1 = FontFamily(Font(R.font.mcs_1))
 val mcs2 = FontFamily(Font(R.font.mcs_2))
@@ -619,18 +630,21 @@ val fontFamilies = listOf(
     FontFamily(Font(R.font.qcf2603)),
     FontFamily(Font(R.font.qcf2604))
 )
-
+val baseline = Typography()
 val Typography = Typography(
-    titleMedium = TextStyle(
-        fontFamily = uthmanicHafs,
-        fontSize = 22.sp,
-    ),
-    bodyMedium = TextStyle(
-        fontFamily = uthmanicHafs,
-        fontSize = 16.sp,
-    ),
-    labelMedium = TextStyle(
-        fontFamily = uthmanicHafs,
-        fontSize = 11.sp,
-    )
+    displayLarge = baseline.displayLarge.copy(fontFamily = mainFontFamily),
+    displayMedium = baseline.displayMedium.copy(fontFamily = mainFontFamily),
+    displaySmall = baseline.displaySmall.copy(fontFamily = mainFontFamily),
+    headlineLarge = baseline.headlineLarge.copy(fontFamily = mainFontFamily),
+    headlineMedium = baseline.headlineMedium.copy(fontFamily = mainFontFamily),
+    headlineSmall = baseline.headlineSmall.copy(fontFamily = mainFontFamily),
+    titleLarge = baseline.titleLarge.copy(fontFamily = mainFontFamily),
+    titleMedium = baseline.titleMedium.copy(fontFamily = mainFontFamily),
+    titleSmall = baseline.titleSmall.copy(fontFamily = mainFontFamily),
+    bodyLarge = baseline.bodyLarge.copy(fontFamily = mainFontFamily),
+    bodyMedium = baseline.bodyMedium.copy(fontFamily = mainFontFamily),
+    bodySmall = baseline.bodySmall.copy(fontFamily = mainFontFamily),
+    labelLarge = baseline.labelLarge.copy(fontFamily = mainFontFamily),
+    labelMedium = baseline.labelMedium.copy(fontFamily = mainFontFamily),
+    labelSmall = baseline.labelSmall.copy(fontFamily = mainFontFamily),
 )
