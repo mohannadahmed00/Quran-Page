@@ -1,5 +1,6 @@
 package com.giraffe.quranpage.presentation.ui.composables
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
@@ -10,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -23,13 +25,15 @@ import ir.kaaveh.sdpcompose.ssp
 
 @Composable
 fun SurahHeader(modifier: Modifier = Modifier, surahData: SurahDataEntity) {
+    val configuration = LocalConfiguration.current
+
     val title = buildAnnotatedString {
         withStyle(
             style = SpanStyle(
-                fontSize = 27.ssp,
+                fontSize = if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 55.ssp else 25.ssp,
                 fontFamily = getSurahNameFontFamily(surahData.mcsFile),
                 color = MaterialTheme.colorScheme.primary,
-                letterSpacing = if (surahData.id == 101) (-90).ssp else (-10).ssp
+                letterSpacing = if (surahData.id == 101) (-83).ssp else (-10).ssp
             )
         ) {
             append(surahData.mcs)
@@ -42,7 +46,7 @@ fun SurahHeader(modifier: Modifier = Modifier, surahData: SurahDataEntity) {
     }
     Box(
         modifier = modifier
-            .height(44.sdp)
+            .height(if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 80.sdp else 44.sdp)
             .paint(
                 painter = painterResource(id = R.drawable.surah_header),
                 contentScale = ContentScale.FillBounds,

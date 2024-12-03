@@ -1,5 +1,6 @@
 package com.giraffe.quranpage.presentation.ui.composables
 
+import android.content.res.Configuration
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.intl.Locale
@@ -36,6 +38,7 @@ fun PageContent(
     onVerseSelected: (VerseEntity) -> Unit,
     onPageClick: () -> Unit
 ) {
+    val configuration = LocalConfiguration.current
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
@@ -71,6 +74,24 @@ fun PageContent(
                     )
                 }
             }
+
+            val fontSize = if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                if (content.verses.first().pageIndex == 575 && content.verses.first().surahIndex == 74) 42.ssp else 43.ssp
+            } else {
+                if (content.verses.first().pageIndex == 575 && content.verses.first().surahIndex == 74) 25.sp else 20.ssp
+            }
+
+            val basmFontSize =
+                if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 40.ssp else 20.ssp
+
+            val padding = if (pageUI.pageIndex == 1 || pageUI.pageIndex == 2){
+                if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 65.sdp else 30.sdp
+            }else{
+                0.sdp
+            }
+
+
+
             if (isFirstVerseOfSurahExist) {
                 if (layoutResult?.lineCount != 14 || pageUI.pageIndex == 187) {
                     SurahHeader(surahData = surahesData[content.verses.first().surahIndex - 1])
@@ -79,22 +100,22 @@ fun PageContent(
                     modifier = Modifier.padding(top = 4.sdp),
                     text = "ﱁ‏ﱂﱃﱄ",
                     fontFamily = fontFamilies[0],
-                    fontSize = 20.ssp
+                    fontSize = basmFontSize
                 )
             }
+
+
+
             Text(
-                modifier = contentModifier.padding(
-                    horizontal = if (pageUI.pageIndex == 1 || pageUI.pageIndex == 2) 30.sdp else 0.sdp,
-                    vertical = 4.sdp
-                ),
+                modifier = contentModifier.padding(horizontal = padding),
                 text = content.text,
                 onTextLayout = {
                     layoutResult = it
                 },
                 style = TextStyle(
-                    fontSize = if (content.verses.first().surahIndex == 74) 25.sp else 20.ssp,
+                    fontSize = fontSize,
                     textDirection = TextDirection.Rtl,
-                    lineHeight = 39.ssp,
+                    lineHeight = if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 85.ssp else 39.ssp,
                     localeList = LocaleList(Locale("ar")),
                     textAlign = TextAlign.Center,
                 ),
