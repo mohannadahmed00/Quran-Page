@@ -240,7 +240,7 @@ fun QuranContent(
         }
     }
     LaunchedEffect(isPlayerDialogVisible) {
-        systemUiController.isStatusBarVisible = isPlayerDialogVisible
+        systemUiController.isSystemBarsVisible = isPlayerDialogVisible
     }
     LaunchedEffect(playbackService) {
         playbackService?.let {
@@ -296,7 +296,7 @@ fun QuranContent(
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
-        systemUiController.isStatusBarVisible = isPlayerDialogVisible
+        systemUiController.isSystemBarsVisible = isPlayerDialogVisible
         context.bindService(
             Intent(context, DownloadService::class.java),
             downloadServiceConnection,
