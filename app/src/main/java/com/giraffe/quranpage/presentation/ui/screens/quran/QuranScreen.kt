@@ -159,6 +159,7 @@ fun QuranContent(
     val isPlaying by audioPlayer.isPlaying.collectAsState()
     val isPrepared by audioPlayer.isPrepared.collectAsState()
     val audioPlayerSurahAudioData by audioPlayer.surahAudioData.collectAsState()
+    val audioPlayerReciter by audioPlayer.reciter.collectAsState()
 
 
     //=================================download=================================
@@ -269,15 +270,17 @@ fun QuranContent(
         }
     }
     LaunchedEffect(audioPlayerSurahAudioData) {
-        audioPlayerSurahAudioData?.let { surahAudioData ->
-            audioPlayer.initializePlayer(
-                context = context,
-                surahAudioData = surahAudioData,
-                currentVerse = state.selectedVerseToRead ?: state.firstVerse,
-                surahName = state.surahesData[surahAudioData.surahIndex - 1].englishName,
-                reciterName = state.selectedReciter?.name ?: "",
-            )
-            isPlayerDialogVisible = true
+        if (!isPlaying) {
+            audioPlayerSurahAudioData?.let { surahAudioData ->
+                audioPlayer.initializePlayer(
+                    context = context,
+                    surahAudioData = surahAudioData,
+                    currentVerse = state.selectedVerseToRead ?: state.firstVerse,
+                    surahName = state.surahesData[surahAudioData.surahIndex - 1].englishName,
+                    reciter = state.selectedReciter,
+                )
+                isPlayerDialogVisible = true
+            }
         }
     }
     LaunchedEffect(state.pageIndexToRead) {
@@ -479,7 +482,7 @@ fun QuranContent(
                 AudioPlayerDialog(
                     audioPlayerSurahAudioData = audioPlayerSurahAudioData,
                     isPlaying = isPlaying,
-                    selectedReciter = state.selectedReciter,
+                    selectedReciter = audioPlayerReciter?:state.selectedReciter,
                     surahesData = state.surahesData,
                     firstVerse = state.firstVerse,
                     selectedVerseToRead = state.selectedVerseToRead,
@@ -497,7 +500,9 @@ fun QuranContent(
                     play = { playbackService?.play() },
                     pause = { playbackService?.pause() },
                     seekTo = { playbackService?.seekTo(it) },
-                    release = { playbackService?.release() },
+                    release = {
+                        audioPlayer.clearReciter()
+                        playbackService?.release() },
                 )
             }
         }

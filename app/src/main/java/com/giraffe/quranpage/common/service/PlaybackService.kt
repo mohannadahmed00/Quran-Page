@@ -88,7 +88,7 @@ class PlaybackService : Service() {
             MediaMetadata.Builder()
                 .putString(MediaMetadata.METADATA_KEY_TITLE, audioPlayer.value.surahName.value)
                 .putString(MediaMetadata.METADATA_KEY_ALBUM, "Quran")
-                .putString(MediaMetadata.METADATA_KEY_ARTIST, audioPlayer.value.reciterName.value)
+                .putString(MediaMetadata.METADATA_KEY_ARTIST, audioPlayer.value.reciter.value?.name)
                 .putLong(MediaMetadata.METADATA_KEY_DURATION, audioPlayer.value.getDuration())
                 .build()
         )

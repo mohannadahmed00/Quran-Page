@@ -5,6 +5,7 @@ import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
 import androidx.core.net.toUri
+import com.giraffe.quranpage.domain.entities.ReciterEntity
 import com.giraffe.quranpage.domain.entities.SurahAudioDataEntity
 import com.giraffe.quranpage.domain.entities.VerseEntity
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,21 +29,24 @@ object AudioPlayerManager {
     val isCompleted = _isCompleted.asStateFlow()
     private val _surahName = MutableStateFlow("")
     val surahName = _surahName.asStateFlow()
-    private val _reciterName = MutableStateFlow("")
-    val reciterName = _reciterName.asStateFlow()
+    private val _reciter = MutableStateFlow<ReciterEntity?>(null)
+    val reciter = _reciter.asStateFlow()
 
+    fun clearReciter() {
+        _reciter.value = null
+    }
 
     fun initializePlayer(
         context: Context,
         surahAudioData: SurahAudioDataEntity?,
         currentVerse: VerseEntity?,
         surahName: String,
-        reciterName: String
+        reciter: ReciterEntity?
     ) {
         _currentVerse.value = currentVerse
         _surahAudioData.value = surahAudioData
         _surahName.value = surahName
-        _reciterName.value = reciterName
+        _reciter.value = reciter
         release()
         mediaPlayer = MediaPlayer.create(context, surahAudioData?.audioPath?.toUri())
         mediaPlayer?.setOnPreparedListener {
@@ -101,10 +105,6 @@ object AudioPlayerManager {
         _isPlaying.update { mediaPlayer?.isPlaying ?: false }
     }
 
-    fun clearAudioData() {
-        _surahAudioData.update { null }
-    }
-
     fun seekTo(verseIndex: Int) {
         if (_isPrepared.value) {
             currentPosition = getVerseTime(verseIndex)
@@ -124,6 +124,7 @@ object AudioPlayerManager {
     }
 
     fun setSurahAudioData(surahAudioData: SurahAudioDataEntity?) {
+        release()
         _surahAudioData.value = surahAudioData
     }
 
