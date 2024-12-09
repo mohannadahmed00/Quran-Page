@@ -187,8 +187,6 @@ fun QuranContent(
                             putExtra(URL, url)
                         }
                         context.startForegroundService(intent)
-                        audioPlayer.clearAudioData()
-                        audioPlayer.release()
                     }
                 }
             }
@@ -271,17 +269,15 @@ fun QuranContent(
         }
     }
     LaunchedEffect(audioPlayerSurahAudioData) {
-        if (!isPlaying) {
-            audioPlayerSurahAudioData?.let { surahAudioData ->
-                audioPlayer.initializePlayer(
-                    context = context,
-                    surahAudioData = surahAudioData,
-                    currentVerse = state.selectedVerseToRead ?: state.firstVerse,
-                    surahName = state.surahesData[surahAudioData.surahIndex - 1].englishName,
-                    reciterName = state.selectedReciter?.name ?: "",
-                )
-                isPlayerDialogVisible = true
-            }
+        audioPlayerSurahAudioData?.let { surahAudioData ->
+            audioPlayer.initializePlayer(
+                context = context,
+                surahAudioData = surahAudioData,
+                currentVerse = state.selectedVerseToRead ?: state.firstVerse,
+                surahName = state.surahesData[surahAudioData.surahIndex - 1].englishName,
+                reciterName = state.selectedReciter?.name ?: "",
+            )
+            isPlayerDialogVisible = true
         }
     }
     LaunchedEffect(state.pageIndexToRead) {
