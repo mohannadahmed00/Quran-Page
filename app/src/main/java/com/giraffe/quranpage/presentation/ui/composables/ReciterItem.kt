@@ -73,13 +73,13 @@ fun ReciterItem(
             }
         }
     }
-    val itemModifier = remember {
+    val itemModifier = remember (reciter){
         Modifier
             .fillMaxWidth()
             .clickable {
                 if (isDownloaded) {
                     setReciter(reciter)
-                    setSurahAudioData(surahAudioData!!)
+                    surahAudioData?.let { setSurahAudioData(it) }
                 } else {
                     downloadSurahForReciter(surah.id, reciter, url, reciter.name, surah.englishName)
                 }
