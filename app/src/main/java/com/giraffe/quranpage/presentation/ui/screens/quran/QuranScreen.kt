@@ -110,7 +110,7 @@ fun QuranScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuranContent(
-    state: QuranScreenState = QuranScreenState(),
+    state: QuranScreenState,
     events: QuranEvents,
     navController: NavController,
 ) {
@@ -482,7 +482,7 @@ fun QuranContent(
                 AudioPlayerDialog(
                     audioPlayerSurahAudioData = audioPlayerSurahAudioData,
                     isPlaying = isPlaying,
-                    selectedReciter = audioPlayerReciter?:state.selectedReciter,
+                    selectedReciter = audioPlayerReciter ?: state.selectedReciter,
                     surahesData = state.surahesData,
                     firstVerse = state.firstVerse,
                     selectedVerseToRead = state.selectedVerseToRead,
@@ -502,7 +502,8 @@ fun QuranContent(
                     seekTo = { playbackService?.seekTo(it) },
                     release = {
                         audioPlayer.clearReciter()
-                        playbackService?.release() },
+                        playbackService?.release()
+                    },
                 )
             }
         }

@@ -41,44 +41,70 @@ class QuranViewModel @Inject constructor(
     private val removeBookmarkedVerseUseCase: RemoveBookmarkedVerseUseCase
 ) : ViewModel(), QuranEvents {
     private val _state = MutableStateFlow(QuranScreenState())
+
+    //val state = _state.onStart { getAllPages() }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), QuranScreenState())
     val state = _state.asStateFlow()
 
     init {
-        getAllVerses()
+        getAllPages()
+        getSurahesData()
+        getReciters()
         getBookmarkedVerse()
     }
 
-    private fun getAllVerses() {
+    private fun getAllPages() {
+        viewModelScope.launch(Dispatchers.IO) {
+            getAllPagesUseCase().let { pages ->
+                getLastPageUseCase().let { lastPageIndex ->
+                    pages.map { it.toUi() }.let { pagesUi ->
+                        val firstVerse =
+                            pagesUi[lastPageIndex - 1].contents.firstOrNull()?.verses?.firstOrNull()
+                        _state.update { state ->
+                            state.copy(
+                                lastPageIndex = lastPageIndex,
+
+                                allOriginalPages = pagesUi,
+                                allPages = pagesUi,
+                                firstVerse = firstVerse,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getSurahesData() {
         viewModelScope.launch(Dispatchers.IO) {
             getSurahesDataUseCase().let { surahesData ->
-                getAllPagesUseCase().let { pages ->
-                    getLastPageUseCase().let { lastPageIndex ->
-                        getRecitersUseCase().let { reciters ->
-                            _state.update { state ->
-                                pages.map { it.toUi() }.let { pagesUi ->
-                                    val firstVerse =
-                                        pagesUi[lastPageIndex - 1].contents.firstOrNull()?.verses?.firstOrNull()
-                                    val selectedReciter =
-                                        reciters.firstOrNull { it.surahesAudioData.firstOrNull { s -> s.surahIndex == firstVerse?.surahIndex } != null }
-                                            ?: if (reciters.isNotEmpty()) reciters[0] else null
-                                    state.copy(
-                                        allOriginalPages = pagesUi,
-                                        allPages = pagesUi,
-                                        lastPageIndex = lastPageIndex,
-                                        firstVerse = firstVerse,
-                                        surahesData = surahesData,
-                                        surahesByJuz = surahesData.groupBy { surah ->
-                                            getJuzOfPageIndex(
-                                                surah.startPageIndex
-                                            )
-                                        },
-                                        reciters = reciters,
-                                        selectedReciter = selectedReciter
-                                    )
-                                }
-                            }
+                _state.update { state ->
+                    state.copy(
+                        surahesData = surahesData,
+                        surahesByJuz = surahesData.groupBy { surah ->
+                            getJuzOfPageIndex(
+                                surah.startPageIndex
+                            )
                         }
+                    )
+                }
+            }
+        }
+    }
 
+    private fun getReciters() {
+        viewModelScope.launch(Dispatchers.IO) {
+            getRecitersUseCase().let { reciters ->
+                getLastPageUseCase().let { lastPageIndex ->
+                    val firstVerse =
+                        _state.value.allPages[lastPageIndex - 1].contents.firstOrNull()?.verses?.firstOrNull()
+                    val selectedReciter =
+                        reciters.firstOrNull { it.surahesAudioData.firstOrNull { s -> s.surahIndex == firstVerse?.surahIndex } != null }
+                            ?: if (reciters.isNotEmpty()) reciters[0] else null
+                    _state.update { state ->
+                        state.copy(
+                            reciters = reciters,
+                            selectedReciter = selectedReciter
+                        )
                     }
                 }
             }
@@ -145,11 +171,10 @@ class QuranViewModel @Inject constructor(
 
     override fun saveLastPageIndex() {
         viewModelScope.launch(Dispatchers.IO) {
-            (_state.value.firstVerse?.pageIndex ?: 0).let { lastPageIndex->
+            (_state.value.firstVerse?.pageIndex ?: 0).let { lastPageIndex ->
                 _state.update { it.copy(lastPageIndex = lastPageIndex) }
                 saveLastPageUseCase(lastPageIndex)
             }
-
         }
     }
 
