@@ -29,7 +29,7 @@ data class QuranScreenState(
     val isRecentDownloaded: Boolean = false,
     val recentUrl: String? = null,
     val recentSurahToDownload: SurahDataEntity? = null,
-    val lastPageIndex: Int = 0,
+    val lastPageIndex: Int? = null,
     val bookmarkedVerse: VerseEntity? = null,
     val highlightedVerse: VerseEntity? = null,
 )

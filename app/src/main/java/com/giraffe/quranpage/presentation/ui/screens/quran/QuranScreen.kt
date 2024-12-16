@@ -102,7 +102,12 @@ fun QuranScreen(
     navController: NavController,
 ) {
     val state by viewModel.state.collectAsState()
-    QuranContent(state, viewModel, navController)
+    state.lastPageIndex?.let { lastPageIndex ->
+        QuranContent(
+            lastPageIndex,
+            state, viewModel, navController
+        )
+    }
 
 }
 
@@ -110,6 +115,7 @@ fun QuranScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuranContent(
+    lastPageIndex: Int,
     state: QuranScreenState,
     events: QuranEvents,
     navController: NavController,
@@ -118,7 +124,7 @@ fun QuranContent(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val pagerState = rememberPagerState(
-        initialPage = state.lastPageIndex - 1,
+        initialPage = lastPageIndex - 1,
         pageCount = { state.allPages.size })
     val scope = rememberCoroutineScope()
     val systemUiController = rememberSystemUiController()
@@ -231,7 +237,7 @@ fun QuranContent(
                 events.unhighlightVerse()
             }
             args.clear()
-        } ?: pagerState.scrollToPage(state.lastPageIndex - 1)
+        }
     }
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }.collect { pageIndex ->

@@ -9,7 +9,7 @@ interface LocalDataSource {
     suspend fun getBookmarkedVerse(): VerseModel?
     suspend fun removeBookmarkedVerse()
     suspend fun saveLastPageIndex(pageIndex: Int)
-    suspend fun getLastPageIndex(): Int
+    suspend fun getLastPageIndex(): Int?
     fun storeReciter(reciterModel: ReciterModel): Long
     fun getAllReciters(): List<ReciterModel>
     fun getReciter(reciterId: Int): ReciterModel

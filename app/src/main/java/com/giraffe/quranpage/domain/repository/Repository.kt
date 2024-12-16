@@ -13,7 +13,7 @@ interface Repository {
     suspend fun getBookmarkedVerse(): VerseEntity?
     suspend fun removeBookmarkedVerse()
     suspend fun saveLastPageIndex(pageIndex: Int)
-    suspend fun getLastPageIndex(): Int
+    suspend fun getLastPageIndex(): Int?
     fun getAllVerses(): List<VerseEntity>
     fun getSurahesData(): List<SurahDataEntity>
     suspend fun getTafseer(verse: VerseEntity): Resource<TafseerEntity, NetworkError>

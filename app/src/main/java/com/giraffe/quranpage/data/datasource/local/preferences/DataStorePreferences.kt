@@ -66,7 +66,7 @@ class DataStorePreferences(private val context: Context) {
     }
 
     suspend fun readInt(key: String) = context.dataStore.data.map { preferences ->
-        preferences[intPreferencesKey(key)] ?: 0
+        preferences[intPreferencesKey(key)]
     }.first()
 
     suspend fun readDouble(key: String) = context.dataStore.data.map { preferences ->

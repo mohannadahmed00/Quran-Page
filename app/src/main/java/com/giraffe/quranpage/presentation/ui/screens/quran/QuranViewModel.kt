@@ -57,15 +57,12 @@ class QuranViewModel @Inject constructor(
             getAllPagesUseCase().let { pages ->
                 getLastPageUseCase().let { lastPageIndex ->
                     pages.map { it.toUi() }.let { pagesUi ->
-                        val firstVerse =
-                            pagesUi[lastPageIndex - 1].contents.firstOrNull()?.verses?.firstOrNull()
                         _state.update { state ->
                             state.copy(
                                 lastPageIndex = lastPageIndex,
-
                                 allOriginalPages = pagesUi,
                                 allPages = pagesUi,
-                                firstVerse = firstVerse,
+                                firstVerse = pagesUi[lastPageIndex - 1].contents.firstOrNull()?.verses?.firstOrNull(),
                             )
                         }
                     }
